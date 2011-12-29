@@ -1,0 +1,39 @@
+WORKING IN PROGRESS!
+
+'With my brains and your looks, we could go places' - Frank Chambers, The postman rings always twice
+
+LibPostman (Rings Twice) for Android is a library intended to make easier to interact and fetch data with a remote server.
+
+It's basic architecture takes inspiration from Virgil Dobjanschi's talk at Google IO 2010, and it is being developed
+after the experience I had interacting with a rest service during the development of MyDearSanta app.
+
+
+The architecture is intended to be as follows:
+
+A singleton service helper class allows to send messages to an intent service. These messages are converted in intents and
+deconverted on the intentservice.
+
+A servercommand performs its execute() method, and notifies the helper that its work is finished through a broadcast message.
+
+Any activity interested in command results can register as listener to the service helper. 
+
+
+How to use the library:
+Classes to extend:
+
+- ServerCommand:
+fillIntent & fromIntent method must provide the serialization in order to pass the command to the intentservice
+execute is the method that performs the real call. At the moment it must be filled from scratch, soon I'll provide some
+examples like a RestInteractionCommand
+
+- CommandFactory:
+must be extended in order to provided the ServerCommand defined above
+
+
+How to use ServiceHelper:
+
+It must be inited (once) with the CommandFactory. I suggest to do it in the onCreate method of the Application.
+
+Every activity can use it to send commands and listen for the results.
+
+This README file will be extended soon with examples as well. 
