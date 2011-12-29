@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
-import com.smokingbytes.postman.utils.Constants;
+import com.whiterabbit.postman.utils.Constants;
 
 public class ServerInteractionHelper {
 	BroadcastReceiver mReceiver;

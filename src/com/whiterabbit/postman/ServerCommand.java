@@ -1,6 +1,6 @@
 package com.whiterabbit.postman;
 
-import com.smokingbytes.postman.utils.Constants;
+import com.whiterabbit.postman.utils.Constants;
 
 import android.content.Context;
 import android.content.Intent;
