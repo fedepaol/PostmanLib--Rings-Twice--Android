@@ -4,7 +4,7 @@ WORKING IN PROGRESS!
 
 LibPostman (Rings Twice) for Android is a library intended to make easier to interact and fetch data with a remote server.
 
-It's basic architecture takes inspiration from Virgil Dobjanschi's talk at Google IO 2010, and it is being developed
+Its basic architecture takes inspiration from Virgil Dobjanschi's talk at Google IO 2010, and it is being developed
 after the experience I had interacting with a rest service during the development of MyDearSanta app.
 
 
