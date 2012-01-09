@@ -1,7 +1,9 @@
 package com.whiterabbit.postman;
 
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,14 +20,14 @@ public class ServerInteractionHelper {
 	CommandFactory				  		mFactory;
     IntentFilter                  		mFilter;
     IntentFilter                  		mErrorFilter;
-    private HashMap<String, Boolean>	mPendingRequests;
+    private Map<String, Boolean>	mPendingRequests;
 	
 	
 	
 	
 	private ServerInteractionHelper(){
 		mReceiver = new ServiceResultReceiver();
-		mPendingRequests = new HashMap<String, Boolean>();
+		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
 	}
 	
 	/**
