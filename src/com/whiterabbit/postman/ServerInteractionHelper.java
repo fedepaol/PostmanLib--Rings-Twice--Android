@@ -1,6 +1,8 @@
 package com.whiterabbit.postman;
 
 
+import java.util.HashMap;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,17 +15,17 @@ public class ServerInteractionHelper {
 	BroadcastReceiver mReceiver;
 	private static ServerInteractionHelper mInstance;
 	ServerInteractionResponseInterface mListener;
-	CommandFactory				  mFactory;
-    IntentFilter                  mFilter;
-    IntentFilter                  mErrorFilter;
-    private boolean               mSendingMessage;
+	CommandFactory				  		mFactory;
+    IntentFilter                  		mFilter;
+    IntentFilter                  		mErrorFilter;
+    private HashMap<String, Boolean>	mPendingRequests;
 	
 	
 	
 	
 	private ServerInteractionHelper(){
 		mReceiver = new ServiceResultReceiver();
-		mSendingMessage = false;
+		mPendingRequests = new HashMap<String, Boolean>();
 	}
 	
 	/**
@@ -94,7 +96,6 @@ public class ServerInteractionHelper {
         c.unregisterReceiver(mReceiver);
     }
 
-    // TODO Magari con una map si pu˜ evitare una richiesta per volta
     /**
      * Tells if the request is already in progress
      *
@@ -102,7 +103,12 @@ public class ServerInteractionHelper {
      * @return
      */
     private boolean isRequestAlreadyPending(String requestId) {
-        return mSendingMessage;
+    	Boolean pending = mPendingRequests.get(requestId);
+    	if(pending == null){
+    		return false;
+    	}else{
+    		return pending;
+    	}
     }
 
     /**
@@ -111,7 +117,7 @@ public class ServerInteractionHelper {
      * @param requestId
      */
     private void setRequestPending(String requestId) {
-        mSendingMessage = true;
+    	mPendingRequests.put(requestId, true);
     }
 
     /**
@@ -120,7 +126,7 @@ public class ServerInteractionHelper {
      * @param requestId
      */
     private void requestDone(String requestId) {
-        mSendingMessage = false;
+    	mPendingRequests.remove(requestId);
     }
     
     
