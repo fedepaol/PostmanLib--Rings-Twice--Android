@@ -4,7 +4,7 @@ WORKING IN PROGRESS!
 
 LibPostman (Rings Twice) for Android is a library intended to make easier to interact and fetch data with a remote server.
 
-Its basic architecture takes inspiration from Virgil Dobjanschi's talk at Google IO 2010, and it is being developed
+Its basic architecture is barely inspired by Virgil Dobjanschi's talk at Google IO 2010, and it is being developed
 after the experience I had interacting with a rest service during the development of MyDearSanta app.
 
 
@@ -14,6 +14,8 @@ A singleton service helper class allows to send messages to an intent service. T
 deconverted on the intentservice.
 
 A servercommand performs its execute() method, and notifies the helper that its work is finished through a broadcast message.
+The result of the call must be processed into the execute method (such as storing the data returned by a get into the sqlite storage). 
+The activity gets notified that some underlying data was changed. All it has to do is to reload the data.
 
 Any activity interested in command results can register as listener to the service helper. 
 
@@ -28,7 +30,12 @@ examples like a RestInteractionCommand
 
 
 - RestServerCommand is a specialitazion of ServerCommand, intended to be used for interacting with a rest web service. 
-The kind of action must be provided to the command
+The kind of action to be performed against the webserver must be provided to the command. 
+Authentication can be provided (the class exports a static helper method for basic http authentication). It should be easy to 
+interact with any kind of webservice
+
+- JsonRestServerCommand simply adds JSON encoding parameter to the call header. 
+
 
 - CommandFactory:
 must be extended in order to provided the ServerCommand defined above
