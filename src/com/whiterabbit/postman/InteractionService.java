@@ -1,6 +1,9 @@
 
 package com.whiterabbit.postman;
 
+import com.whiterabbit.postman.commands.CommandFactory;
+import com.whiterabbit.postman.commands.ServerCommand;
+
 import android.app.IntentService;
 import android.content.Intent;
 
