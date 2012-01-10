@@ -26,6 +26,10 @@ fillIntent & fromIntent method must provide the serialization in order to pass t
 execute is the method that performs the real call. At the moment it must be filled from scratch, soon I'll provide some
 examples like a RestInteractionCommand
 
+
+- RestServerCommand is a specialitazion of ServerCommand, intended to be used for interacting with a rest web service. 
+The kind of action must be provided to the command
+
 - CommandFactory:
 must be extended in order to provided the ServerCommand defined above
 

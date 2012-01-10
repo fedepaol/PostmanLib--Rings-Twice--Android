@@ -23,6 +23,7 @@ public class InteractionService extends IntentService {
     protected void onHandleIntent(Intent intent) {
     	CommandFactory f = ServerInteractionHelper.getInstance().getCommandFactory();
     	ServerCommand c = f.createCommand();
+    	c.fillFromIntent(intent);
     	c.execute(this);
     }
 
