@@ -67,7 +67,7 @@ public abstract class ServerCommand {
 	 * @param c
 	 */
 	void notifyError(String message,  Context c) {
-        Intent intent = new Intent(Constants.SERVER_ERROR_ID);
+        Intent intent = new Intent(Constants.SERVER_ERROR);
         intent.putExtra(Constants.MESSAGE_ID, message);
         intent.putExtra(Constants.REQUEST_ID, mRequestId);
         c.sendBroadcast(intent);

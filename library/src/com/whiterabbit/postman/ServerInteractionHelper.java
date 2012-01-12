@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
+import com.smokingbytes.santas.data.WhishCommand;
 import com.whiterabbit.postman.commands.CommandFactory;
 import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.utils.Constants;
@@ -30,6 +31,8 @@ public class ServerInteractionHelper {
 	private ServerInteractionHelper(){
 		mReceiver = new ServiceResultReceiver();
 		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
+		mFilter = new IntentFilter(Constants.SERVER_RESULT);
+		mErrorFilter = new IntentFilter(Constants.SERVER_ERROR);
 	}
 	
 	/**
@@ -65,7 +68,7 @@ public class ServerInteractionHelper {
                 }
                 requestDone(requestId);
             }
-            if (action.equals(Constants.SERVER_ERROR_ID)) {
+            if (action.equals(Constants.SERVER_ERROR)) {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
