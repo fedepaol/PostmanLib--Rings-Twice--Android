@@ -40,5 +40,13 @@ public class TestServerCommand extends ServerCommand {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public void notifyResultToAll(String res, Context c){
+		notifyResult(res, c);
+	}
+	
+	public void notifyErrorToAll(String res, Context c){
+		notifyError(res, c);
+	}
 
 }

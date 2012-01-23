@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
-import com.smokingbytes.santas.data.WhishCommand;
 import com.whiterabbit.postman.commands.CommandFactory;
 import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.utils.Constants;
@@ -42,7 +41,8 @@ public class ServerInteractionHelper {
      */
     static public synchronized ServerInteractionHelper getInstance() {
         if (mInstance == null) {
-            return new ServerInteractionHelper();
+            mInstance = new ServerInteractionHelper();
+            return mInstance;
         } else {
             return mInstance;
         }
