@@ -9,10 +9,28 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import com.whiterabbit.postman.commands.CommandFactory;
+import com.whiterabbit.postman.commands.ServerCommand;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
 public class IntentServiceTest {
+	public class MyTestCommandFactory extends CommandFactory {
+
+		@Override
+		public ServerCommand createCommand() {
+			return new MyCommand();
+		}
+
+		@Override
+		public ServerCommand createCommand(Intent i) {
+			MyCommand c = new MyCommand();
+			c.fillFromIntent(i);
+			return c;
+		}
+
+	}
+	
 	private class MyService extends InteractionService {
 		public void onHandleIntentPub(Intent i){
 			onHandleIntent(i);
@@ -22,6 +40,10 @@ public class IntentServiceTest {
 	private class MyCommand extends TestServerCommand{
 		public MyCommand(String desc, Long code){
 			super(desc, code);
+		}
+		
+		public MyCommand(){
+			super();
 		}
 
 		@Override
@@ -52,10 +74,10 @@ public class IntentServiceTest {
 
     @Test
     public void testService() throws Exception {
-    	ServerInteractionHelper h = ServerInteractionHelper.initWithCommandFactory(new TestCommandFactory());
+    	ServerInteractionHelper h = ServerInteractionHelper.initWithCommandFactory(new MyTestCommandFactory());
     	mCommand.setRequestId(mReqId);
     	Intent i = new Intent();
-    	mCommand.fillIntent(i);
+    	mCommand.putToIntent(i);
     	mService.onHandleIntentPub(i);
     }
     

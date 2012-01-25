@@ -70,6 +70,10 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 		mAction = a;
 	}
 	
+	public RestServerCommand(){
+		
+	}
+	
 	@Override
 	public void putToIntent(Intent i){
 		i.putExtra(Constants.ACTION, mAction.toString());
@@ -88,27 +92,27 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 	 * implement this call to set the http request header and entity
 	 * @param call
 	 */
-	abstract void setCallPayload(HttpEntityEnclosingRequestBase call);
+	protected abstract void setCallPayload(HttpEntityEnclosingRequestBase call);
 
 	/**
 	 * Need to be implemented in order to return the url to be called depending on this object and the given action
 	 * @param a
 	 * @return
 	 */
-	abstract String getUrl(Action a);
+	protected abstract String getUrl(Action a);
 	
 	/**
 	 * To be implemented to process the result of the http call
 	 * @param result
 	 */
-	abstract void processHttpResult(String result);
+	protected abstract void processHttpResult(String result);
 	
 	
 	/**
 	 * To be implemented to set authentication if needed 
 	 * @param req
 	 */
-	abstract void authenticate(HttpRequestBase req);
+	protected abstract void authenticate(HttpRequestBase req);
 	
 	
 	/**

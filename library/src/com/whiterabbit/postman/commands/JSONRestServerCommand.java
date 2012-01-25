@@ -16,6 +16,7 @@ public abstract class JSONRestServerCommand extends RestServerCommand {
 	abstract void processJSONResult(String result);
 	
 	@Override
+	protected
 	void setCallPayload(HttpEntityEnclosingRequestBase call) {
 		StringEntity se;
 		try {
@@ -31,6 +32,7 @@ public abstract class JSONRestServerCommand extends RestServerCommand {
 
 
 	@Override
+	protected
 	void processHttpResult(String result) {
 		processJSONResult(result);
 	}
