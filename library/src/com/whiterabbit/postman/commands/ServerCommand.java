@@ -30,6 +30,25 @@ public abstract class ServerCommand {
 		return mRequestId;
 	}
 	
+	/**
+	 * Static method to be used to retrieve the message type 
+	 * from an intent that contains it
+	 * @param i
+	 * @return
+	 */
+	public static String getTypeFromFilledIntent(Intent i){
+		return i.getExtras().getString(Constants.MESSAGE_TYPE);
+	}
+	
+	
+	/**
+	 * Returns the type of the command to be used in CommandFactory to
+	 * create the right command
+	 * @return
+	 */
+	public String getType(){
+		return getClass().getSimpleName();
+	}
 	
 	/** 
 	 * Prepares the intent to be serialized 
@@ -37,6 +56,7 @@ public abstract class ServerCommand {
 	 */
 	public void putToIntent(Intent i){
 		i.putExtra(Constants.REQUEST_ID, getRequestId());
+		i.putExtra(Constants.MESSAGE_TYPE, getType());
 		fillIntent(i);
 	}
 	
@@ -72,4 +92,17 @@ public abstract class ServerCommand {
         intent.putExtra(Constants.REQUEST_ID, mRequestId);
         c.sendBroadcast(intent);
     }
+	
+	/**
+	 * To be used in any case the application was not able to build a proper message
+	 * @param message
+	 * @param c
+	 */
+	public static void notifyUnrecoverableError(Intent i, String message, Context c){
+		Intent intent = new Intent(Constants.SERVER_ERROR);
+        intent.putExtra(Constants.MESSAGE_ID, message);
+		String reqID = i.getExtras().getString(Constants.REQUEST_ID);
+        intent.putExtra(Constants.REQUEST_ID, reqID);
+        c.sendBroadcast(intent);
+	}
 }

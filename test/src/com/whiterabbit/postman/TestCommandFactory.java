@@ -1,20 +1,16 @@
 package com.whiterabbit.postman;
 
-import android.content.Intent;
-
 import com.whiterabbit.postman.commands.CommandFactory;
 import com.whiterabbit.postman.commands.ServerCommand;
 
 public class TestCommandFactory extends CommandFactory {
 
 	@Override
-	public ServerCommand createCommand() {
-		return new TestServerCommand();
-	}
-
-	@Override
-	public ServerCommand createCommand(Intent i) {
-		// TODO Auto-generated method stub
+	public ServerCommand createCommand(String name) {
+		if(name.equals(TestServerCommand.class.getSimpleName())){
+			ServerCommand res = new  TestServerCommand();
+			return res;
+		}
 		return null;
 	}
 

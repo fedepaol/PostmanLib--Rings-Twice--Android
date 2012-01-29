@@ -33,14 +33,15 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import com.whiterabbit.postman.utils.Constants;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.format.DateUtils;
+import android.util.Log;
+
+import com.whiterabbit.postman.utils.Constants;
 
 
 /**
@@ -82,9 +83,9 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 	
 	@Override
 	public void fillFromIntent(Intent i){
-		Action a = (Action) i.getExtras().getSerializable(Constants.ACTION);
+		Action a = Action.valueOf(i.getExtras().getString(Constants.ACTION));
 		mAction = a;
-		super.putToIntent(i);
+		super.fillFromIntent(i);
 	}
 	
 	
@@ -103,9 +104,11 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 	
 	/**
 	 * To be implemented to process the result of the http call
+	 * throw ResultParseException to notify the caller that result parsing failed
 	 * @param result
+	 * @param context 
 	 */
-	protected abstract void processHttpResult(String result);
+	protected abstract void processHttpResult(String result, Context context) throws ResultParseException;
 	
 	
 	/**
@@ -189,7 +192,7 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 				case 200:
 					res = EntityUtils.toString(response.getEntity());
 					if(res != null){
-						processHttpResult(res);
+						processHttpResult(res, mContext);
 					}
 					notifyResult("Ok",  mContext);
 				break;
@@ -205,9 +208,9 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 				default:
 					notifyError("Generic error " + statusCode,  mContext);
 			}
-		}catch(Exception e){
-			notifyError("Generic error " + e.getMessage(), mContext);
-			
+		}catch(ResultParseException e){
+			notifyError("Failed to parse result " + e.getMessage(), mContext);
+			Log.e(Constants.LOG_TAG, "Result parse failed: " + res);
 		}
 		
 		return res;

@@ -2,6 +2,7 @@ package com.whiterabbit.postman;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
 import com.whiterabbit.postman.commands.CommandFactory;
@@ -31,14 +33,8 @@ public class RestCommandTest {
 	private class MyRestFactory extends CommandFactory{
 
 		@Override
-		public ServerCommand createCommand() {
-			return new MyRestCommand();
-		}
-
-		@Override
-		public ServerCommand createCommand(Intent i) {
+		public ServerCommand createCommand(String type) {
 			MyRestCommand c = new MyRestCommand();
-			c.fillFromIntent(i);
 			return c;
 		}
 		
@@ -73,8 +69,9 @@ public class RestCommandTest {
 		}
 
 		@Override
-		protected void processHttpResult(String result) {
-			assertEquals(result, "OK");	
+		protected void processHttpResult(String result, Context c) {
+			assertEquals(result, "OK");
+			assertEquals(c, mContext);
 		}
 
 		@Override
@@ -115,8 +112,34 @@ public class RestCommandTest {
     	
     	Robolectric.addPendingHttpResponse(200, "OK");
     	mCommand.execute(mContext);
-    	
-
     }
+    
+    @Test
+    public void testHelperExecute() throws Exception {
+    	CommandFactory c = new TestCommandFactory();
+    	ServerInteractionHelper h = ServerInteractionHelper.initWithCommandFactory(c);
+    	ServerInteractionResponseInterface i = new ServerInteractionResponseInterface(){
+
+			@Override
+			public void onServerResult(String result, String requestId) {
+				assertEquals(requestId, mReqId);
+			}
+
+			@Override
+			public void onServerError(String result, String requestId) {
+				fail();
+			}    		
+    	};
+    	
+    	h.registerEventListener(i , mContext);
+    	
+    	Robolectric.addPendingHttpResponse(200, "OK");
+    	
+    	
+    	// should be sending command to the intent service
+    	mCommand.execute(mContext);
+    	h.unregisterEventListener(i, mContext);
+    }
+    
     
 }

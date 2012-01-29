@@ -3,5 +3,5 @@
 
     <string name="hello">Hello World!</string>
     <string name="app_name">ServerInteraction</string>
-
+	<string name="unable_to_convert">Unable to convert server message</string>
 </resources>

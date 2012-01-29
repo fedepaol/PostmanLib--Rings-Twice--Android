@@ -8,6 +8,7 @@ import com.whiterabbit.postman.commands.ServerCommand;
 public class TestServerCommand extends ServerCommand {
 	static private String STRING_KEY = "String";
 	static private String LONG_KEY = "Long";
+	public static final String TYPE = "TestServerCommand";
 	
 	private String mTestString;
 	private Long mTestLong;

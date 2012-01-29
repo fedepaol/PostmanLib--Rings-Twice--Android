@@ -13,9 +13,11 @@ The architecture is intended to be as follows:
 A singleton service helper class allows to send messages to an intent service. These messages are converted in intents and
 deconverted on the intentservice.
 
-A servercommand performs its execute() method, and notifies the helper that its work is finished through a broadcast message.
+A servercommand performs its execute() method, ideally stores the results somewhere and then notifies the helper that its work is finished through a broadcast message.
 The result of the call must be processed into the execute method (such as storing the data returned by a get into the sqlite storage). 
-The activity gets notified that some underlying data was changed. All it has to do is to reload the data.
+The activity gets notified that some underlying data was changed. All it has to do is to refresh the data.
+
+Any request is associated to a request id. If a request of the same kind is already pending, another request cannot be performed.
 
 Any activity interested in command results can register as listener to the service helper. 
 
@@ -29,7 +31,7 @@ execute is the method that performs the real call. At the moment it must be fill
 examples like a RestInteractionCommand
 
 
-- RestServerCommand is a specialitazion of ServerCommand, intended to be used for interacting with a rest web service. 
+- RestServerCommand is a specialized version of ServerCommand, intended to be used for interacting with a rest web service. 
 The kind of action to be performed against the webserver must be provided to the command. 
 Authentication can be provided (the class exports a static helper method for basic http authentication). It should be easy to 
 interact with any kind of webservice
@@ -47,4 +49,21 @@ It must be inited (once) with the CommandFactory. I suggest to do it in the onCr
 
 Every activity can use it to send commands and listen for the results.
 
-This README file will be extended soon with examples as well. 
+The application that uses PostManLib must add the following to its manifest:
+
+  <uses-permission
+        android:name="android.permission.INTERNET" />
+outside application tag
+
+and 
+       <service
+			android:enabled="true"
+			android:name="com.whiterabbit.postman.InteractionService" />    
+
+inside the application tag
+
+
+TO BE ADDED:
+OAuth authentication
+Instantiate a pool of intent service to perform concurrent activities (remembering that we are still on a phone os after all)
+

@@ -109,7 +109,7 @@ public class ServerInteractionHelper {
      * @param requestId
      * @return
      */
-    private boolean isRequestAlreadyPending(String requestId) {
+    public boolean isRequestAlreadyPending(String requestId) {
     	Boolean pending = mPendingRequests.get(requestId);
     	if(pending == null){
     		return false;

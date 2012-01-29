@@ -18,15 +18,12 @@ public class IntentServiceTest {
 	public class MyTestCommandFactory extends CommandFactory {
 
 		@Override
-		public ServerCommand createCommand() {
-			return new MyCommand();
-		}
-
-		@Override
-		public ServerCommand createCommand(Intent i) {
-			MyCommand c = new MyCommand();
-			c.fillFromIntent(i);
-			return c;
+		public ServerCommand createCommand(String name) {
+			if(name.equals(MyCommand.class.getSimpleName())){
+				MyCommand c = new MyCommand();
+				return c;
+			}
+			return null;
 		}
 
 	}
