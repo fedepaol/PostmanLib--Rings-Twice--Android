@@ -1,27 +1,19 @@
 package com.whiterabbit.postman.commands;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.UnknownHostException;
-import java.util.zip.GZIPInputStream;
-
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.format.DateUtils;
+import android.util.Log;
+import com.whiterabbit.postman.utils.Constants;
+import org.apache.http.*;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.auth.BasicScheme;
@@ -33,15 +25,10 @@ import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.text.format.DateUtils;
-import android.util.Log;
-
-import com.whiterabbit.postman.utils.Constants;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.UnknownHostException;
+import java.util.zip.GZIPInputStream;
 
 
 /**
@@ -132,13 +119,14 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 					  "UTF-8", false));
 		
 	}
-	
-	
+
+
 	/**
 	 * The real execution of the command. Performs the basic rest interaction
 	 */
 	@Override
 	public void execute(Context c) {
+
 		mContext = c;
 		HttpClient client= getHttpClient(c);
 		try{
@@ -153,9 +141,9 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 			authenticate(httpCall);
 			String responseBody=client.execute(httpCall, this);
 		} catch (HttpHostConnectException e){
-			notifyResult("Host not found", c);
+			notifyError("Host not found", c);
 		} catch(UnknownHostException e){
-			notifyResult("Network error", c);
+			notifyError("Network error", c);
 		}
 		catch (Exception e){
 			 e.printStackTrace();

@@ -1,15 +1,13 @@
 package com.whiterabbit.postman.commands;
 
-import java.io.UnsupportedEncodingException;
-
+import android.content.Context;
+import android.util.Log;
+import com.whiterabbit.postman.utils.Constants;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
 
-import android.content.Context;
-import android.util.Log;
-
-import com.whiterabbit.postman.utils.Constants;
+import java.io.UnsupportedEncodingException;
 
 public abstract class JSONRestServerCommand extends RestServerCommand {
 
@@ -42,8 +40,10 @@ public abstract class JSONRestServerCommand extends RestServerCommand {
 	void setCallPayload(HttpEntityEnclosingRequestBase call) {
 		StringEntity se;
 		try {
-			se = new StringEntity(getJSONPayload(), "UTF-8");
-			call.setEntity(se);
+            if(getJSONPayload() != null){
+			    se = new StringEntity(getJSONPayload(), "UTF-8");
+			    call.setEntity(se);
+            }
 		} catch (UnsupportedEncodingException e) {
 			this.notifyError(e.getMessage(), getContext());
 		}
