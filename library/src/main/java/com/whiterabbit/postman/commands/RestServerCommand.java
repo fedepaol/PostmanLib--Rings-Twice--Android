@@ -2,33 +2,17 @@ package com.whiterabbit.postman.commands;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.text.format.DateUtils;
 import android.util.Log;
 import com.whiterabbit.postman.utils.Constants;
-import org.apache.http.*;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.*;
-import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.entity.HttpEntityWrapper;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.UnknownHostException;
-import java.util.zip.GZIPInputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 
 /**
@@ -36,7 +20,11 @@ import java.util.zip.GZIPInputStream;
  * @author fede
  *
  */
-public abstract class RestServerCommand extends ServerCommand  implements ResponseHandler<String>{
+public abstract class RestServerCommand extends ServerCommand  {
+
+    public static final int BUFFER_SIZE = 1024;
+    private char[] mInputBuffer = new char[BUFFER_SIZE];
+    private StringBuilder mStringBuilder = new StringBuilder(BUFFER_SIZE);
 	
 	public enum Action {
         GET, CREATE, UPDATE, DELETE 
@@ -46,26 +34,37 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 		RESULT_OK, RESULT_NETWORK_ERROR, RESULT_INVALID_PERMISSION, RESULT_DATA_NOT_FOUND, RESULT_GENERIC_ERROR
 	}
 	
-	private static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
-	private static final String ENCODING_GZIP = "gzip";
-	private static final int SECOND_IN_MILLIS = (int) DateUtils.SECOND_IN_MILLIS;
-	
+
 	private Action mAction;
-	private Context mContext;
-	
-	
-	public RestServerCommand(Action a){
-		mAction = a;
-	}
-	
-	public RestServerCommand(){
-		
-	}
+
+	abstract protected Action getAction();
+
+    // TODO Get Action
+
+    /**
+     * Reads the buffered stream. The loop is needed because of gzip compression
+     * @param stream
+     * @return
+     * @throws IOException
+     */
+    private String readStream(InputStream stream) throws IOException{
+        try {
+            InputStreamReader reader = new InputStreamReader(stream);
+            int charsRead;
+            while((charsRead = reader.read(mInputBuffer)) != -1){
+                mStringBuilder.append(mInputBuffer, 0, charsRead);
+            }
+        }finally {
+            stream.close();
+        }
+
+        return mStringBuilder.toString();
+    }
 	
 	@Override
-	public void putToIntent(Intent i){
+	public void fillIntent(Intent i){
 		i.putExtra(Constants.ACTION, mAction.toString());
-		super.putToIntent(i);
+		super.fillIntent(i);
 	}
 	
 	@Override
@@ -76,12 +75,6 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 	}
 	
 	
-	/**
-	 * implement this call to set the http request header and entity
-	 * @param call
-	 */
-	protected abstract void setCallPayload(HttpEntityEnclosingRequestBase call);
-
 	/**
 	 * Need to be implemented in order to return the url to be called depending on this object and the given action
 	 * @param a
@@ -96,15 +89,20 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 	 * @param context 
 	 */
 	protected abstract void processHttpResult(String result, Context context) throws ResultParseException;
-	
-	
-	/**
-	 * To be implemented to set authentication if needed 
-	 * @param req
-	 */
-	protected abstract void authenticate(HttpRequestBase req);
-	
-	
+
+
+    /**
+     * Returns a list of params to be passed to the post / put call
+     * @return
+     */
+    protected abstract String[] getParams();
+
+    /**
+     * Must return an array of values related to the params returned by getParams
+     * @return
+     */
+    protected abstract String[] getValues();
+
 	/**
 	 * Helper function to force basic authentication on the request using the given
 	 * user / password
@@ -120,6 +118,28 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 		
 	}
 
+    private String getQuery(){
+        String charset = "UTF-8";
+        String[] params = getParams();
+        String[] values = getValues();
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < params.length; i++ ){
+            try {
+                if(i > 0 ){
+                    builder.append("&");
+                }
+                builder.append(java.lang.String.format("%s=%s", params[i],
+                        URLEncoder.encode(values[i], charset)  ));
+
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return builder.toString();
+    }
 
 	/**
 	 * The real execution of the command. Performs the basic rest interaction
@@ -127,164 +147,85 @@ public abstract class RestServerCommand extends ServerCommand  implements Respon
 	@Override
 	public void execute(Context c) {
 
-		mContext = c;
-		HttpClient client= getHttpClient(c);
-		try{
-			String url= getUrl(mAction);
-			HttpRequestBase httpCall = getRequest(url);
-			
-			if(mAction == Action.CREATE || mAction == Action.UPDATE){
-				HttpEntityEnclosingRequestBase casted = (HttpEntityEnclosingRequestBase) httpCall;
-				setCallPayload(casted);
-			}
-			
-			authenticate(httpCall);
-			String responseBody=client.execute(httpCall, this);
-		} catch (HttpHostConnectException e){
-			notifyError("Host not found", c);
-		} catch(UnknownHostException e){
-			notifyError("Network error", c);
-		}
-		catch (Exception e){
-			 e.printStackTrace();
-		}
-		client.getConnectionManager().shutdown(); 
-	}
-	
-	
 
-
-	HttpRequestBase getRequest(String url){
-		switch(mAction){
-		case GET:
-			return new HttpGet(url);
-		case CREATE:
-			return new HttpPost(url);
-		case UPDATE:
-			return new HttpPut(url);
-		case DELETE:
-			return new HttpDelete(url);
-		default:
-			return new HttpGet(url);
-		}
-	}
-	
-
-	@Override
-	public String handleResponse(HttpResponse response)
-			throws ClientProtocolException, IOException {
-		String res = null;
-		try{
-			int statusCode = response.getStatusLine().getStatusCode();
-			switch(statusCode){
-				case 200:
-					res = EntityUtils.toString(response.getEntity());
-					if(res != null){
-						processHttpResult(res, mContext);
-					}
-					notifyResult("Ok",  mContext);
-				break;
-				case 204:
-					notifyResult("Ok",  mContext);
-				break;
-				case 404:
-					notifyError("Not found" ,  mContext);
-				break;
-				case 401:
-					notifyError("No permission" ,  mContext);
-				break;
-				default:
-					notifyError("Generic error " + statusCode,  mContext);
-			}
-		}catch(ResultParseException e){
-			notifyError("Failed to parse result " + e.getMessage(), mContext);
-			Log.e(Constants.LOG_TAG, "Result parse failed: " + res);
-		}
-		
-		return res;
-	}
-	
-	
-/*** TAKEN FROM GOOGLE IO APP */
-	
-	private static class InflatingEntity extends HttpEntityWrapper {
-        public InflatingEntity(HttpEntity wrapped) {
-            super(wrapped);
-        }
-
-        @Override
-        public InputStream getContent() throws IOException {
-            return new GZIPInputStream(wrappedEntity.getContent());
-        }
-
-        @Override
-        public long getContentLength() {
-            return -1;
-        }
-    }
-	
-    private static String buildUserAgent(Context context) {
+        URL url = null;
+        HttpURLConnection urlConnection = null;
         try {
-            final PackageManager manager = context.getPackageManager();
-            final PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            url = new URL(getUrl(mAction));
 
-            // Some APIs require "(gzip)" in the user-agent string.
-            return info.packageName + "/" + info.versionName
-                    + " (" + info.versionCode + ") (gzip)";
-        } catch (NameNotFoundException e) {
-            return null;
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            urlConnection.setRequestMethod(getRequest());   // GET / POST / PUT / DEL
+
+            if(mAction == Action.CREATE ||
+               mAction == Action.UPDATE){
+
+                urlConnection.setDoOutput(true);
+
+                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+                out.write(getQuery().getBytes(Charset.forName("UTF-8")));  // Todo fixed lenght
+            }
+
+            InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+            int http_status = urlConnection.getResponseCode();
+            String result = readStream(in);
+            handleResponse(http_status, result, c);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if(null != urlConnection){
+                urlConnection.disconnect();
+            }
         }
     }
+
+
+
+
+	String getRequest(){
+		switch(mAction){
+            case GET:
+                return "GET";
+            case CREATE:
+                return "POST";
+            case UPDATE:
+                return "PUT";
+            case DELETE:
+                return "DELETE";
+        }
+        return null;
+	}
 	
-	
-	/**
-     * Generate and return a {@link HttpClient} configured for general use,
-     * including setting an application-specific user-agent string.
-     */
-    public static HttpClient getHttpClient(Context context) {
-        final HttpParams params = new BasicHttpParams();
 
-        // Use generous timeouts for slow mobile networks
-        HttpConnectionParams.setConnectionTimeout(params, 20 * SECOND_IN_MILLIS);
-        HttpConnectionParams.setSoTimeout(params, 20 * SECOND_IN_MILLIS);
-
-        HttpConnectionParams.setSocketBufferSize(params, 8192);
-        HttpProtocolParams.setUserAgent(params, buildUserAgent(context));
-
-        final DefaultHttpClient client = new DefaultHttpClient(params);
-
-        client.addRequestInterceptor(new HttpRequestInterceptor() {
-            public void process(HttpRequest request, HttpContext context) {
-                // Add header to accept gzip content
-                if (!request.containsHeader(HEADER_ACCEPT_ENCODING)) {
-                    request.addHeader(HEADER_ACCEPT_ENCODING, ENCODING_GZIP);
-                }
-            }
-        });
-
-        client.addResponseInterceptor(new HttpResponseInterceptor() {
-            public void process(HttpResponse response, HttpContext context) {
-                // Inflate any responses compressed with gzip
-                final HttpEntity entity = response.getEntity();
-                if(entity == null)
-                	return;
-                
-                final Header encoding = entity.getContentEncoding();
-                if (encoding != null) {
-                    for (HeaderElement element : encoding.getElements()) {
-                        if (element.getName().equalsIgnoreCase(ENCODING_GZIP)) {
-                            response.setEntity(new InflatingEntity(response.getEntity()));
-                            break;
-                        }
+	private void handleResponse(int statusCode, String response, Context c) {
+		switch(statusCode){
+			case 200:
+				if(response != null){
+                    try {
+                        processHttpResult(response, c);
+                    }catch(ResultParseException e){
+                        notifyError("Failed to parse result " + e.getMessage(), c);
+                        Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
                     }
                 }
-            }
-        });
+                notifyResult("Ok",  c);
+            break;
+            case 204:
+                notifyResult("Ok",  c);
+            break;
+            case 404:
+                notifyError("Not found" ,  c);
+            break;
+            case 401:
+                notifyError("No permission" ,  c);
+            break;
+            default:
+                notifyError("Generic error " + statusCode, c);
+        }
+	}
+	
 
-        return client;
-    }
 
-    Context getContext(){
-    	return mContext;
-    }
 }

@@ -1,27 +1,16 @@
 package com.whiterabbit.postman.commands;
 
-import com.whiterabbit.postman.utils.Constants;
-
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
+import com.whiterabbit.postman.utils.Constants;
 
-public abstract class ServerCommand {
+public abstract class ServerCommand implements Parcelable{
 	private String mRequestId;
-	
+
 	/**
-	 * fills the given intent with values to be serialized and found back in from intent method
-	 * @param i
-	 */
-	protected abstract void fillIntent(Intent i);
-	
-	/**
-	 * takes the needed values from the given intent
-	 * @param i
-	 */
-	protected abstract void fromIntent(Intent i);
-	
-	
-	/* requestid getter and setter */
+     *  requestid getter and setter
+     *  */
 	public void setRequestId(String reqId){
 		mRequestId = reqId;
 	}
@@ -36,7 +25,7 @@ public abstract class ServerCommand {
 	 * @param i
 	 * @return
 	 */
-	public static String getTypeFromFilledIntent(Intent i){
+	public static String getTypeFromIntent(Intent i){
 		return i.getExtras().getString(Constants.MESSAGE_TYPE);
 	}
 	
@@ -54,17 +43,16 @@ public abstract class ServerCommand {
 	 * Prepares the intent to be serialized 
 	 * @param i
 	 */
-	public void putToIntent(Intent i){
+	public void fillIntent(Intent i){
 		i.putExtra(Constants.REQUEST_ID, getRequestId());
 		i.putExtra(Constants.MESSAGE_TYPE, getType());
-		fillIntent(i);
+        i.putExtra(Constants.PAYLOAD, this);
 	}
 	
 	
 	public void fillFromIntent(Intent i){
 		String reqID = i.getExtras().getString(Constants.REQUEST_ID);
 		setRequestId(reqID);
-		fromIntent(i);
 	}
 	
 	public abstract void execute(Context c);
@@ -105,4 +93,6 @@ public abstract class ServerCommand {
         intent.putExtra(Constants.REQUEST_ID, reqID);
         c.sendBroadcast(intent);
 	}
+
+
 }

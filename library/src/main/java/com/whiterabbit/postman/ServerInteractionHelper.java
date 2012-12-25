@@ -1,29 +1,31 @@
 package com.whiterabbit.postman;
 
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.app.Activity;
+import android.app.FragmentTransaction;
+import android.content.*;
+import android.os.AsyncTask;
 import android.os.Bundle;
-
-import com.whiterabbit.postman.commands.CommandFactory;
 import com.whiterabbit.postman.commands.ServerCommand;
+import com.whiterabbit.postman.oauth.OAuthFragment;
+import com.whiterabbit.postman.oauth.OAuthReceivedInterface;
+import com.whiterabbit.postman.oauth.OAuthServiceInfo;
 import com.whiterabbit.postman.utils.Constants;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
+
+import java.util.*;
 
 public class ServerInteractionHelper {
 	BroadcastReceiver mReceiver;
 	private static ServerInteractionHelper mInstance;
-	ServerInteractionResponseInterface mListener;
-	CommandFactory				  		mFactory;
-    IntentFilter                  		mFilter;
-    IntentFilter                  		mErrorFilter;
-    private Map<String, Boolean>	mPendingRequests;
-	
+	private ServerInteractionResponseInterface mListener;
+    private IntentFilter                  		mFilter;
+    private IntentFilter                  		mErrorFilter;
+    private Map<String, Boolean>	mPendingRequests;   // TODO Sparse array. Change request id to long
+    private Map<String, OAuthServiceInfo>	mServices;
+
 	
 	
 	
@@ -32,6 +34,7 @@ public class ServerInteractionHelper {
 		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
 		mFilter = new IntentFilter(Constants.SERVER_RESULT);
 		mErrorFilter = new IntentFilter(Constants.SERVER_ERROR);
+        mServices = new HashMap<String, OAuthServiceInfo>();
 	}
 	
 	/**
@@ -79,7 +82,8 @@ public class ServerInteractionHelper {
             }
         }
     }
-    
+
+
     /**
      * Registers the given listener as to be
      * notified
@@ -88,7 +92,7 @@ public class ServerInteractionHelper {
      * @param c
      */
     public void registerEventListener(ServerInteractionResponseInterface listener, Context c) {
-        mListener = listener;
+        mListener = listener;// TODO weak reference
         c.registerReceiver(mReceiver, mFilter);
         c.registerReceiver(mReceiver, mErrorFilter);
     }
@@ -141,7 +145,7 @@ public class ServerInteractionHelper {
      * Sends the given command to the server
      *
      * @param c
-     * @param m
+     * @param msg
      *            message to send
      * @param requestId
      *            an id associated to the request. Will be returned along with
@@ -150,37 +154,126 @@ public class ServerInteractionHelper {
     public void sendCommand(Context c, ServerCommand msg, String requestId)
             throws SendingCommandException {
 
-        // TODO Factory
-
-    	
         if (!isRequestAlreadyPending(requestId)) {
             setRequestPending(requestId);
 
             msg.setRequestId(requestId);
             Intent i = new Intent(c, InteractionService.class);
-            msg.putToIntent(i);
+            msg.fillIntent(i);
             c.startService(i);
         } else {
             throw new SendingCommandException("Same request already pending");
         }
-    }	
-	
-    private void setCommandFactory(CommandFactory f){
-    	mFactory = f;
     }
-    
-    public CommandFactory getCommandFactory(){
-    	return mFactory;
+
+
+    /****** OAUTH - Scribe library wrap up ************/
+
+
+    private class RequestTask extends AsyncTask<OAuthServiceInfo, Void , List<Object>> {
+        private final Activity mActivity;
+        private final OAuthServiceInfo mService;
+
+        public RequestTask(Activity a, OAuthServiceInfo s){
+            mActivity = a;
+            mService = s;
+
+        }
+        @Override
+        protected List doInBackground(OAuthServiceInfo... oAuthServiceInfos) {
+            Token requestToken = oAuthServiceInfos[0].getService().getRequestToken();
+            String url = oAuthServiceInfos[0].getService().getAuthorizationUrl(requestToken);
+            List<Object> res = new ArrayList<Object>(2);
+            res.add(0, requestToken);
+            res.add(1, url);
+            return res;
+        }
+
+
+        @Override
+        protected void onPostExecute(List<Object> res) {
+            final Token requestToken = (Token) res.get(0);
+            String url = (String) res.get(1);
+
+            FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+            OAuthFragment newFragment = OAuthFragment.newInstance(url, new OAuthReceivedInterface() {
+                @Override
+                public void onAuthReceived(String url) {
+                    AuthTask a = new AuthTask(requestToken, mService, mActivity);
+                    a.execute(url);
+
+                }
+            });
+            newFragment.show(ft, "dialog");
+        }
+    };
+
+
+    private class AuthTask extends AsyncTask<String, Void, Void>{
+        private final Token mRequestToken;
+        private final OAuthServiceInfo mService;
+        private final Context mContext;
+
+        public AuthTask(Token requestToken, OAuthServiceInfo service, Context c){
+            mRequestToken = requestToken;
+            mService = service;
+            mContext = c;
+        }
+
+        @Override
+        protected Void doInBackground(String... urls) {
+            Verifier verifier = new Verifier(urls[0]);
+            Token accessToken = mService.getService().getAccessToken(mRequestToken, verifier);
+
+            int mode = Activity.MODE_PRIVATE;
+            SharedPreferences mySharedPreferences = mContext.getSharedPreferences(mService.getServiceName(), mode);
+            SharedPreferences.Editor editor = mySharedPreferences.edit();
+            editor.putString(Constants.TOKEN, accessToken.getToken());
+            editor.putString(Constants.SECRET, accessToken.getSecret());
+            editor.putString(Constants.RAW_RES, accessToken.getRawResponse());
+            editor.commit();
+
+            ServerInteractionHelper.this.getRegisteredService(mService.getServiceName()).setAccessToken(accessToken);
+
+            return null;
+        }
     }
-    
-    
-    /**
-     * Initializes the singleton with a command factory used to build instances of commands
-     * @param f
-     */
-    public static ServerInteractionHelper initWithCommandFactory(CommandFactory f){
-    	ServerInteractionHelper h = ServerInteractionHelper.getInstance();
-    	h.setCommandFactory(f);
-    	return h;
+
+    public void registerOAuthService(OAuthService service, String name, Context c){
+        Token t = getAuthTokenForService(name, c);
+        mServices.put(name, new OAuthServiceInfo(service, name, t));
     }
+
+    // TODO weak reference to activity.
+
+    public void authenticate(final Activity a, String serviceName) {
+        final OAuthServiceInfo s = getRegisteredService(serviceName);
+        // TODO Service not found
+        RequestTask r = new RequestTask(a, s);
+        r.execute(s);
+    }
+
+
+    public OAuthServiceInfo getRegisteredService(String serviceName){
+        return mServices.get(serviceName);
+    }
+
+    public Token getAuthTokenForService(String serviceName, Context c){
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
+        String token = mySharedPreferences.getString(Constants.TOKEN, "");
+        String secret = mySharedPreferences.getString(Constants.SECRET, "");
+        String raw = mySharedPreferences.getString(Constants.RAW_RES, "");
+        if (token.equals("") ||
+            secret.equals("") ||
+            raw.equals("")){
+            return null;
+        }
+
+        return new Token(token, secret, raw);
+
+    }
+
+
+
+
 }

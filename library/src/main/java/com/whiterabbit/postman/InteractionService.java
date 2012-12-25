@@ -5,11 +5,9 @@ package com.whiterabbit.postman;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
-import com.whiterabbit.postman.commands.CommandFactory;
 import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.commands.UnknownCommandException;
 import com.whiterabbit.postman.utils.Constants;
-import com.whiterabbit.postman.R;
 
 
 /**
@@ -26,15 +24,29 @@ public class InteractionService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-    	CommandFactory f = ServerInteractionHelper.getInstance().getCommandFactory();
     	try{
-    		ServerCommand c = f.createCommand(ServerCommand.getTypeFromFilledIntent(intent));
-    		if(c == null){
-    			throw new UnknownCommandException();
-    		}
-    		
-    		c.fillFromIntent(intent);
-    		c.execute(this);
+            String messageType = ServerCommand.getTypeFromIntent(intent);
+            //try {
+                    ServerCommand c = (ServerCommand) intent.getParcelableExtra(Constants.PAYLOAD);
+
+
+                            //Class.forName(messageType).getConstructor(Intent.class).newInstance(intent);
+                    c.execute(this);
+
+            if (null == c){
+                throw new UnknownCommandException();
+            }
+            /*
+            } catch (ClassNotFoundException e) {
+
+            } catch (InstantiationException e) {
+            } catch (IllegalAccessException e) {
+            } catch (InvocationTargetException e) {
+            } catch (NoSuchMethodException e) {
+                throw new UnknownCommandException();
+            }
+            */
+
     	}catch (UnknownCommandException e){
     		Log.e(Constants.LOG_TAG, "Unable to convert message");
     		ServerCommand.notifyUnrecoverableError(intent, getString(R.string.unable_to_convert), this);
