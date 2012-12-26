@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="hello">Hello World!</string>
-    <string name="app_name">ServerInteraction</string>
 	<string name="unable_to_convert">Unable to convert server message</string>
+    <string name="service_not_found">OAuth service not registered</string>
+    <string name="service_not_authenticated">OAuth service not authenticated</string>
 </resources>

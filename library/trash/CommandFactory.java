@@ -1,6 +1,8 @@
 package com.whiterabbit.postman.commands;
 
 
+import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.UnknownCommandException;
+
 /**
  * Class used by the intentservice to build the correct 
  * server command
