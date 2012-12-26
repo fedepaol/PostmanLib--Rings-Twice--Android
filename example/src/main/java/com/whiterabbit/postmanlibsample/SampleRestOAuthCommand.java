@@ -2,7 +2,6 @@ package com.whiterabbit.postmanlibsample;
 
 import android.content.Context;
 import android.os.Parcel;
-import android.os.Parcelable;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.commands.ResultParseException;
 import org.scribe.model.OAuthRequest;
@@ -14,10 +13,10 @@ import org.scribe.model.Verb;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class SampleRestCommand extends RestServerCommand {
+public class SampleRestOAuthCommand extends RestServerCommand {
 
 
-    public SampleRestCommand(String url){
+    public SampleRestOAuthCommand(String url){
         super(Verb.GET, url);
     }
 
@@ -38,19 +37,19 @@ public class SampleRestCommand extends RestServerCommand {
 
 
 
-    public static final Parcelable.Creator<SampleRestCommand> CREATOR
-            = new Parcelable.Creator<SampleRestCommand>() {
-        public SampleRestCommand createFromParcel(Parcel in) {
-            return new SampleRestCommand(in);
+    public static final Creator<SampleRestOAuthCommand> CREATOR
+            = new Creator<SampleRestOAuthCommand>() {
+        public SampleRestOAuthCommand createFromParcel(Parcel in) {
+            return new SampleRestOAuthCommand(in);
         }
 
-        public SampleRestCommand[] newArray(int size) {
-            return new SampleRestCommand[size];
+        public SampleRestOAuthCommand[] newArray(int size) {
+            return new SampleRestOAuthCommand[size];
         }
     };
 
 
-    public SampleRestCommand(Parcel in){
+    public SampleRestOAuthCommand(Parcel in){
         super(in);
     }
 

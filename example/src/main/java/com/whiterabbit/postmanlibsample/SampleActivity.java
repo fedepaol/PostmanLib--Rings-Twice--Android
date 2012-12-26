@@ -53,9 +53,11 @@ public class SampleActivity extends Activity implements ServerInteractionRespons
                 String name = mName.getText().toString();
                 if (!name.equals("")) {
                     SampleRestCommand c = new SampleRestCommand("http://www.google.it");
-                    SampleOAuthCommand c1 = new SampleOAuthCommand();
+                    SampleRestOAuthCommand c1 = new SampleRestOAuthCommand("https://api.twitter.com/1.1/statuses/home_timeline.json");
+                    c1.setOAuthSigner("Twitter");
                     try {
-                        ServerInteractionHelper.getInstance().sendCommand(SampleActivity.this, c1, USER_STATUS_REQUEST);
+                        ServerInteractionHelper.getInstance().sendCommand(SampleActivity.this, c, USER_STATUS_REQUEST);
+                        ServerInteractionHelper.getInstance().sendCommand(SampleActivity.this, c1, "Fava");
                     } catch (SendingCommandException e) {
                         mStatus.setText("Request already pending");
                     }
