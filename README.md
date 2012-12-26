@@ -1,3 +1,7 @@
+##_DISCLAIMER_
+#### This library is still under construction. Beta testers are more than welcome. 
+
+
 PostMan (rings twice) Lib
 =========
 
@@ -6,7 +10,7 @@ _'With my brains and your looks, we could go places' - Frank Chambers, The postm
 
 LibPostman (Rings Twice) for Android is a library intended to make the asynchronous interaction with a remote server easier, without having to deal with all the well known problems related to asynctasks bound to activities.
 
-It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication.
+It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. Since scribe itself uses HttpUrlConnection. Given that that class received a significant amount of bugfixes in ApiLevel 8, that is the minSdkVersion declared in the lib's manifest.
 
 
 
@@ -20,6 +24,15 @@ After having it _in progress_ for more than a year I now decided (XMas 2012) to 
 ![alt text](https://raw.github.com/fedepaol/PostmanLib--Rings-Twice--Android/master/images/postman.png "Logo Title Text 1")
 
 ---
+
+###Setup
+
+The service used by the library must be declared into the application's manifest:
+
+    <service
+            android:enabled="true"
+            android:name="com.whiterabbit.postman.InteractionService" />  
+
 
 ##ServerInteractionHelper
 It's a singleton class to be used to send asynchronous commands. Allows also to register listener to be notified of execution results / failures.
@@ -91,6 +104,22 @@ Using the same name used to register the service.
 * Adding call parameters is straight. You however need to rely on [Scribe][scribe] documentation in order to check how to add them
 
 * The common pattern I suggest to use with postman lib is not to return all the data to the activity, but update your data model <b>inside the processHttpResult</b> method and only update the ui when the activity gets notified of the end of the request
+
+* _ServerCommand_ implement Parcelable interface. This is because the command must be passed to the intent service through an intent. In addition to the _Parcelable_ methods, every command implementation must have a static CREATOR field, such as 
+    
+    public static final Parcelable.Creator<SampleRestCommand> CREATOR = ...
+
+
+## TO BE ADDED / ROADMAP
+
+* Send burst of commands to adhere to Reto Meier's big cookie approach
+* Plain authentication handling 
+* Localization of error messages 
+* callback url personalization. Not sure yet that __oauth__verifer__  is a standard
+* Switch to SupportFragmentManager to create the oauth fragment in order to target pre HC devices. 
+* Recycling commands using a pool
+* Having more than one intentservice to be round robin served for parallel requests
+
 
 
 
