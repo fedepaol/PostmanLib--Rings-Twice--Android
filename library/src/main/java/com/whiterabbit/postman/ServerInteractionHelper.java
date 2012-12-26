@@ -7,6 +7,8 @@ import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
+import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.oauth.OAuthFragment;
 import com.whiterabbit.postman.oauth.OAuthReceivedInterface;
@@ -248,7 +250,7 @@ public class ServerInteractionHelper {
         private final Token mRequestToken;
         private final OAuthServiceInfo mService;
         private final Context mContext;
-        private OAuthException mThrownException;
+        private Exception mThrownException;
 
         public AuthTask(Token requestToken, OAuthServiceInfo service, Context c){
             mRequestToken = requestToken;
@@ -269,9 +271,11 @@ public class ServerInteractionHelper {
                 editor.putString(Constants.SECRET, accessToken.getSecret());
                 editor.putString(Constants.RAW_RES, accessToken.getRawResponse());
                 editor.commit();
-
                 ServerInteractionHelper.this.getRegisteredService(mService.getServiceName()).setAccessToken(accessToken);
+
             }catch (OAuthException e){
+                mThrownException = e;
+            }catch(OAuthServiceException e){
                 mThrownException = e;
             }
 
@@ -302,15 +306,20 @@ public class ServerInteractionHelper {
      * @param name
      * @param a
      */
-    public void registerOAuthService(OAuthService service, String name, Activity a){
+    public void registerOAuthService(OAuthService service, String name, Activity a) {
         Token t = getAuthTokenForService(name, a);
         mServices.put(name, new OAuthServiceInfo(service, name, t));
         if(t == null){
-            authenticate(a, name);
+            try {
+                authenticate(a, name);
+            } catch (OAuthServiceException e) {
+                // That would be really weird since I just added it
+                Log.d(Constants.LOG_TAG, "OAuth exception while registering service: " + e.getMessage());
+            }
         }
     }
 
-    // TODO weak reference to activity.
+    // TODO weak reference to the activity.
 
     /**
      * Starts the authentication ballet using scribe library
@@ -318,16 +327,24 @@ public class ServerInteractionHelper {
      * @param a
      * @param serviceName
      */
-    public void authenticate(final Activity a, String serviceName) {
+    public void authenticate(final Activity a, String serviceName) throws OAuthServiceException {
         final OAuthServiceInfo s = getRegisteredService(serviceName);
-        // TODO Service not found
         RequestTask r = new RequestTask(a, s);
         r.execute(s);
     }
 
 
-    public OAuthServiceInfo getRegisteredService(String serviceName){
-        return mServices.get(serviceName);
+    public OAuthServiceInfo getRegisteredService(String serviceName) throws OAuthServiceException {
+        OAuthServiceInfo res = mServices.get(serviceName);
+        if(res == null){
+            throw new OAuthServiceException(String.format("Service %s not found", serviceName));
+        }
+
+        if(res.getAccessToken() == null){
+            throw new OAuthServiceException(String.format("Service %s not authenticated yet", serviceName));
+        }
+
+        return res;
     }
 
 
@@ -358,7 +375,7 @@ public class ServerInteractionHelper {
      * Subsequent registration will start authorization process again
      * @param serviceName
      */
-    public void invalidateAuthentication(String serviceName, Context c){
+    public void invalidateAuthentication(String serviceName, Context c) throws OAuthServiceException {
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();
         editor.putString(Constants.TOKEN, "");

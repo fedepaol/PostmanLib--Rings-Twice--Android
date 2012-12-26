@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Parcel;
 import android.util.Log;
 import com.whiterabbit.postman.ServerInteractionHelper;
+import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
 import com.whiterabbit.postman.utils.Constants;
 import org.scribe.model.OAuthRequest;
@@ -86,15 +87,21 @@ public abstract class RestServerCommand extends ServerCommand  {
 	@Override
 	public void execute(Context c) {
 
-        OAuthRequest request = new OAuthRequest(mVerb, mUrl);
-        addParamsToRequest(request);
+        try {
+            OAuthRequest request = new OAuthRequest(mVerb, mUrl);
+            addParamsToRequest(request);
 
-        if(mustSign){
-            OAuthServiceInfo s = ServerInteractionHelper.getInstance().getRegisteredService(mOAuthSigner);
-            s.getService().signRequest(s.getAccessToken(), request);
+            if(mustSign){
+                OAuthServiceInfo s = ServerInteractionHelper.getInstance().getRegisteredService(mOAuthSigner);
+                s.getService().signRequest(s.getAccessToken(), request);
+            }
+            Response response = request.send();
+            handleResponse(response.getCode(), response.getBody(), c);
+
+        } catch (OAuthServiceException e) {
+            notifyError(e.getMessage(), c);
+            return;
         }
-        Response response = request.send();
-        handleResponse(response.getCode(), response.getBody(), c);
 
     }
 
@@ -122,6 +129,7 @@ public abstract class RestServerCommand extends ServerCommand  {
             break;
             case 401:
                 notifyError("No permission" ,  c);
+                // TODO Invalidate token ??
             break;
             default:
                 notifyError("Generic error " + statusCode, c);

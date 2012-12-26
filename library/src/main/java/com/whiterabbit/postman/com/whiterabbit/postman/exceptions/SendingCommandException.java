@@ -1,5 +1,5 @@
 
-package com.whiterabbit.postman;
+package com.whiterabbit.postman.com.whiterabbit.postman.exceptions;
 
 import android.content.Context;
 

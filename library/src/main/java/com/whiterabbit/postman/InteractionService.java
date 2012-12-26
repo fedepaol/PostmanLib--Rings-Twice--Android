@@ -6,7 +6,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 import com.whiterabbit.postman.commands.ServerCommand;
-import com.whiterabbit.postman.commands.UnknownCommandException;
+import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.UnknownCommandException;
 import com.whiterabbit.postman.utils.Constants;
 
 
