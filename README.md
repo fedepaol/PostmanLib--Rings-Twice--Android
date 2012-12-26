@@ -17,7 +17,7 @@ After having it _in progress_ for more than a year I decided (XMas 2012) to make
 
 ----
 
-![alt text](https://github.com/fedepaol/PostmanLib--Rings-Twice--Android/master/images/postman.png "Logo Title Text 1")
+![alt text](https://raw.github.com/fedepaol/PostmanLib--Rings-Twice--Android/master/images/postman.png "Logo Title Text 1")
 
 ---
 
