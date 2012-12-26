@@ -10,7 +10,7 @@ _'With my brains and your looks, we could go places' - Frank Chambers, The postm
 
 LibPostman (Rings Twice) for Android is a library intended to make the asynchronous interaction with a remote server easier, without having to deal with all the well known problems related to asynctasks bound to activities.
 
-It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. Since scribe itself uses HttpUrlConnection. Given that that class received a significant amount of bugfixes in ApiLevel 8, that is the minSdkVersion declared in the lib's manifest.
+It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. The minSdkVersion declared in the lib's manifest is 8 since scribe itself uses HttpUrlConnection which received a significant amount of bugfixes in ApiLevel 8, 
 
 
 
