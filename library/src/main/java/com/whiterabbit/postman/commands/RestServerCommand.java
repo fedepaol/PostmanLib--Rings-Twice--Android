@@ -1,7 +1,6 @@
 package com.whiterabbit.postman.commands;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Parcel;
 import android.util.Log;
 import com.whiterabbit.postman.ServerInteractionHelper;
@@ -23,12 +22,21 @@ public abstract class RestServerCommand extends ServerCommand  {
     private String mOAuthSigner;
     private boolean mustSign;
 
+    /**
+     * Constructor
+     * @param v   the verb intended as rest action
+     * @param url the url to perform the call against
+     */
     public RestServerCommand(Verb v, String url){
         mVerb = v;
         mUrl = url;
         mustSign = false;
     }
 
+    /**
+     * Sets the signer service to be used to authorize the call
+     * @param signer
+     */
     public void setOAuthSigner(String signer){
         mOAuthSigner = signer;
         mustSign = true;

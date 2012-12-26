@@ -21,7 +21,6 @@ public class OAuthFragment extends DialogFragment {
 
     private WebView webViewOauth;
     String mUrl;
-    String mServiceName;
     OAuthReceivedInterface mReceivedInterface;
 
     public static OAuthFragment newInstance(String url, OAuthReceivedInterface receivedInterface) {
@@ -54,10 +53,11 @@ public class OAuthFragment extends DialogFragment {
                 //save your token
                 saveAccessToken(url);
                 return true;
+            }else{
+                notifyAuthenticationFailed();
+                return false;
             }
-            return false;
         }
-        // TODO Close the fragment
     }
 
     private void saveAccessToken(String url) {
@@ -66,7 +66,13 @@ public class OAuthFragment extends DialogFragment {
             String verifier = uri.getQueryParameter("oauth_verifier");
             mReceivedInterface.onAuthReceived(verifier);
         }
+        getDialog().dismiss();
     }
+
+    private void notifyAuthenticationFailed(){
+        mReceivedInterface.onAuthFailed("Could not verify the auth token, wrong callback url");
+    }
+
 
     @Override
     public void onViewCreated(View arg0, Bundle arg1) {

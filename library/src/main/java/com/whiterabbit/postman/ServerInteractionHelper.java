@@ -309,6 +309,24 @@ public class ServerInteractionHelper {
     }
 
 
+    /**
+     * To be used to invalidate the authentication token of the given service.
+     * Subsequent registration will start authorization process again
+     * @param serviceName
+     */
+    public void invalidateAuthentication(String serviceName, Context c){
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mySharedPreferences.edit();
+        editor.putString(Constants.TOKEN, "");
+        editor.putString(Constants.SECRET, "");
+        editor.putString(Constants.RAW_RES, "");
+        editor.commit();
+
+        OAuthServiceInfo s = getRegisteredService(serviceName);
+        s.setAccessToken(null);
+    }
+
+
 
 
 }
