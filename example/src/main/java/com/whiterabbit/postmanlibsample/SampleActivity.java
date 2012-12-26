@@ -43,6 +43,7 @@ public class SampleActivity extends Activity implements ServerInteractionRespons
                 .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
                 .callback("http://your_callback_url")
                 .build();
+
         ServerInteractionHelper h = ServerInteractionHelper.getInstance();
         h.registerOAuthService(service, "Twitter", this);
         //h.authenticate(this, "Twitter");
