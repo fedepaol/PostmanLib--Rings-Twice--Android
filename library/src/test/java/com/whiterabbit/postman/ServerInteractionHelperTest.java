@@ -10,9 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class ServerInteractionHelperTest {
@@ -77,9 +75,50 @@ public class ServerInteractionHelperTest {
         assertFalse(mActivity.isIsFailure());
         assertEquals(mActivity.getRequestReceived(), COMMAND_REQUEST);
         assertEquals(mActivity.getServerResult(), RESULT_MESSAGE);
-
+        assertFalse(mHelper.isRequestAlreadyPending(COMMAND_REQUEST));
     }
 
+
+	@Test
+    public void testCommandFail(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+        SimpleServerCommand command = new SimpleServerCommand(false, RESULT_MESSAGE);
+        try {
+            mHelper.sendCommand(mActivity, command, COMMAND_REQUEST);
+        } catch (SendingCommandException e) {
+            fail("sending command exception");
+        }
+
+        shortcutIntentService();
+        assertTrue(mActivity.isIsFailure());
+        assertEquals(mActivity.getRequestReceived(), COMMAND_REQUEST);
+        assertEquals(mActivity.getServerResult(), RESULT_MESSAGE);
+    }
+
+
+	@Test
+    public void testTwoSameCommandsAndPending(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+        SimpleServerCommand command = new SimpleServerCommand(false, RESULT_MESSAGE);
+        try {
+            mHelper.sendCommand(mActivity, command, COMMAND_REQUEST);
+        } catch (SendingCommandException e) {
+            fail("sending command exception");
+        }
+
+        boolean exceptionThrown = false;
+        try {
+            mHelper.sendCommand(mActivity, command, COMMAND_REQUEST);
+            assertTrue(mHelper.isRequestAlreadyPending(COMMAND_REQUEST));
+        } catch (SendingCommandException e) {
+            exceptionThrown = true;
+        }
+
+        assertTrue(exceptionThrown);
+
+    }
 
 }
 
