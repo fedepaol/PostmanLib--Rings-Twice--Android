@@ -1,8 +1,7 @@
-package com.whiterabbit.postman.test;
+package com.whiterabbit.postman;
 
 import android.app.Activity;
 import android.os.Bundle;
-import com.whiterabbit.postman.ServerInteractionResponseInterface;
 
 /**
  * Created with IntelliJ IDEA.

@@ -1,4 +1,4 @@
-package com.whiterabbit.postman.test;
+package com.whiterabbit.postman;
 
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
