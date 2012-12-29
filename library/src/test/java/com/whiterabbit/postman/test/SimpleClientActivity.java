@@ -1,4 +1,4 @@
-package com.whiterabbit.postman.test.utils;
+package com.whiterabbit.postman.test;
 
 import android.app.Activity;
 import android.os.Bundle;

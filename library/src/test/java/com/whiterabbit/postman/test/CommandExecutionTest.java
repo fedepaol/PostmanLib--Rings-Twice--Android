@@ -1,4 +1,4 @@
-package com.whiterabbit.postman.test.utils;
+package com.whiterabbit.postman.test;
 
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(RobolectricTestRunner.class)
-public class SimpleCommandTest {
+public class CommandExecutionTest {
 
 
 	@Before
