@@ -80,6 +80,17 @@ public abstract class RestServerCommand extends ServerCommand  {
      */
     protected abstract void addParamsToRequest(OAuthRequest request);
 
+    /**
+     * Utility method to be used for mocking up request objects
+     * inside unit tests
+     * @param v
+     * @param url
+     * @return
+     */
+    protected OAuthRequest getRequest(Verb v, String url){
+        return new OAuthRequest(v, url);
+    }
+
 
 	/**
 	 * The real execution of the command. Performs the basic rest interaction
@@ -88,7 +99,7 @@ public abstract class RestServerCommand extends ServerCommand  {
 	public void execute(Context c) {
 
         try {
-            OAuthRequest request = new OAuthRequest(mVerb, mUrl);
+            OAuthRequest request = getRequest(mVerb, mUrl);
             addParamsToRequest(request);
 
             if(mustSign){
