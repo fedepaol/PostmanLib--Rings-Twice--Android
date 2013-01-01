@@ -5,14 +5,14 @@ import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 @RunWith(RobolectricTestRunner.class)
 public class RestCommandTest{
@@ -46,9 +46,28 @@ public class RestCommandTest{
 
         command.execute(mActivity);
         verify(mockedRequest).addHeader("Key", "Value");
-        verify(mockedRequest.send());
+        verify(mockedRequest).send();
 
         assertEquals(mActivity.getServerResult(), "Ok");
+
+    }
+
+
+    @Test
+    public void testCommandFailure(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+
+        OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        SimpleRestCommand command = new SimpleRestCommand(mockedRequest);
+
+        when(mockedRequest.send()).thenThrow(new OAuthException("Fava"));
+
+        command.execute(mActivity);
+        verify(mockedRequest).addHeader("Key", "Value");
+        verify(mockedRequest).send();
+
+        assertTrue(mActivity.isIsFailure());
 
     }
 

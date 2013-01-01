@@ -7,6 +7,7 @@ import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
 import com.whiterabbit.postman.utils.Constants;
+import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
@@ -110,6 +111,9 @@ public abstract class RestServerCommand extends ServerCommand  {
             handleResponse(response.getCode(), response.getBody(), c);
 
         } catch (OAuthServiceException e) {
+            notifyError(e.getMessage(), c);
+            return;
+        }catch(OAuthException e){
             notifyError(e.getMessage(), c);
             return;
         }
