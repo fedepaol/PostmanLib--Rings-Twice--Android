@@ -309,14 +309,6 @@ public class ServerInteractionHelper {
     public void registerOAuthService(OAuthService service, String name, Activity a) {
         Token t = getAuthTokenForService(name, a);
         mServices.put(name, new OAuthServiceInfo(service, name, t));
-        if(t == null){
-            try {
-                authenticate(a, name);
-            } catch (OAuthServiceException e) {
-                // That would be really weird since I just added it
-                Log.d(Constants.LOG_TAG, "OAuth exception while registering service: " + e.getMessage());
-            }
-        }
     }
 
     // TODO weak reference to the activity.
@@ -328,10 +320,15 @@ public class ServerInteractionHelper {
      * @param serviceName
      */
     public void authenticate(final Activity a, String serviceName) throws OAuthServiceException {
-        final OAuthServiceInfo s = getRegisteredService(serviceName);
+        final OAuthServiceInfo s = mServices.get(serviceName);
+        if(s == null){
+            throw new OAuthServiceException(String.format("Service %s not found", serviceName));
+        }
+
         RequestTask r = new RequestTask(a, s);
         r.execute(s);
     }
+
 
 
     public OAuthServiceInfo getRegisteredService(String serviceName) throws OAuthServiceException {
