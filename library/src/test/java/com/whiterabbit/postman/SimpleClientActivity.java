@@ -1,7 +1,7 @@
 package com.whiterabbit.postman;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,7 +9,7 @@ import android.os.Bundle;
  * Date: 12/29/12
  * Time: 12:00 PM
  */
-public class SimpleClientActivity extends Activity implements ServerInteractionResponseInterface{
+public class SimpleClientActivity extends FragmentActivity implements ServerInteractionResponseInterface{
     private boolean mIsFailure;
     private String mServerResult;
     private String mRequestReceived;

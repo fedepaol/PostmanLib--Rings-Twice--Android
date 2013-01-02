@@ -1,8 +1,8 @@
 package com.whiterabbit.postman.oauth;
 
-import android.app.DialogFragment;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,7 +92,6 @@ public class OAuthFragment extends DialogFragment {
         //Retrieve the webview
         View v = inflater.inflate(R.layout.oauth_screen, container, false);
         webViewOauth = (WebView) v.findViewById(R.id.web_oauth);
-        getDialog().setTitle("Use your Instagram account");
         return v;
     }
 }

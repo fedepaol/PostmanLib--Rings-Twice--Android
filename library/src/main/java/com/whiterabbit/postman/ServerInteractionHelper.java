@@ -2,10 +2,11 @@ package com.whiterabbit.postman;
 
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
@@ -178,11 +179,11 @@ public class ServerInteractionHelper {
      * Asks for the request token and launches the authorization dialog
      */
     private class RequestTask extends AsyncTask<OAuthServiceInfo, Void , List<Object>> {
-        private final Activity mActivity;
+        private final FragmentActivity mActivity;
         private final OAuthServiceInfo mService;
         private Exception mThrownException;
 
-        public RequestTask(Activity a, OAuthServiceInfo s){
+        public RequestTask(FragmentActivity a, OAuthServiceInfo s){
             mActivity = a;
             mService = s;
 
@@ -220,7 +221,7 @@ public class ServerInteractionHelper {
             final Token requestToken = (Token) res.get(0);
             String url = (String) res.get(1);
 
-            FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+            FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
             OAuthFragment newFragment = OAuthFragment.newInstance(url, new OAuthReceivedInterface() {
                 @Override
                 public void onAuthReceived(String url) {
@@ -319,7 +320,7 @@ public class ServerInteractionHelper {
      * @param a
      * @param serviceName
      */
-    public void authenticate(final Activity a, String serviceName) throws OAuthServiceException {
+    public void authenticate(final FragmentActivity a, String serviceName) throws OAuthServiceException {
         final OAuthServiceInfo s = mServices.get(serviceName);
         if(s == null){
             throw new OAuthServiceException(String.format("Service %s not found", serviceName));
