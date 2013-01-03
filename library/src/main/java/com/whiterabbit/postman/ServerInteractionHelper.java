@@ -272,11 +272,15 @@ public class ServerInteractionHelper {
                 editor.putString(Constants.SECRET, accessToken.getSecret());
                 editor.putString(Constants.RAW_RES, accessToken.getRawResponse());
                 editor.commit();
-                ServerInteractionHelper.this.getRegisteredService(mService.getServiceName()).setAccessToken(accessToken);
+                //TODO get from hash senza controllo auth
 
+                final OAuthServiceInfo s = mServices.get(mService.getServiceName());
+                if(s != null){
+                    s.setAccessToken(accessToken);
+                }else{
+                    throw new OAuthException("Service not found");
+                }
             }catch (OAuthException e){
-                mThrownException = e;
-            }catch(OAuthServiceException e){
                 mThrownException = e;
             }
 
