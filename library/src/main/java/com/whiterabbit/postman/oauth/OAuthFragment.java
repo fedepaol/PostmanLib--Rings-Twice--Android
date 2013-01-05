@@ -1,8 +1,10 @@
 package com.whiterabbit.postman.oauth;
 
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.whiterabbit.postman.R;
+import com.whiterabbit.postman.utils.Constants;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,6 +25,7 @@ public class OAuthFragment extends DialogFragment {
     private WebView webViewOauth;
     String mUrl;
     OAuthReceivedInterface mReceivedInterface;
+    private boolean mAuthFound;
 
     public static OAuthFragment newInstance(String url, OAuthReceivedInterface receivedInterface) {
         OAuthFragment f = new OAuthFragment();
@@ -36,7 +40,20 @@ public class OAuthFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuthFound = false;
         mUrl = getArguments().getString("URL");
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        Log.i(Constants.LOG_TAG, "Oauth dialog dismissed with no authentication");
+        notifyAuthenticationFailed();
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.i(Constants.LOG_TAG, "Oauth dialog dismissed with no authentication");
+        notifyAuthenticationFailed();
     }
 
 
@@ -52,9 +69,12 @@ public class OAuthFragment extends DialogFragment {
             if (url.contains("oauth_verifier=")) {
                 //save your token
                 saveAccessToken(url);
+                getDialog().dismiss();
                 return true;
             }else{
-                notifyAuthenticationFailed();
+                Log.d(Constants.LOG_TAG,
+                       String.format("Could not find oauth_verifier in callback url, %s , are you sure you set a callback url in your service?",
+                               url));
                 return false;
             }
         }
@@ -65,8 +85,8 @@ public class OAuthFragment extends DialogFragment {
             Uri uri=Uri.parse(url);
             String verifier = uri.getQueryParameter("oauth_verifier");
             mReceivedInterface.onAuthReceived(verifier);
+            mAuthFound = true;
         }
-        getDialog().dismiss();
     }
 
     private void notifyAuthenticationFailed(){

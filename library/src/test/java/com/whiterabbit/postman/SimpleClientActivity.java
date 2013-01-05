@@ -71,7 +71,7 @@ public class SimpleClientActivity extends FragmentActivity implements ServerInte
         return mServiceAuthenticated;
     }
 
-    public String getmServiceAuthenticatedReason() {
+    public String getServiceNotAuthenticatedReason() {
         return mServiceAuthenticatedReason;
     }
 
