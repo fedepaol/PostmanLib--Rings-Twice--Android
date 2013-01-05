@@ -371,6 +371,13 @@ public class ServerInteractionHelper {
 
     }
 
+    private void storeOAuthServiceData(String serviceName, String apiKey, String apiSecret, String callbackUrl, Context c){
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
+
+
+
+    }
+
 
     /**
      * To be used to invalidate the authentication token of the given service.
