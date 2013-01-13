@@ -23,13 +23,14 @@ public class StorableServiceBuilder {
     private static final String API_SCOPE = "com.whiterabbit.scope";
     private static final String SIGNATURE_TYPE = "com.whiterabbit.signaturetype";
     private static final String API = "com.whiterabbit.api";
+    private static final String SERVICES = "com.whiterabbit.services";
 
     private String apiKey;
     private String apiSecret;
     private String callback;
     private String scope;
     private SignatureType signatureType;
-    private String serviceName;
+    private String mServiceName;
     private Class api;
     private ServiceBuilder mServiceBuilder;
 
@@ -82,14 +83,15 @@ public class StorableServiceBuilder {
     }
 
 
-    public OAuthService build()
+    public OAuthService build(Context c)
     {
+        storeToPreferences(mServiceName, c);
         return mServiceBuilder.build();
     }
 
 
 
-    public void storeToPreferences(String serviceName, Context c){
+    private void storeToPreferences(String serviceName, Context c){
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();
         editor.putString(API_KEY, apiKey);
@@ -99,11 +101,27 @@ public class StorableServiceBuilder {
         editor.putInt(SIGNATURE_TYPE, signatureType.ordinal());
         editor.putString(API, api.getName());
         editor.commit();
+
+
+        SharedPreferences listPreferences = c.getSharedPreferences(Constants.ALL_SERVICES, Activity.MODE_PRIVATE);
+
+        StringBuilder builder = new StringBuilder(listPreferences.getString(SERVICES, ""));
+        builder.append(serviceName).append(";");
+
+        SharedPreferences.Editor listEditor = mySharedPreferences.edit();
+        listEditor.putString(SERVICES, builder.toString());
+        listEditor.commit();
+    }
+
+    public static String[] getAllServices(Context c){
+        SharedPreferences listPreferences = c.getSharedPreferences(Constants.ALL_SERVICES, Activity.MODE_PRIVATE);
+        String[] res = listPreferences.getString(SERVICES, "").split(";");
+        return res;
     }
 
     public StorableServiceBuilder(String serviceName, Context c){
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
-        serviceName = serviceName;
+        mServiceName = serviceName;
         apiKey = mySharedPreferences.getString(API_KEY, "");
         apiSecret = mySharedPreferences.getString(API_SECRET, "");
         callback = mySharedPreferences.getString(CALLBACK, "");

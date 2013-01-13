@@ -39,15 +39,8 @@ public abstract class RestServerCommand extends ServerCommand  {
      * Sets the signer service to be used to authorize the call
      * @param signer
      */
-    public void setOAuthSigner(String signer) throws OAuthServiceException{
+    public void setOAuthSigner(String signer) {
         mOAuthSigner = signer;
-
-        OAuthServiceInfo serviceInfo = ServerInteractionHelper.getInstance().getRegisteredService(signer);
-
-        if(!serviceInfo.isAuthenticated()){
-            Log.e(Constants.LOG_TAG, "Tried to use a not authenticated service to sign a command");
-            throw new OAuthServiceException(String.format("Service %s not authenticated yet", signer));
-        }
         mustSign = true;
     }
 
@@ -111,8 +104,13 @@ public abstract class RestServerCommand extends ServerCommand  {
             addParamsToRequest(request);
 
             if(mustSign){
-                OAuthServiceInfo s = ServerInteractionHelper.getInstance().getRegisteredService(mOAuthSigner);
-                s.getService().signRequest(s.getAccessToken(), request);
+                OAuthServiceInfo s = ServerInteractionHelper.getInstance().getRegisteredService(mOAuthSigner, c);
+
+               if(!s.isAuthenticated()){
+                    Log.e(Constants.LOG_TAG, "Tried to use a not authenticated service to sign a command");
+               }
+
+               s.getService().signRequest(s.getAccessToken(), request);
             }
             Response response = request.send();
             handleResponse(response.getCode(), response.getBody(), c);

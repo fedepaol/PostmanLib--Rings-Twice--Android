@@ -16,4 +16,5 @@ public class Constants {
     public static final String TOKEN = "com.smokingbytes.token";
     public static final String SECRET = "com.smokingbytes.secret";
     public static final String RAW_RES = "com.smokingbytes.rawres";
+    public static final String ALL_SERVICES = "com.smokingbytes.allservices";
 }

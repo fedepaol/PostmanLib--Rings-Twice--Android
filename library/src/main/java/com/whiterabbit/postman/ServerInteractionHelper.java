@@ -14,6 +14,7 @@ import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.oauth.OAuthFragment;
 import com.whiterabbit.postman.oauth.OAuthReceivedInterface;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
+import com.whiterabbit.postman.oauth.StorableServiceBuilder;
 import com.whiterabbit.postman.utils.Constants;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.Token;
@@ -41,9 +42,9 @@ public class ServerInteractionHelper {
 		mErrorFilter = new IntentFilter(Constants.SERVER_ERROR);
         mServices = new HashMap<String, OAuthServiceInfo>();
 	}
-	
+
 	/**
-     * Singleton
+     * Singleton factory method
      *
      * @return
      */
@@ -91,7 +92,7 @@ public class ServerInteractionHelper {
 
     /**
      * Registers the given listener as to be
-     * notified
+     * notified. To be called into onResume method of the activity
      *
      * @param listener
      * @param c
@@ -272,7 +273,6 @@ public class ServerInteractionHelper {
                 editor.putString(Constants.SECRET, accessToken.getSecret());
                 editor.putString(Constants.RAW_RES, accessToken.getRawResponse());
                 editor.commit();
-                //TODO get from hash senza controllo auth
 
                 final OAuthServiceInfo s = mServices.get(mService.getServiceName());
                 if(s != null){
@@ -335,14 +335,25 @@ public class ServerInteractionHelper {
     }
 
 
-
-    public OAuthServiceInfo getRegisteredService(String serviceName) throws OAuthServiceException {
+    /**
+     * Returns a registered service to be used to authenticate a request.
+     * Should be called inside a request message, hosted in a background thread
+     * @param serviceName the name of the service to be retrieved
+     * @return
+     * @throws OAuthServiceException
+     */
+    public OAuthServiceInfo getRegisteredService(String serviceName, Context c) throws OAuthServiceException {
         OAuthServiceInfo res = mServices.get(serviceName);
         if(res == null){
-            throw new OAuthServiceException(String.format("Service %s not found", serviceName));
+            StorableServiceBuilder builder = new StorableServiceBuilder();
+            OAuthService service = builder.build(c);
+
+            Token tokenForService = getAuthTokenForService(serviceName, c);
+            res = new OAuthServiceInfo(service, serviceName, tokenForService);
+            mServices.put(serviceName, res);
         }
 
-        if(res.getAccessToken() == null){
+        if(res == null || res.getAccessToken() == null){
             throw new OAuthServiceException(String.format("Service %s not authenticated yet", serviceName));
         }
 
@@ -371,13 +382,6 @@ public class ServerInteractionHelper {
 
     }
 
-    private void storeOAuthServiceData(String serviceName, String apiKey, String apiSecret, String callbackUrl, Context c){
-        SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
-
-
-
-    }
-
 
     /**
      * To be used to invalidate the authentication token of the given service.
@@ -392,7 +396,7 @@ public class ServerInteractionHelper {
         editor.putString(Constants.RAW_RES, "");
         editor.commit();
 
-        OAuthServiceInfo s = getRegisteredService(serviceName);
+        OAuthServiceInfo s = getRegisteredService(serviceName, c);
         s.setAccessToken(null);
     }
 

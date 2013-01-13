@@ -67,13 +67,10 @@ public class OauthAuthenticateTest {
     public void testRegisterServiceNotAuth(){
         OAuthRequest mockedRequest = mock(OAuthRequest.class);
         SimpleRestCommand mCommand = new SimpleRestCommand(mockedRequest);
+        mCommand.setOAuthSigner(SERVICE_NAME);
 
         boolean exceptionThrown = false;
-        try {
-            mCommand.setOAuthSigner(SERVICE_NAME);
-        } catch (OAuthServiceException e) {
-            exceptionThrown = true;
-        }
+            mCommand.execute(mActivity); // TODO Check if throws the correct exception
         assertTrue(exceptionThrown);
 
     }
@@ -112,7 +109,8 @@ public class OauthAuthenticateTest {
         assertTrue(mActivity.isServiceAuthenticatedSuccess());
         assertEquals(mActivity.getServiceAuthenticated(), SERVICE_NAME);
         try {
-            OAuthServiceInfo sInfo = ServerInteractionHelper.getInstance().getRegisteredService(SERVICE_NAME);
+           // even if it should be called on another thread
+            OAuthServiceInfo sInfo = ServerInteractionHelper.getInstance().getRegisteredService(SERVICE_NAME, mActivity);
             assertEquals(sInfo.getAccessToken(), mAuthToken);
 
         } catch (OAuthServiceException e) {
@@ -253,7 +251,7 @@ public class OauthAuthenticateTest {
         assertFalse(mActivity.isServiceAuthenticatedSuccess());
         assertEquals(mActivity.getServiceNotAuthenticatedReason(), "OAUTHFAILED");
         try {
-            OAuthServiceInfo sInfo = ServerInteractionHelper.getInstance().getRegisteredService(SERVICE_NAME);
+            OAuthServiceInfo sInfo = ServerInteractionHelper.getInstance().getRegisteredService(SERVICE_NAME, mActivity);
             fail();
         } catch (OAuthServiceException e) {
         }
