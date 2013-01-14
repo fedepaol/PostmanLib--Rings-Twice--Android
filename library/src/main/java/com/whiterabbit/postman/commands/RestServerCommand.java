@@ -3,8 +3,7 @@ package com.whiterabbit.postman.commands;
 import android.content.Context;
 import android.os.Parcel;
 import android.util.Log;
-import com.whiterabbit.postman.ServerInteractionHelper;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
+import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
 import com.whiterabbit.postman.utils.Constants;
 import org.scribe.exceptions.OAuthException;
@@ -104,9 +103,10 @@ public abstract class RestServerCommand extends ServerCommand  {
             addParamsToRequest(request);
 
             if(mustSign){
-                OAuthServiceInfo s = ServerInteractionHelper.getInstance().getRegisteredService(mOAuthSigner, c);
+                OAuthServiceInfo s = OAuthHelper.getInstance().getRegisteredService(mOAuthSigner, c);
 
                if(!s.isAuthenticated()){
+                   // Todo throw not auth exception
                     Log.e(Constants.LOG_TAG, "Tried to use a not authenticated service to sign a command");
                }
 
@@ -115,9 +115,6 @@ public abstract class RestServerCommand extends ServerCommand  {
             Response response = request.send();
             handleResponse(response.getCode(), response.getBody(), c);
 
-        } catch (OAuthServiceException e) {
-            notifyError(e.getMessage(), c);
-            return;
         }catch(OAuthException e){
             notifyError(e.getMessage(), c);
             return;
