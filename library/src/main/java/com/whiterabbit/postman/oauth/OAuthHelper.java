@@ -198,11 +198,12 @@ public class OAuthHelper {
     /**
      * Registers the given oauth service to the library.
      * A name must be provided to reference the service from the library
-     * @param service
      * @param name
      * @param c
      */
-    public void registerOAuthService(OAuthService service, String name, Context c) {
+    public void registerOAuthService(StorableServiceBuilder builder, String name, Context c) {
+        OAuthService service = builder.build(c);
+        builder.storeToPreferences(name, c);     // Todo on asynctask
         Token t = getAuthTokenForService(name, c);
         mServices.put(name, new OAuthServiceInfo(service, name, t));
     }
@@ -236,9 +237,8 @@ public class OAuthHelper {
     public OAuthServiceInfo getRegisteredService(String serviceName, Context c) throws OAuthServiceException {
         OAuthServiceInfo res = mServices.get(serviceName);
         if(res == null){
-            StorableServiceBuilder builder = new StorableServiceBuilder();
-            OAuthService service = builder.build(c);
-            registerOAuthService(service, serviceName, c);
+            StorableServiceBuilder builder = new StorableServiceBuilder(serviceName, c);
+            registerOAuthService(builder, serviceName, c);
             res = mServices.get(serviceName);   // just another access to the map
         }
 
@@ -268,8 +268,22 @@ public class OAuthHelper {
         }
 
         return new Token(token, secret, raw);
-
     }
+
+    /**
+     * Tells if the token for the given service is already stored or if the service must be authenticated
+     * @param serviceName
+     * @param c
+     * @return
+     */
+    public boolean isAlreadyAuthenticated(String serviceName, Context c){
+        if(mServices.get(serviceName).getAccessToken() != null){
+            return true;
+        }
+
+        return (getAuthTokenForService(serviceName, c) != null);
+    }
+
 
 
     /**
@@ -289,4 +303,7 @@ public class OAuthHelper {
         s.setAccessToken(null);
     }
 
+    public void eraseInstance(){
+        mInstance = null;
+    }
 }

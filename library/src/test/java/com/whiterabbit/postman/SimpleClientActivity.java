@@ -2,6 +2,7 @@ package com.whiterabbit.postman;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,7 +10,7 @@ import android.support.v4.app.FragmentActivity;
  * Date: 12/29/12
  * Time: 12:00 PM
  */
-public class SimpleClientActivity extends FragmentActivity implements ServerInteractionResponseInterface{
+public class SimpleClientActivity extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface{
     private boolean mIsFailure;
     private String mServerResult;
     private String mRequestReceived;

@@ -4,7 +4,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.whiterabbit.postman.oauth.OAuthFragment;
+import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
+import com.whiterabbit.postman.oauth.StorableServiceBuilder;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowDialogFragment;
@@ -12,6 +14,7 @@ import com.xtremelabs.robolectric.shadows.ShadowWebView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.scribe.builder.api.TwitterApi;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Token;
@@ -40,12 +43,14 @@ public class OauthAuthenticateTest {
     private SimpleClientActivity mActivity;
     private final static String SERVICE_NAME = "Service";
     private OAuthService mockedOAuthService;
+    private OAuthHelper mAuthHelper;
 
 
 
     @Before
     public void setUp() throws Exception {
         mHelper = ServerInteractionHelper.getInstance();
+        mAuthHelper = OAuthHelper.getInstance();
         mActivity = new SimpleClientActivity();
 
 
@@ -55,22 +60,23 @@ public class OauthAuthenticateTest {
 
 
         mockedOAuthService = mock(OAuthService.class);
-        mHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
+        mAuthHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
 
         ServerInteractionHelper.getInstance().registerEventListener(mActivity, mActivity);
+        OAuthHelper.getInstance().registerListener(mActivity);
 
     }
 
 
 
-    @Test
+    @Test(expected = OAuthServiceException.class)
     public void testRegisterServiceNotAuth(){
         OAuthRequest mockedRequest = mock(OAuthRequest.class);
         SimpleRestCommand mCommand = new SimpleRestCommand(mockedRequest);
         mCommand.setOAuthSigner(SERVICE_NAME);
 
         boolean exceptionThrown = false;
-            mCommand.execute(mActivity); // TODO Check if throws the correct exception
+        mCommand.execute(mActivity); // TODO Check if throws the correct exception
         assertTrue(exceptionThrown);
 
     }
@@ -82,12 +88,12 @@ public class OauthAuthenticateTest {
         when(mockedOAuthService.getAuthorizationUrl(any(Token.class))).thenReturn(AUTH_URL);
 
 
-        mHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
+        mAuthHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
 
         Robolectric.getBackgroundScheduler().pause();
 
         try {
-            mHelper.authenticate(mActivity, SERVICE_NAME);
+            mAuthHelper.authenticate(mActivity, SERVICE_NAME);
         } catch (OAuthServiceException e) {
             fail();
         }
@@ -110,7 +116,7 @@ public class OauthAuthenticateTest {
         assertEquals(mActivity.getServiceAuthenticated(), SERVICE_NAME);
         try {
            // even if it should be called on another thread
-            OAuthServiceInfo sInfo = ServerInteractionHelper.getInstance().getRegisteredService(SERVICE_NAME, mActivity);
+            OAuthServiceInfo sInfo = OAuthHelper.getInstance().getRegisteredService(SERVICE_NAME, mActivity);
             assertEquals(sInfo.getAccessToken(), mAuthToken);
 
         } catch (OAuthServiceException e) {
@@ -129,12 +135,12 @@ public class OauthAuthenticateTest {
         when(mockedOAuthService.getAuthorizationUrl(any(Token.class))).thenThrow(new OAuthException("FAVA") );
 
 
-        mHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
+        mAuthHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
 
         Robolectric.getBackgroundScheduler().pause();
 
         try {
-            mHelper.authenticate(mActivity, SERVICE_NAME);
+            mAuthHelper.authenticate(mActivity, SERVICE_NAME);
         } catch (OAuthServiceException e) {
             fail();
         }
@@ -154,12 +160,12 @@ public class OauthAuthenticateTest {
         when(mockedOAuthService.getAuthorizationUrl(any(Token.class))).thenReturn(AUTH_URL);
 
 
-        mHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
+        mAuthHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
 
         Robolectric.getBackgroundScheduler().pause();
 
         try {
-            mHelper.authenticate(mActivity, SERVICE_NAME);
+            mAuthHelper.authenticate(mActivity, SERVICE_NAME);
         } catch (OAuthServiceException e) {
             fail();
         }
@@ -185,12 +191,12 @@ public class OauthAuthenticateTest {
         when(mockedOAuthService.getAuthorizationUrl(any(Token.class))).thenReturn(AUTH_URL);
 
 
-        mHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
+        mAuthHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
 
         Robolectric.getBackgroundScheduler().pause();
 
         try {
-            mHelper.authenticate(mActivity, SERVICE_NAME);
+            mAuthHelper.authenticate(mActivity, SERVICE_NAME);
         } catch (OAuthServiceException e) {
             fail();
         }
@@ -224,12 +230,12 @@ public class OauthAuthenticateTest {
         when(mockedOAuthService.getAuthorizationUrl(any(Token.class))).thenReturn(AUTH_URL);
 
 
-        mHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
+        mAuthHelper.registerOAuthService(mockedOAuthService, SERVICE_NAME, mActivity);
 
         Robolectric.getBackgroundScheduler().pause();
 
         try {
-            mHelper.authenticate(mActivity, SERVICE_NAME);
+            mAuthHelper.authenticate(mActivity, SERVICE_NAME);
         } catch (OAuthServiceException e) {
             fail();
         }
@@ -251,7 +257,7 @@ public class OauthAuthenticateTest {
         assertFalse(mActivity.isServiceAuthenticatedSuccess());
         assertEquals(mActivity.getServiceNotAuthenticatedReason(), "OAUTHFAILED");
         try {
-            OAuthServiceInfo sInfo = ServerInteractionHelper.getInstance().getRegisteredService(SERVICE_NAME, mActivity);
+            OAuthServiceInfo sInfo = OAuthHelper.getInstance().getRegisteredService(SERVICE_NAME, mActivity);
             fail();
         } catch (OAuthServiceException e) {
         }
@@ -259,6 +265,25 @@ public class OauthAuthenticateTest {
 
     }
 
+
+       @Test
+    public void testServiceRegistrationStored(){
+        StorableServiceBuilder builder = new StorableServiceBuilder(SERVICE_NAME)
+                   .provider(TwitterApi.class)
+                   .apiKey("COPaViCT6nLRcGROTVZdA")
+                   .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
+                   .callback("http://your_callback_url");
+
+
+
+
+        mAuthHelper.registerOAuthService(builder, SERVICE_NAME, mActivity);
+
+        mAuthHelper.eraseInstance();
+        OAuthServiceInfo s = mAuthHelper.getRegisteredService(SERVICE_NAME, mActivity);
+        assertNotNull(s.getService());
+
+    }
 
 }
 

@@ -104,13 +104,7 @@ public abstract class RestServerCommand extends ServerCommand  {
 
             if(mustSign){
                 OAuthServiceInfo s = OAuthHelper.getInstance().getRegisteredService(mOAuthSigner, c);
-
-               if(!s.isAuthenticated()){
-                   // Todo throw not auth exception
-                    Log.e(Constants.LOG_TAG, "Tried to use a not authenticated service to sign a command");
-               }
-
-               s.getService().signRequest(s.getAccessToken(), request);
+                s.getService().signRequest(s.getAccessToken(), request);
             }
             Response response = request.send();
             handleResponse(response.getCode(), response.getBody(), c);

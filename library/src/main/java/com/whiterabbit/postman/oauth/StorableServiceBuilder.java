@@ -34,8 +34,10 @@ public class StorableServiceBuilder {
     private Class api;
     private ServiceBuilder mServiceBuilder;
 
-    public StorableServiceBuilder(){
+    public StorableServiceBuilder(String name){
+        mServiceName = name;
         mServiceBuilder = new ServiceBuilder();
+        signatureType = SignatureType.Header;
     }
 
 
@@ -85,13 +87,12 @@ public class StorableServiceBuilder {
 
     public OAuthService build(Context c)
     {
-        storeToPreferences(mServiceName, c);
         return mServiceBuilder.build();
     }
 
 
 
-    private void storeToPreferences(String serviceName, Context c){
+    void storeToPreferences(String serviceName, Context c){
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();
         editor.putString(API_KEY, apiKey);
@@ -119,7 +120,7 @@ public class StorableServiceBuilder {
         return res;
     }
 
-    public StorableServiceBuilder(String serviceName, Context c){
+    StorableServiceBuilder(String serviceName, Context c){
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         mServiceName = serviceName;
         apiKey = mySharedPreferences.getString(API_KEY, "");
@@ -148,4 +149,6 @@ public class StorableServiceBuilder {
             mServiceBuilder.signatureType(signatureType);
         }
     }
+
+
 }
