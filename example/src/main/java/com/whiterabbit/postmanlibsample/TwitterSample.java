@@ -14,7 +14,7 @@ import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
 import org.scribe.builder.api.TwitterApi;
 
-public class SampleActivity extends FragmentActivity implements ServerInteractionResponseInterface {
+public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface {
 	static final String USER_STATUS_REQUEST = "UserRequest";
 	
 	TextView mStatus;
@@ -61,8 +61,8 @@ public class SampleActivity extends FragmentActivity implements ServerInteractio
                     SampleRestOAuthCommand c1 = new SampleRestOAuthCommand("https://api.twitter.com/1.1/statuses/home_timeline.json");
                     c1.setOAuthSigner("Twitter");
                     try {
-                        ServerInteractionHelper.getInstance().sendCommand(SampleActivity.this, c, USER_STATUS_REQUEST);
-                        ServerInteractionHelper.getInstance().sendCommand(SampleActivity.this, c1, "Fava");
+                        ServerInteractionHelper.getInstance().sendCommand(TwitterSample.this, c, USER_STATUS_REQUEST);
+                        ServerInteractionHelper.getInstance().sendCommand(TwitterSample.this, c1, "Fava");
                     } catch (SendingCommandException e) {
                         mStatus.setText("Request already pending");
                     }

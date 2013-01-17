@@ -40,6 +40,10 @@ public class StorableServiceBuilder {
         signatureType = SignatureType.Header;
     }
 
+    public String getName(){
+        return mServiceName;
+    }
+
 
     public StorableServiceBuilder provider(Class<? extends Api> apiClass)
     {
@@ -129,6 +133,7 @@ public class StorableServiceBuilder {
         scope = mySharedPreferences.getString(API_SCOPE, "");
         signatureType = SignatureType.values()[mySharedPreferences.getInt(SIGNATURE_TYPE, -1)];
 
+
         String className = mySharedPreferences.getString(API, "");
         try {
             api = Class.forName(className);
@@ -138,15 +143,13 @@ public class StorableServiceBuilder {
 
         mServiceBuilder = new ServiceBuilder();
         mServiceBuilder.provider(api).apiKey(apiKey).apiSecret(apiSecret);  // mandatory
+        mServiceBuilder.signatureType(signatureType);
 
         if(!callback.equals("")){
             mServiceBuilder.callback(callback);
         }
         if(!scope.equals("")){
             mServiceBuilder.scope(scope);
-        }
-        if(!signatureType.equals("")){
-            mServiceBuilder.signatureType(signatureType);
         }
     }
 

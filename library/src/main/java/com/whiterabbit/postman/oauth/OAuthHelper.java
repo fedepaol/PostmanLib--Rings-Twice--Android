@@ -198,11 +198,12 @@ public class OAuthHelper {
     /**
      * Registers the given oauth service to the library.
      * A name must be provided to reference the service from the library
-     * @param name
+     * @param builder the storable service builder to be used to build the oauth service
      * @param c
      */
-    public void registerOAuthService(StorableServiceBuilder builder, String name, Context c) {
+    public void registerOAuthService(StorableServiceBuilder builder, Context c) {
         OAuthService service = builder.build(c);
+        String name = builder.getName();
         builder.storeToPreferences(name, c);     // Todo on asynctask
         Token t = getAuthTokenForService(name, c);
         mServices.put(name, new OAuthServiceInfo(service, name, t));
@@ -238,7 +239,7 @@ public class OAuthHelper {
         OAuthServiceInfo res = mServices.get(serviceName);
         if(res == null){
             StorableServiceBuilder builder = new StorableServiceBuilder(serviceName, c);
-            registerOAuthService(builder, serviceName, c);
+            registerOAuthService(builder, c);
             res = mServices.get(serviceName);   // just another access to the map
         }
 
