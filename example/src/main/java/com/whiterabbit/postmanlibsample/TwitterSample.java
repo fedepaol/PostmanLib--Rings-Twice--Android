@@ -3,25 +3,29 @@ package com.whiterabbit.postmanlibsample;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
+import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetCommand;
 import org.scribe.builder.api.TwitterApi;
 
-public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface {
+public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
 	static final String USER_STATUS_REQUEST = "UserRequest";
-	
-	TextView mStatus;
-	TextView mProfile;
-	EditText mName;
+    static final String REQUEST_LATEST_TWEET = "LatestTweet";
+
+    TextView mRequestStatus;
+	EditText mStatusToSend;
+    TextView mLatestTweet;
 	Button mUpdateStatusButton;
-	
+    Button mGetLatestTweetButton;
+
 	
     /** Called when the activity is first created. */
     @Override
@@ -30,13 +34,21 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
         setContentView(R.layout.main);
         
         
-        mStatus = (TextView) findViewById(R.id.status_string);
-        mUpdateStatusButton = (Button) findViewById(R.id.update_status);
-        mName = (EditText) findViewById(R.id.user_name);
-        mProfile = (TextView) findViewById(R.id.profile);
+        mRequestStatus = (TextView) findViewById(R.id.TwitterRequestStatus);
+        mUpdateStatusButton = (Button) findViewById(R.id.TwitterUpdateStatusButton);
 
+        mStatusToSend = (EditText) findViewById(R.id.TwitterStatusToPublish);
+        mLatestTweet = (TextView) findViewById(R.id.LatestTweet);
+        mGetLatestTweetButton = (Button) findViewById(R.id.TwitterGetLatestTweetButton);
 
-        StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
+        mLatestTweet.setText(StoreUtils.getLatestTweet(this));
+
+        registerToTwitter();
+
+    }
+
+    private void registerToTwitter(){
+       StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
                 .apiKey("COPaViCT6nLRcGROTVZdA")
                 .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
@@ -48,57 +60,82 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
         o.registerOAuthService(builder, this);
 
         if(!o.isAlreadyAuthenticated("Twitter", this)){
+            mRequestStatus.setText("Authenticating..");
             o.authenticate(this, "Twitter");
+        }else{
+            enableButtons();
         }
-
-
-        mUpdateStatusButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = mName.getText().toString();
-                if (!name.equals("")) {
-                    SampleRestCommand c = new SampleRestCommand("http://www.google.it");
-                    SampleRestOAuthCommand c1 = new SampleRestOAuthCommand("https://api.twitter.com/1.1/statuses/home_timeline.json");
-                    c1.setOAuthSigner("Twitter");
-                    try {
-                        ServerInteractionHelper.getInstance().sendCommand(TwitterSample.this, c, USER_STATUS_REQUEST);
-                        ServerInteractionHelper.getInstance().sendCommand(TwitterSample.this, c1, "Fava");
-                    } catch (SendingCommandException e) {
-                        mStatus.setText("Request already pending");
-                    }
-                }
-            }
-
-        });
     }
+
+    private void enableButtons(){
+        mUpdateStatusButton.setOnClickListener(this);
+        mGetLatestTweetButton.setOnClickListener(this);
+    }
+
+
+
+
 
 	@Override
 	protected void onPause() {
 		ServerInteractionHelper.getInstance().unregisterEventListener(this, this);
+        OAuthHelper.getInstance().unregisterListener();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
+        OAuthHelper.getInstance().registerListener(this);
 		
 		ServerInteractionHelper.getInstance().registerEventListener(this, this);
 		if(ServerInteractionHelper.getInstance().isRequestAlreadyPending(USER_STATUS_REQUEST)){
-			mStatus.setText("Request in progress...");
+			mRequestStatus.setText("Request in progress...");
 		}
 		super.onResume();
 	}
 
 	@Override
 	public void onServerResult(String result, String requestId) {
-		String storedProfile = StoreUtils.getProfile(this);
-		mProfile.setText(storedProfile);
-		
+        if(result.equals(REQUEST_LATEST_TWEET)){
+            mLatestTweet.setText(StoreUtils.getLatestTweet(this));
+        }
 	}
 
 	@Override
 	public void onServerError(String result, String requestId) {
-		mStatus.setText(result);
+		mRequestStatus.setText(result);
 	}
 
 
+    @Override
+    public void onServiceAuthenticated(String serviceName) {
+        Toast toast = Toast.makeText(this, String.format("%s authenticated", serviceName), Toast.LENGTH_SHORT);
+        toast.show();
+        enableButtons();
+    }
+
+    @Override
+    public void onServiceAuthenticationFailed(String serviceName, String reason) {
+        Toast toast = Toast.makeText(this, String.format("Failed to authenticate %s: %s", serviceName, reason), Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.TwitterUpdateStatusButton:
+
+            break;
+
+            case R.id.TwitterGetLatestTweetButton:
+                TwitterGetLatestTweetCommand c = new TwitterGetLatestTweetCommand();
+                try {
+                    ServerInteractionHelper.getInstance().sendCommand(this, c, "Get latest tweet");
+                } catch (SendingCommandException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+                break;
+        }
+        //TODO Autogenerated
+    }
 }

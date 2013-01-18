@@ -4,31 +4,38 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    
-    
-    <EditText 
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="username"
-        android:id="@+id/user_name" />
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Status" />
-    
+        android:text="RequestStatus" />
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/status_string" />
-    <Button 
+        android:id="@+id/TwitterRequestStatus" />
+
+    <EditText android:id="@+id/TwitterStatusToPublish"
+              android:hint="Status"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"/>
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="update profile"
-        android:id="@+id/update_status" />
-       <TextView
+        android:text="Update Status"
+        android:id="@+id/TwitterUpdateStatusButton" />
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="LatestTweet" />
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/profile" />
+        android:id="@+id/LatestTweet" />
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Latest Tweet"
+            android:id="@+id/TwitterGetLatestTweetButton" />
+
     
 
 </LinearLayout>
