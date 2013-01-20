@@ -20,7 +20,12 @@ import com.whiterabbit.postman.utils.Constants;
  * Date: 12/23/12
  * Time: 8:53 PM
  */
-public class OAuthFragment extends DialogFragment {
+
+/**
+ * Dialog fragment that hosts the webview responsible for
+ * the oauth authentication
+ */
+class OAuthFragment extends DialogFragment {
 
     private WebView webViewOauth;
     String mUrl;

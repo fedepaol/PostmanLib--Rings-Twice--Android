@@ -1,10 +1,8 @@
 package com.whiterabbit.postman.oauth;
 
 /**
- * Created with IntelliJ IDEA.
- * User: fedepaol
- * Date: 1/14/13
- * Time: 9:06 PM
+ * Listener interface to be used to get notifications of
+ * oauth process result
  */
 public interface OAuthResponseInterface {
    /**

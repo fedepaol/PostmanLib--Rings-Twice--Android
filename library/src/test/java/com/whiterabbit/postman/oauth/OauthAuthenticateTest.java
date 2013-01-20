@@ -1,13 +1,13 @@
-package com.whiterabbit.postman;
+package com.whiterabbit.postman.oauth;
 
 import android.content.Context;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import com.whiterabbit.postman.R;
+import com.whiterabbit.postman.ServerInteractionHelper;
+import com.whiterabbit.postman.SimpleClientActivity;
+import com.whiterabbit.postman.SimpleRestCommand;
 import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
-import com.whiterabbit.postman.oauth.OAuthFragment;
-import com.whiterabbit.postman.oauth.OAuthHelper;
-import com.whiterabbit.postman.oauth.OAuthServiceInfo;
-import com.whiterabbit.postman.oauth.StorableServiceBuilder;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowDialogFragment;
