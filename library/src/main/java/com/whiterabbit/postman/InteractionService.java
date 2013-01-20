@@ -24,6 +24,8 @@ public class InteractionService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ServerCommand c = (ServerCommand) intent.getParcelableExtra(Constants.PAYLOAD);
+        c.fillFromIntent(intent);
+
         if(c != null){
             c.execute(this);
         }else{

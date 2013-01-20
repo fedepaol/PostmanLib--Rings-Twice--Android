@@ -96,7 +96,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 
 	@Override
 	public void onServerResult(String result, String requestId) {
-        if(result.equals(REQUEST_LATEST_TWEET)){
+        if(requestId.equals(REQUEST_LATEST_TWEET)){
             mLatestTweet.setText(StoreUtils.getLatestTweet(this));
         }
 	}
@@ -129,8 +129,9 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 
             case R.id.TwitterGetLatestTweetButton:
                 TwitterGetLatestTweetCommand c = new TwitterGetLatestTweetCommand();
+                c.setOAuthSigner("Twitter");
                 try {
-                    ServerInteractionHelper.getInstance().sendCommand(this, c, "Get latest tweet");
+                    ServerInteractionHelper.getInstance().sendCommand(this, c, REQUEST_LATEST_TWEET);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }

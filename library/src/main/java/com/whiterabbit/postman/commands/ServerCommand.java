@@ -19,33 +19,14 @@ public abstract class ServerCommand implements Parcelable{
 		return mRequestId;
 	}
 	
-	/**
-	 * Static method to be used to retrieve the message type 
-	 * from an intent that contains it
-	 * @param i
-	 * @return
-	 */
-	public static String getTypeFromIntent(Intent i){
-		return i.getExtras().getString(Constants.MESSAGE_TYPE);
-	}
-	
-	
-	/**
-	 * Returns the type of the command to be used in CommandFactory to
-	 * create the right command
-	 * @return
-	 */
-	public String getType(){
-		return getClass().getSimpleName();
-	}
-	
+
+
 	/** 
 	 * Prepares the intent to be serialized 
 	 * @param i
 	 */
 	public void fillIntent(Intent i){
 		i.putExtra(Constants.REQUEST_ID, getRequestId());
-		i.putExtra(Constants.MESSAGE_TYPE, getType());
         i.putExtra(Constants.PAYLOAD, this);
 	}
 	
