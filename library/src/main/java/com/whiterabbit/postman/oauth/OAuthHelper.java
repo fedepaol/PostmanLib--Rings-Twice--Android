@@ -304,7 +304,4 @@ public class OAuthHelper {
         s.setAccessToken(null);
     }
 
-    public void eraseInstance(){
-        mInstance = null;
-    }
 }
