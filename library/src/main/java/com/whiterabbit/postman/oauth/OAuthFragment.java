@@ -52,13 +52,17 @@ class OAuthFragment extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         Log.i(Constants.LOG_TAG, "Oauth dialog dismissed with no authentication");
-        notifyAuthenticationFailed();
+        if(!mAuthFound){
+            notifyAuthenticationFailed();
+        }
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
         Log.i(Constants.LOG_TAG, "Oauth dialog dismissed with no authentication");
-        notifyAuthenticationFailed();
+        if(!mAuthFound){
+            notifyAuthenticationFailed();
+        }
     }
 
 
