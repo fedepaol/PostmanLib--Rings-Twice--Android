@@ -8,6 +8,7 @@ import com.whiterabbit.postmanlibsample.StoreUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
 import java.io.IOException;
@@ -27,10 +28,10 @@ public class TwitterGetLatestTweetCommand extends RestServerCommand {
     }
 
     @Override
-    protected void processHttpResult(String result, Context context) throws ResultParseException {
+    protected void processHttpResult(Response result, Context context) throws ResultParseException {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            JsonNode root = mapper.readTree(result);
+            JsonNode root = mapper.readTree(result.getBody());
             for (JsonNode tweet : root){
                 String text = tweet.path("text").toString();
                 String user = tweet.path("user").path("name").toString();

@@ -70,7 +70,7 @@ public abstract class RestServerCommand extends ServerCommand  {
 	 * @param result
 	 * @param context
 	 */
-	protected abstract void processHttpResult(String result, Context context) throws ResultParseException;
+	protected abstract void processHttpResult(Response result, Context context) throws ResultParseException;
 
 
     /**
@@ -107,7 +107,7 @@ public abstract class RestServerCommand extends ServerCommand  {
                 s.getService().signRequest(s.getAccessToken(), request);
             }
             Response response = request.send();
-            handleResponse(response.getCode(), response.getBody(), c);
+            handleResponse(response.getCode(), response, c);
 
         }catch(OAuthException e){
             notifyError(e.getMessage(), c);
@@ -119,7 +119,7 @@ public abstract class RestServerCommand extends ServerCommand  {
 
 
 
-	private void handleResponse(int statusCode, String response, Context c) {
+	private void handleResponse(int statusCode, Response response, Context c) {
 		switch(statusCode){
 			case 200:
 				if(response != null){

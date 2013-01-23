@@ -37,6 +37,9 @@ public class SampleList extends FragmentActivity implements AdapterView.OnItemCl
             case 0:
                 j = new Intent(this, TwitterSample.class);
             break;
+            case 1:
+                j = new Intent(this, NoAuthSample.class);
+            break;
             default:
                 return;
         }

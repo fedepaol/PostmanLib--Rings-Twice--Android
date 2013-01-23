@@ -5,6 +5,7 @@ import android.os.Parcel;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.commands.ResultParseException;
 import org.scribe.model.OAuthRequest;
+import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
 /**
@@ -29,8 +30,8 @@ public class SimpleRestCommand extends RestServerCommand{
     }
 
     @Override
-    protected void processHttpResult(String result, Context context) throws ResultParseException {
-        mResultString = result;
+    protected void processHttpResult(Response result, Context context) throws ResultParseException {
+        mResultString = result.getBody();
     }
 
     @Override
