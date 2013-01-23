@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
+import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.NoAuthCommand;
 
 import java.io.*;

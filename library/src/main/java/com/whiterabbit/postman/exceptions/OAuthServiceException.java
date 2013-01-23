@@ -1,4 +1,4 @@
-package com.whiterabbit.postman.com.whiterabbit.postman.exceptions;
+package com.whiterabbit.postman.exceptions;
 
 /**
  * Created with IntelliJ IDEA.

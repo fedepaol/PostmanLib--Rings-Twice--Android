@@ -1,7 +1,7 @@
 package com.whiterabbit.postman;
 
 import android.content.Intent;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
+import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import com.xtremelabs.robolectric.shadows.ShadowIntent;

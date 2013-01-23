@@ -7,7 +7,7 @@ import com.whiterabbit.postman.R;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.SimpleClientActivity;
 import com.whiterabbit.postman.SimpleRestCommand;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
+import com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowDialogFragment;

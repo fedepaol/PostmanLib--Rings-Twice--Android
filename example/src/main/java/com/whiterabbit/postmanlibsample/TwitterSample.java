@@ -9,7 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
+import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;

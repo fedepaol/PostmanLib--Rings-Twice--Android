@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.OAuthServiceException;
+import com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.whiterabbit.postman.utils.Constants;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.Token;

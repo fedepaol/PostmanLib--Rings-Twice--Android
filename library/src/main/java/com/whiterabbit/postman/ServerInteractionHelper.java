@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import com.whiterabbit.postman.com.whiterabbit.postman.exceptions.SendingCommandException;
+import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.utils.Constants;
 
