@@ -55,8 +55,6 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
                 .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
                 .callback("http://your_callback_url");
 
-        ServerInteractionHelper h = ServerInteractionHelper.getInstance();
-
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
 

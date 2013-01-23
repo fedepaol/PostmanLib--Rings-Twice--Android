@@ -64,9 +64,16 @@ Once your command is ready, all it takes to send it is:
 The
 
 
-    protected abstract void processHttpResult(String result, Context context);
+    protected abstract void processHttpResult(Response result, Context context);
 
 will be called with the result of the http call.
+
+The _Response_ parameter is a scribe Response object. You can get the stringified result using
+    result.getBody()
+in case of a text result, such as json.
+
+Otherwise, a stream can be fetched using:
+    result.getStream()
 
 
 ##OAuth Authentication
@@ -77,19 +84,22 @@ Another feature provided by ServerInteractionHelper is to asynchronously authori
 
 ---
 
-Requesting an authorization is quite simple. After building an _OAuthService_ using Scribe library, it must be registered against the _ServerInteractionHelper_ and then authorized:
+Requesting an authorization is quite simple.
+A storable builder, which is a simple wrapper to _scribe_'s ServiceBuilder, must be created and registered against the _OAuthHelper_.
 
-    OAuthService service = new ServiceBuilder()
+    StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
-                .apiKey("YourApiKey")
-                .apiSecret("YourApiSecret")
-                .callback("http://your_callback_url")
-                .build();
+                .apiKey("COPaViCT6nLRcGROTVZdA")
+                .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
+                .callback("http://your_callback_url");
 
-    ServerInteractionHelper h = ServerInteractionHelper.getInstance();
-    h.registerOAuthService(service, "Twitter", this);
-    h.authenticate(this, "Twitter");
+    OAuthHelper o = OAuthHelper.getInstance();
+    o.registerOAuthService(builder, this);
 
+In case the service is not yet authorized, the authorization process must be started:
+    if(!o.isAlreadyAuthenticated("Twitter", this)){
+        o.authenticate(this, "Twitter");
+    }
 
 Once the service is registered, all it takes to sign a RestServerCommand is calling the _setOAuthSigner_ method:
 
