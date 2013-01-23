@@ -69,10 +69,13 @@ The
 will be called with the result of the http call.
 
 The _Response_ parameter is a scribe Response object. You can get the stringified result using
+
     result.getBody()
+
 in case of a text result, such as json.
 
 Otherwise, a stream can be fetched using:
+
     result.getStream()
 
 
@@ -97,6 +100,7 @@ A storable builder, which is a simple wrapper to _scribe_'s ServiceBuilder, must
     o.registerOAuthService(builder, this);
 
 In case the service is not yet authorized, the authorization process must be started:
+
     if(!o.isAlreadyAuthenticated("Twitter", this)){
         o.authenticate(this, "Twitter");
     }
