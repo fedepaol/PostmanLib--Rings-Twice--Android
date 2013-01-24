@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.whiterabbit.postman.commands.RestServerCommand;
-import com.whiterabbit.postman.commands.ResultParseException;
+import com.whiterabbit.postman.exceptions.ResultParseException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Verb;
 

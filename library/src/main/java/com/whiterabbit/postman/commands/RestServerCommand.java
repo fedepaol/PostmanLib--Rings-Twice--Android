@@ -3,6 +3,7 @@ package com.whiterabbit.postman.commands;
 import android.content.Context;
 import android.os.Parcel;
 import android.util.Log;
+import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
 import com.whiterabbit.postman.utils.Constants;

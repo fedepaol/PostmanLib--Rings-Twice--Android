@@ -3,7 +3,7 @@ package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.comman
 import android.content.Context;
 import android.os.Parcel;
 import com.whiterabbit.postman.commands.RestServerCommand;
-import com.whiterabbit.postman.commands.ResultParseException;
+import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postmanlibsample.StoreUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
