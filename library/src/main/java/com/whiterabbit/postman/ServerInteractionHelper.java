@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import com.whiterabbit.postman.exceptions.SendingCommandException;
+import com.whiterabbit.postman.commands.RestServerCommand;
+import com.whiterabbit.postman.commands.RestServerStrategy;
 import com.whiterabbit.postman.commands.ServerCommand;
+import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.utils.Constants;
 
 import java.util.Collections;
@@ -159,6 +161,13 @@ public class ServerInteractionHelper {
         } else {
             throw new SendingCommandException("Same request already pending");
         }
+    }
+
+
+    public void sendRestCommand(Context c, RestServerStrategy s, String requestId) throws SendingCommandException {
+        RestServerCommand command = new RestServerCommand(s);   // TODO use a pool of commands
+        sendCommand(c, command, requestId);
+
     }
 
 

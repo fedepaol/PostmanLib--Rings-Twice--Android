@@ -1,5 +1,6 @@
 package com.whiterabbit.postman;
 
+import com.whiterabbit.postman.commands.RestServerCommand;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
+import org.scribe.model.Verb;
 
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.junit.Assert.assertEquals;
@@ -35,8 +37,15 @@ public class RestCommandTest{
         mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
-        OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestCommand command = new SimpleRestCommand(mockedRequest);
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, false);
+        RestServerCommand command = new RestServerCommand(s){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
 
         Response mockedResponse = mock(Response.class);
         when(mockedRequest.send()).thenReturn(mockedResponse);
@@ -58,8 +67,15 @@ public class RestCommandTest{
         mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
-        OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestCommand command = new SimpleRestCommand(mockedRequest);
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, false);
+        RestServerCommand command = new RestServerCommand(s){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
 
         when(mockedRequest.send()).thenThrow(new OAuthException("Fava"));
 

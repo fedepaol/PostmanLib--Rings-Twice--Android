@@ -13,8 +13,8 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetCommand;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusCommand;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetStrategy;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusStrategy;
 import org.scribe.builder.api.TwitterApi;
 
 public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
@@ -126,20 +126,18 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.TwitterUpdateStatusButton:
-                TwitterUpdateStatusCommand statusCommand = new TwitterUpdateStatusCommand(mStatusToSend.getText().toString());
-                statusCommand.setOAuthSigner("Twitter");
+                TwitterUpdateStatusStrategy statusCommand = new TwitterUpdateStatusStrategy(mStatusToSend.getText().toString());
                 try {
-                    ServerInteractionHelper.getInstance().sendCommand(this, statusCommand, UPDATE_STATUS);
+                    ServerInteractionHelper.getInstance().sendRestCommand(this, statusCommand, UPDATE_STATUS);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
             break;
 
             case R.id.TwitterGetLatestTweetButton:
-                TwitterGetLatestTweetCommand c = new TwitterGetLatestTweetCommand();
-                c.setOAuthSigner("Twitter");
+                TwitterGetLatestTweetStrategy c = new TwitterGetLatestTweetStrategy();
                 try {
-                    ServerInteractionHelper.getInstance().sendCommand(this, c, REQUEST_LATEST_TWEET);
+                    ServerInteractionHelper.getInstance().sendRestCommand(this, c, REQUEST_LATEST_TWEET);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

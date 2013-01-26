@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.NoAuthCommand;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.NoAuthStrategy;
 
 import java.io.*;
 
@@ -95,9 +95,9 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.no_auth_download_button:
-                NoAuthCommand c = new NoAuthCommand();
+                NoAuthStrategy c = new NoAuthStrategy();
                 try {
-                    ServerInteractionHelper.getInstance().sendCommand(this, c, DOWNLOAD_IMAGE);
+                    ServerInteractionHelper.getInstance().sendRestCommand(this, c, DOWNLOAD_IMAGE);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

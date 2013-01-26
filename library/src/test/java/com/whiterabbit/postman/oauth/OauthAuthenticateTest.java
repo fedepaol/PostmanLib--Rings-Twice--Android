@@ -6,7 +6,8 @@ import android.webkit.WebViewClient;
 import com.whiterabbit.postman.R;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.SimpleClientActivity;
-import com.whiterabbit.postman.SimpleRestCommand;
+import com.whiterabbit.postman.SimpleRestStrategy;
+import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -18,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Token;
+import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
@@ -74,12 +76,18 @@ public class OauthAuthenticateTest {
 
     @Test(expected = OAuthServiceException.class)
     public void testRegisterServiceNotAuth(){
-        OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestCommand mCommand = new SimpleRestCommand(mockedRequest);
-        mCommand.setOAuthSigner(SERVICE_NAME);
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, true);
+        RestServerCommand c = new RestServerCommand(s){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
 
         boolean exceptionThrown = false;
-        mCommand.execute(mActivity); // TODO Check if throws the correct exception
+        c.execute(mActivity); // TODO Check if throws the correct exception
         assertTrue(exceptionThrown);
 
     }
