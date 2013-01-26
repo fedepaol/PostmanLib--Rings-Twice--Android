@@ -19,8 +19,6 @@ import org.scribe.model.Verb;
  *
  */
 public class RestServerCommand extends ServerCommand  {
-    private String mUrl;
-    private Verb mVerb;
     private RestServerStrategy mStrategy;
 
     /**
@@ -36,14 +34,10 @@ public class RestServerCommand extends ServerCommand  {
     }
 
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(mVerb.ordinal());
-        parcel.writeString(mUrl);
         parcel.writeParcelable(mStrategy, 0);
     }
 
     protected RestServerCommand(Parcel in){
-        mVerb = Verb.values()[in.readInt()];
-        mUrl = in.readString();
         mStrategy = in.readParcelable(RestServerStrategy.class.getClassLoader());
 
     }
@@ -82,7 +76,7 @@ public class RestServerCommand extends ServerCommand  {
 	public void execute(Context c) {
 
         try {
-            OAuthRequest request = getRequest(mVerb, mUrl);
+            OAuthRequest request = getRequest(mStrategy.getVerb(), mStrategy.getUrl());
             mStrategy.addParamsToRequest(request);
 
             String signer = mStrategy.getOAuthSigner();
