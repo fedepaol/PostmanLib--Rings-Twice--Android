@@ -15,7 +15,8 @@ import org.scribe.model.Verb;
  */
 public interface RestServerStrategy extends Parcelable{
     /**
-     * Must return the signer service to be used in case of oauth request
+     * Must return the signer service to be used in case of oauth request.
+     * Return null in case of not signed message
      * @return
      */
     public String getOAuthSigner();

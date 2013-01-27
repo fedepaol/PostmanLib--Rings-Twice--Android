@@ -19,13 +19,15 @@ import org.scribe.model.Verb;
  *
  */
 public class RestServerCommand extends ServerCommand  {
-    private RestServerStrategy mStrategy;
+    private RestServerStrategy mFirstStrategy;
+    private RestServerStrategy[] mStrategies;
 
     /**
      * Constructor
      */
-    public RestServerCommand(RestServerStrategy strategy){
-        mStrategy = strategy;
+    public RestServerCommand(RestServerStrategy firstStrategy, RestServerStrategy... otherStrategies){
+        mFirstStrategy = firstStrategy;
+        mStrategies = otherStrategies;
     }
 
     @Override
@@ -34,11 +36,13 @@ public class RestServerCommand extends ServerCommand  {
     }
 
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeParcelable(mStrategy, 0);
+        parcel.writeParcelable(mFirstStrategy, 0);
+        parcel.writeParcelableArray(mStrategies, 0);
     }
 
     protected RestServerCommand(Parcel in){
-        mStrategy = in.readParcelable(RestServerStrategy.class.getClassLoader());
+        mFirstStrategy = in.readParcelable(RestServerStrategy.class.getClassLoader());
+        mStrategies = (RestServerStrategy[]) in.readParcelableArray(RestServerStrategy.class.getClassLoader());
 
     }
 
@@ -76,16 +80,10 @@ public class RestServerCommand extends ServerCommand  {
 	public void execute(Context c) {
 
         try {
-            OAuthRequest request = getRequest(mStrategy.getVerb(), mStrategy.getUrl());
-            mStrategy.addParamsToRequest(request);
-
-            String signer = mStrategy.getOAuthSigner();
-            if(signer != null){
-                OAuthServiceInfo s = OAuthHelper.getInstance().getRegisteredService(signer, c);
-                s.getService().signRequest(s.getAccessToken(), request);
+            executeStrategy(mFirstStrategy, c);
+            for(RestServerStrategy s : mStrategies){
+                executeStrategy(s, c);
             }
-            Response response = request.send();
-            handleResponse(response.getCode(), response, c);
 
         }catch(OAuthException e){
             notifyError(e.getMessage(), c);
@@ -95,14 +93,26 @@ public class RestServerCommand extends ServerCommand  {
     }
 
 
+    private void executeStrategy(RestServerStrategy s, Context c) throws OAuthException{
+           OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
+           s.addParamsToRequest(request);
+           String signer = s.getOAuthSigner();
+           if(signer != null){
+               OAuthServiceInfo authService  = OAuthHelper.getInstance().getRegisteredService(signer, c);
+               authService.getService().signRequest(authService.getAccessToken(), request);
+           }
+           Response response = request.send();
+           handleResponse(s, response.getCode(), response, c);
+    }
 
 
-	private void handleResponse(int statusCode, Response response, Context c) {
+
+	private void handleResponse(RestServerStrategy strategy, int statusCode, Response response, Context c) {
 		switch(statusCode){
 			case 200:
 				if(response != null){
                     try {
-                        mStrategy.processHttpResult(response, c);
+                        strategy.processHttpResult(response, c);
                     }catch(ResultParseException e){
                         notifyError("Failed to parse result " + e.getMessage(), c);
                         Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
