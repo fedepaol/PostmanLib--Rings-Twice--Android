@@ -132,7 +132,7 @@ Using the same name used to register the service.
 
 * The common pattern I suggest to use with postman lib is not to return all the data to the activity, but update your data model <b>inside the processHttpResult</b> method and only update the ui when the activity gets notified of the end of the request
 
-* _ServerCommand_ implement Parcelable interface. This is because the command must be passed to the intent service through an intent. In addition to the _Parcelable_ methods, every command implementation must have a static CREATOR field, such as 
+* _ServerCommand_ and _RestServerAction_ implement Parcelable interface. This is because the command must be passed to the intent service through an intent. As per the official android doc, in addition to the _Parcelable_ methods, every command implementation must have a static CREATOR field, such as
     
     public static final Parcelable.Creator<SampleRestCommand> CREATOR = ...
 
