@@ -164,7 +164,22 @@ public class ServerInteractionHelper {
     }
 
 
-    public void sendRestCommand(Context c, RestServerStrategy s, String requestId) throws SendingCommandException {
+    /**
+     * Helper method to send rest commands. Can send one or more resttrategies to be executed
+     * In case of bulk strategies, a failure will be notified whenever the first execution fails (even if the previous
+     * one where successful)
+     *
+     * @param c
+     *         the context of the caller
+     * @param requestId
+     *         a loopback param with the request id that will be returned with the result
+     * @param s
+     *         a mandatory strategy
+     * @param moreStrategies
+     *        optional other strategies to be executed together
+     * @throws SendingCommandException
+     */
+    public void sendRestCommand(Context c, String requestId, RestServerStrategy s, RestServerStrategy... moreStrategies) throws SendingCommandException {
         RestServerCommand command = new RestServerCommand(s);   // TODO use a pool of commands
         sendCommand(c, command, requestId);
 

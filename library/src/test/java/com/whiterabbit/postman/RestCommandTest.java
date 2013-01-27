@@ -1,8 +1,8 @@
 package com.whiterabbit.postman;
 
+import android.content.Intent;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowActivity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +11,6 @@ import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -20,14 +19,12 @@ import static org.mockito.Mockito.*;
 public class RestCommandTest{
     private ServerInteractionHelper mHelper;
     private SimpleClientActivity mActivity;
-    private ShadowActivity mShadowOfActivity;
 
 
     @Before
     public void setUp() throws Exception {
         mHelper = ServerInteractionHelper.getInstance();
         mActivity = new SimpleClientActivity();
-        mShadowOfActivity = shadowOf(mActivity);
     }
 
 
@@ -60,6 +57,44 @@ public class RestCommandTest{
         assertEquals(mActivity.getServerResult(), "Ok");
 
     }
+
+   @Test
+    public void testCommandExecutionBulk(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, false);
+        SimpleRestStrategy s1 = new SimpleRestStrategy(mockedRequest, false);
+        SimpleRestStrategy s2 = new SimpleRestStrategy(mockedRequest, false);
+        RestServerCommand command = new RestServerCommand(s, s1, s2){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
+
+        Intent i = new Intent();
+        i.putExtra("command", command);
+        RestServerCommand newCommand = i.getParcelableExtra("command");
+        Response mockedResponse = mock(Response.class);
+        when(mockedRequest.send()).thenReturn(mockedResponse);
+
+        when(mockedResponse.getBody()).thenReturn("Ciao");
+        when(mockedResponse.getCode()).thenReturn(200);
+
+        newCommand.execute(mActivity);
+        verify(mockedRequest, times(3)).addHeader("Key", "Value");
+        verify(mockedRequest, times(3)).send();
+
+        assertEquals(mActivity.getServerResult(), "Ok");
+        assertEquals(s.getResultString(), "Ciao");
+        assertEquals(s1.getResultString(), "Ciao");
+        assertEquals(s2.getResultString(), "Ciao");
+
+    }
+
 
 
     @Test

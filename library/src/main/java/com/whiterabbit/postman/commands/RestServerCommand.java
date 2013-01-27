@@ -3,6 +3,7 @@ package com.whiterabbit.postman.commands;
 import android.content.Context;
 import android.os.Parcel;
 import android.util.Log;
+import com.whiterabbit.postman.exceptions.PostmanException;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthServiceInfo;
@@ -19,8 +20,8 @@ import org.scribe.model.Verb;
  *
  */
 public class RestServerCommand extends ServerCommand  {
-    private RestServerStrategy mFirstStrategy;
-    private RestServerStrategy[] mStrategies;
+    private final RestServerStrategy mFirstStrategy;
+    private final RestServerStrategy[] mStrategies;
 
     /**
      * Constructor
@@ -84,8 +85,12 @@ public class RestServerCommand extends ServerCommand  {
             for(RestServerStrategy s : mStrategies){
                 executeStrategy(s, c);
             }
+            notifyResult("Ok",  c);
 
         }catch(OAuthException e){
+            notifyError(e.getMessage(), c);
+            return;
+        } catch (PostmanException e) {
             notifyError(e.getMessage(), c);
             return;
         }
@@ -93,7 +98,7 @@ public class RestServerCommand extends ServerCommand  {
     }
 
 
-    private void executeStrategy(RestServerStrategy s, Context c) throws OAuthException{
+    private void executeStrategy(RestServerStrategy s, Context c) throws OAuthException, PostmanException {
            OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
            s.addParamsToRequest(request);
            String signer = s.getOAuthSigner();
@@ -107,7 +112,7 @@ public class RestServerCommand extends ServerCommand  {
 
 
 
-	private void handleResponse(RestServerStrategy strategy, int statusCode, Response response, Context c) {
+	private void handleResponse(RestServerStrategy strategy, int statusCode, Response response, Context c) throws PostmanException {
 		switch(statusCode){
 			case 200:
 				if(response != null){
@@ -118,23 +123,16 @@ public class RestServerCommand extends ServerCommand  {
                         Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
                     }
                 }
-                notifyResult("Ok",  c);
             break;
             case 204:
-                notifyResult("Ok",  c);
             break;
             case 404:
-                notifyError("Not found" ,  c);
-            break;
+                throw new PostmanException("Not found");
             case 401:
-                notifyError("No permission" ,  c);
+                throw new PostmanException("No permission");
                 // TODO Invalidate token ??
-            break;
             default:
-                notifyError("Generic error " + statusCode, c);
+                throw new PostmanException("Generic error " + statusCode);
         }
 	}
-	
-
-
 }
