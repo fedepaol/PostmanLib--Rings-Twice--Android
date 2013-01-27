@@ -2,7 +2,9 @@ package com.whiterabbit.postman.commands;
 
 import android.content.Context;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
+import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.exceptions.PostmanException;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
@@ -21,7 +23,8 @@ import org.scribe.model.Verb;
  */
 public class RestServerCommand extends ServerCommand  {
     private final RestServerStrategy mFirstStrategy;
-    private final RestServerStrategy[] mStrategies;
+    private final Parcelable[] mStrategies; // must be a Parcelable[] instead of RestServerStrategy[] because I wouldn't be
+                                            // able to read it (can't cast Parcelable[] to RestServerStrategy[] )
 
     /**
      * Constructor
@@ -43,7 +46,7 @@ public class RestServerCommand extends ServerCommand  {
 
     protected RestServerCommand(Parcel in){
         mFirstStrategy = in.readParcelable(RestServerStrategy.class.getClassLoader());
-        mStrategies = (RestServerStrategy[]) in.readParcelableArray(RestServerStrategy.class.getClassLoader());
+        mStrategies = in.readParcelableArray(RestServerStrategy.class.getClassLoader());
 
     }
 
@@ -79,11 +82,13 @@ public class RestServerCommand extends ServerCommand  {
 	 */
 	@Override
 	public void execute(Context c) {
+        ServerInteractionHelper.getInstance().enableHttpResponseCache(c); // this looks to be the best place
 
         try {
             executeStrategy(mFirstStrategy, c);
-            for(RestServerStrategy s : mStrategies){
-                executeStrategy(s, c);
+
+            for(Parcelable p : mStrategies){
+                executeStrategy((RestServerStrategy)p, c);
             }
             notifyResult("Ok",  c);
 

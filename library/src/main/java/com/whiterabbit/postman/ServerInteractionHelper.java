@@ -12,6 +12,7 @@ import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.utils.Constants;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class ServerInteractionHelper {
     private IntentFilter                  		mFilter;
     private IntentFilter                  		mErrorFilter;
     private Map<String, Boolean>	mPendingRequests;   // TODO Sparse array. Change request id to long
+    private boolean         mCachingEnabled;
 
 	
 	
@@ -32,7 +34,29 @@ public class ServerInteractionHelper {
 		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
 		mFilter = new IntentFilter(Constants.SERVER_RESULT);
 		mErrorFilter = new IntentFilter(Constants.SERVER_ERROR);
+        mCachingEnabled = false;
+
 	}
+
+    /**
+     * From http://android-developers.blogspot.it/2011/09/androids-http-clients.html
+     * enabling the http cache results in better performance and low latency.
+     * It's automatically called in RestServerCommands.execute
+     * @param c
+     */
+    public void enableHttpResponseCache(Context c) {
+        if(mCachingEnabled){
+            return;
+        }
+        try {
+            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            File httpCacheDir = new File(c.getCacheDir(), "http");
+            Class.forName("android.net.http.HttpResponseCache")
+                    .getMethod("install", File.class, long.class)
+                    .invoke(null, httpCacheDir, httpCacheSize);
+        } catch (Exception httpResponseCacheNotAvailable) {
+        }
+    }
 
 	/**
      * Singleton factory method
@@ -180,7 +204,7 @@ public class ServerInteractionHelper {
      * @throws SendingCommandException
      */
     public void sendRestCommand(Context c, String requestId, RestServerStrategy s, RestServerStrategy... moreStrategies) throws SendingCommandException {
-        RestServerCommand command = new RestServerCommand(s);   // TODO use a pool of commands
+        RestServerCommand command = new RestServerCommand(s, moreStrategies);   // TODO use a pool of commands
         sendCommand(c, command, requestId);
 
     }
