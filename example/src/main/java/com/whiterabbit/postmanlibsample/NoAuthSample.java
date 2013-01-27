@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.NoAuthStrategy;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.NoAuthRequest;
 
 import java.io.*;
 
@@ -107,10 +107,10 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.no_auth_download_button:
-                NoAuthStrategy polle = new NoAuthStrategy("http://www.cimonesci.it/cams/polle.jpg", "polle.png");
-                NoAuthStrategy abetone = new NoAuthStrategy("http://www.aptabetone.it/abetone/pics/lat001.jpg", "abetone.png");
+                NoAuthRequest polle = new NoAuthRequest("http://www.cimonesci.it/cams/polle.jpg", "polle.png");
+                NoAuthRequest abetone = new NoAuthRequest("http://www.aptabetone.it/abetone/pics/lat001.jpg", "abetone.png");
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, DOWNLOAD_IMAGE, polle, abetone);
+                    ServerInteractionHelper.getInstance().sendRestAction(this, DOWNLOAD_IMAGE, polle, abetone);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

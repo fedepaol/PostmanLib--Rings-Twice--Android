@@ -35,7 +35,7 @@ public class RestCommandTest{
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, false);
+        SimpleRestRequest s = new SimpleRestRequest(mockedRequest, false);
         RestServerCommand command = new RestServerCommand(s){
 
             @Override
@@ -64,9 +64,9 @@ public class RestCommandTest{
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, false);
-        SimpleRestStrategy s1 = new SimpleRestStrategy(mockedRequest, false);
-        SimpleRestStrategy s2 = new SimpleRestStrategy(mockedRequest, false);
+        SimpleRestRequest s = new SimpleRestRequest(mockedRequest, false);
+        SimpleRestRequest s1 = new SimpleRestRequest(mockedRequest, false);
+        SimpleRestRequest s2 = new SimpleRestRequest(mockedRequest, false);
         RestServerCommand command = new RestServerCommand(s, s1, s2){
 
             @Override
@@ -103,7 +103,7 @@ public class RestCommandTest{
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, false);
+        SimpleRestRequest s = new SimpleRestRequest(mockedRequest, false);
         RestServerCommand command = new RestServerCommand(s){
 
             @Override

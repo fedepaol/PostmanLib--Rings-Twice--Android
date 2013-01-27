@@ -6,7 +6,7 @@ import android.webkit.WebViewClient;
 import com.whiterabbit.postman.R;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.SimpleClientActivity;
-import com.whiterabbit.postman.SimpleRestStrategy;
+import com.whiterabbit.postman.SimpleRestRequest;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -77,7 +77,7 @@ public class OauthAuthenticateTest {
     @Test(expected = OAuthServiceException.class)
     public void testRegisterServiceNotAuth(){
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
-        SimpleRestStrategy s = new SimpleRestStrategy(mockedRequest, true);
+        SimpleRestRequest s = new SimpleRestRequest(mockedRequest, true);
         RestServerCommand c = new RestServerCommand(s){
 
             @Override

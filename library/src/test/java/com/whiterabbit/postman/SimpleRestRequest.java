@@ -2,7 +2,7 @@ package com.whiterabbit.postman;
 
 import android.content.Context;
 import android.os.Parcel;
-import com.whiterabbit.postman.commands.RestServerStrategy;
+import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -14,7 +14,7 @@ import org.scribe.model.Verb;
  * Date: 12/30/12
  * Time: 2:25 PM
  */
-public class SimpleRestStrategy implements RestServerStrategy {
+public class SimpleRestRequest implements RestServerRequest {
     public final String KEY = "key";
     public final String VALUE = "value";
     private String mResultString;
@@ -25,12 +25,12 @@ public class SimpleRestStrategy implements RestServerStrategy {
 
     public final static String SERVICE_NAME = "Service";
 
-    public SimpleRestStrategy(OAuthRequest request, boolean  mustSign){
+    public SimpleRestRequest(OAuthRequest request, boolean mustSign){
         mMockedRequest = request;
         mMustSign = mustSign;
     }
 
-    protected SimpleRestStrategy(Parcel in) {
+    protected SimpleRestRequest(Parcel in) {
     }
 
 

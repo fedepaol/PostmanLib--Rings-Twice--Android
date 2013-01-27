@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import com.whiterabbit.postman.commands.RestServerCommand;
-import com.whiterabbit.postman.commands.RestServerStrategy;
+import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.commands.ServerCommand;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.utils.Constants;
@@ -203,7 +203,7 @@ public class ServerInteractionHelper {
      *        optional other strategies to be executed together
      * @throws SendingCommandException
      */
-    public void sendRestCommand(Context c, String requestId, RestServerStrategy s, RestServerStrategy... moreStrategies) throws SendingCommandException {
+    public void sendRestAction(Context c, String requestId, RestServerRequest s, RestServerRequest... moreStrategies) throws SendingCommandException {
         RestServerCommand command = new RestServerCommand(s, moreStrategies);   // TODO use a pool of commands
         sendCommand(c, command, requestId);
 

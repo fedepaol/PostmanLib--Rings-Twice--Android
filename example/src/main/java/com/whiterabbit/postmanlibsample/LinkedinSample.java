@@ -12,7 +12,7 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.LinkedinGetCurrentUserStrategy;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.LinkedinGetCurrentUserRequest;
 import org.scribe.builder.api.LinkedInApi;
 
 /**
@@ -54,8 +54,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
        final StorableServiceBuilder builder = new StorableServiceBuilder("Linkedin")
                 .provider(LinkedInApi.class)
                 .apiKey(mApiKey)
-                .apiSecret(mApiSecret)
-                .callback("http://your_callback_url");
+                .apiSecret(mApiSecret);
 
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
@@ -125,9 +124,9 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.LinkedinUpdateHeadlineButton:
-                LinkedinGetCurrentUserStrategy statusStrategy = new LinkedinGetCurrentUserStrategy();
+                LinkedinGetCurrentUserRequest statusStrategy = new LinkedinGetCurrentUserRequest();
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, REQUEST_CURRENT_USER_DETAILS, statusStrategy);
+                    ServerInteractionHelper.getInstance().sendRestAction(this, REQUEST_CURRENT_USER_DETAILS, statusStrategy);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

@@ -13,7 +13,7 @@ import org.scribe.model.Verb;
  * Date: 1/24/13
  * Time: 10:23 PM
  */
-public interface RestServerStrategy extends Parcelable{
+public interface RestServerRequest extends Parcelable{
     /**
      * Must return the signer service to be used in case of oauth request.
      * Return null in case of not signed message

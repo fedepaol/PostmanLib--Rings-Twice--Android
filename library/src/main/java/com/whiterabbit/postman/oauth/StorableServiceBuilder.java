@@ -19,7 +19,6 @@ import org.scribe.oauth.OAuthService;
 public class StorableServiceBuilder {
     private static final String API_KEY = "com.whiterabbit.apikey";
     private static final String API_SECRET = "com.whiterabbit.apisecret";
-    private static final String CALLBACK = "com.whiterabbit.callback";
     private static final String API_SCOPE = "com.whiterabbit.scope";
     private static final String SIGNATURE_TYPE = "com.whiterabbit.signaturetype";
     private static final String API = "com.whiterabbit.api";
@@ -27,7 +26,6 @@ public class StorableServiceBuilder {
 
     private String apiKey;
     private String apiSecret;
-    private String callback;
     private String scope;
     private SignatureType signatureType;
     private String mServiceName;
@@ -49,16 +47,11 @@ public class StorableServiceBuilder {
     {
         this.api = apiClass;
         mServiceBuilder.provider(apiClass);
+        mServiceBuilder.callback("http://your_callback_url");   // This can be anything since the oauth dialog will intercept the redirect
         return this;
     }
 
 
-    public StorableServiceBuilder callback(String callback)
-    {
-        this.callback = callback;
-        mServiceBuilder.callback(callback);
-        return this;
-    }
 
     public StorableServiceBuilder apiKey(String apiKey)
     {
@@ -101,7 +94,6 @@ public class StorableServiceBuilder {
         SharedPreferences.Editor editor = mySharedPreferences.edit();
         editor.putString(API_KEY, apiKey);
         editor.putString(API_SECRET, apiSecret);
-        editor.putString(CALLBACK, callback);
         editor.putString(API_SCOPE, scope);
         editor.putInt(SIGNATURE_TYPE, signatureType.ordinal());
         editor.putString(API, api.getName());
@@ -129,7 +121,6 @@ public class StorableServiceBuilder {
         mServiceName = serviceName;
         apiKey = mySharedPreferences.getString(API_KEY, "");
         apiSecret = mySharedPreferences.getString(API_SECRET, "");
-        callback = mySharedPreferences.getString(CALLBACK, "");
         scope = mySharedPreferences.getString(API_SCOPE, "");
         signatureType = SignatureType.values()[mySharedPreferences.getInt(SIGNATURE_TYPE, -1)];
 
@@ -144,10 +135,8 @@ public class StorableServiceBuilder {
         mServiceBuilder = new ServiceBuilder();
         mServiceBuilder.provider(api).apiKey(apiKey).apiSecret(apiSecret);  // mandatory
         mServiceBuilder.signatureType(signatureType);
+        mServiceBuilder.callback("http://your_callback_url");   // This can be anything since the oauth dialog will intercept the redirect
 
-        if(!callback.equals("")){
-            mServiceBuilder.callback(callback);
-        }
         if(!scope.equals("")){
             mServiceBuilder.scope(scope);
         }

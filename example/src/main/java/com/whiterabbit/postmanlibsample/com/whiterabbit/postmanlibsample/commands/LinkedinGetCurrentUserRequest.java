@@ -2,7 +2,7 @@ package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.comman
 
 import android.content.Context;
 import android.os.Parcel;
-import com.whiterabbit.postman.commands.RestServerStrategy;
+import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postmanlibsample.StoreUtils;
 import org.scribe.model.OAuthRequest;
@@ -20,10 +20,10 @@ import java.io.IOException;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class LinkedinGetCurrentUserStrategy implements RestServerStrategy{
+public class LinkedinGetCurrentUserRequest implements RestServerRequest {
     private static final String url = "http://api.linkedin.com/v1/people/~";
 
-    public LinkedinGetCurrentUserStrategy(){
+    public LinkedinGetCurrentUserRequest(){
 
     }
 
@@ -87,19 +87,19 @@ public class LinkedinGetCurrentUserStrategy implements RestServerStrategy{
     }
 
 
-    public static final Creator<LinkedinGetCurrentUserStrategy> CREATOR
-            = new Creator<LinkedinGetCurrentUserStrategy>() {
-        public LinkedinGetCurrentUserStrategy createFromParcel(Parcel in) {
-            return new LinkedinGetCurrentUserStrategy(in);
+    public static final Creator<LinkedinGetCurrentUserRequest> CREATOR
+            = new Creator<LinkedinGetCurrentUserRequest>() {
+        public LinkedinGetCurrentUserRequest createFromParcel(Parcel in) {
+            return new LinkedinGetCurrentUserRequest(in);
         }
 
-        public LinkedinGetCurrentUserStrategy[] newArray(int size) {
-            return new LinkedinGetCurrentUserStrategy[size];
+        public LinkedinGetCurrentUserRequest[] newArray(int size) {
+            return new LinkedinGetCurrentUserRequest[size];
         }
     };
 
 
-    public LinkedinGetCurrentUserStrategy(Parcel in){
+    public LinkedinGetCurrentUserRequest(Parcel in){
     }
 
 }

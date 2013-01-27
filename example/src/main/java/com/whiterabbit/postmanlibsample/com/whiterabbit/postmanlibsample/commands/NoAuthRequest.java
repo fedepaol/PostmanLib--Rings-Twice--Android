@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
-import com.whiterabbit.postman.commands.RestServerStrategy;
+import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -21,11 +21,11 @@ import java.io.IOException;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class NoAuthStrategy implements RestServerStrategy {
+public class NoAuthRequest implements RestServerRequest {
     private final String mUrl;
     private final String mName;
 
-    public NoAuthStrategy(String url, String name){
+    public NoAuthRequest(String url, String name){
         mUrl = url;
         mName = name;
     }
@@ -79,19 +79,19 @@ public class NoAuthStrategy implements RestServerStrategy {
     }
 
 
-    public static final Creator<NoAuthStrategy> CREATOR
-            = new Creator<NoAuthStrategy>() {
-        public NoAuthStrategy createFromParcel(Parcel in) {
-            return new NoAuthStrategy(in);
+    public static final Creator<NoAuthRequest> CREATOR
+            = new Creator<NoAuthRequest>() {
+        public NoAuthRequest createFromParcel(Parcel in) {
+            return new NoAuthRequest(in);
         }
 
-        public NoAuthStrategy[] newArray(int size) {
-            return new NoAuthStrategy[size];
+        public NoAuthRequest[] newArray(int size) {
+            return new NoAuthRequest[size];
         }
     };
 
 
-    public NoAuthStrategy(Parcel in){
+    public NoAuthRequest(Parcel in){
         mUrl = in.readString();
         mName = in.readString();
     }

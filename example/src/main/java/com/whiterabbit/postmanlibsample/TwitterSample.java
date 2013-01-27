@@ -13,8 +13,8 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetStrategy;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusStrategy;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetRequest;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
 import org.scribe.builder.api.TwitterApi;
 
 public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
@@ -60,8 +60,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
        StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
                 .apiKey(mApiKey)
-                .apiSecret(mApiSecret)
-                .callback("http://your_callback_url");
+                .apiSecret(mApiSecret);
 
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
@@ -134,18 +133,18 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.TwitterUpdateStatusButton:
-                TwitterUpdateStatusStrategy statusStrategy = new TwitterUpdateStatusStrategy(mStatusToSend.getText().toString());
+                TwitterUpdateStatusRequest statusStrategy = new TwitterUpdateStatusRequest(mStatusToSend.getText().toString());
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, UPDATE_STATUS, statusStrategy);
+                    ServerInteractionHelper.getInstance().sendRestAction(this, UPDATE_STATUS, statusStrategy);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
             break;
 
             case R.id.TwitterGetLatestTweetButton:
-                TwitterGetLatestTweetStrategy c = new TwitterGetLatestTweetStrategy();
+                TwitterGetLatestTweetRequest c = new TwitterGetLatestTweetRequest();
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, REQUEST_LATEST_TWEET, c);
+                    ServerInteractionHelper.getInstance().sendRestAction(this, REQUEST_LATEST_TWEET, c);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

@@ -2,7 +2,7 @@ package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.comman
 
 import android.content.Context;
 import android.os.Parcel;
-import com.whiterabbit.postman.commands.RestServerStrategy;
+import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -14,12 +14,12 @@ import org.scribe.model.Verb;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class TwitterUpdateStatusStrategy implements RestServerStrategy{
+public class TwitterUpdateStatusRequest implements RestServerRequest {
     private static final String url = "https://api.twitter.com/1.1/statuses/update.json";
     private String mStatus;
 
 
-    public TwitterUpdateStatusStrategy(String status){
+    public TwitterUpdateStatusRequest(String status){
         mStatus = status;
     }
 
@@ -54,14 +54,14 @@ public class TwitterUpdateStatusStrategy implements RestServerStrategy{
 
 
 
-    public static final Creator<TwitterUpdateStatusStrategy> CREATOR
-            = new Creator<TwitterUpdateStatusStrategy>() {
-        public TwitterUpdateStatusStrategy createFromParcel(Parcel in) {
-            return new TwitterUpdateStatusStrategy(in);
+    public static final Creator<TwitterUpdateStatusRequest> CREATOR
+            = new Creator<TwitterUpdateStatusRequest>() {
+        public TwitterUpdateStatusRequest createFromParcel(Parcel in) {
+            return new TwitterUpdateStatusRequest(in);
         }
 
-        public TwitterUpdateStatusStrategy[] newArray(int size) {
-            return new TwitterUpdateStatusStrategy[size];
+        public TwitterUpdateStatusRequest[] newArray(int size) {
+            return new TwitterUpdateStatusRequest[size];
         }
     };
 
@@ -71,7 +71,7 @@ public class TwitterUpdateStatusStrategy implements RestServerStrategy{
         parcel.writeString(mStatus);
     }
 
-    public TwitterUpdateStatusStrategy(Parcel in){
+    public TwitterUpdateStatusRequest(Parcel in){
         mStatus = in.readString();
     }
 

@@ -22,14 +22,14 @@ import org.scribe.model.Verb;
  *
  */
 public class RestServerCommand extends ServerCommand  {
-    private final RestServerStrategy mFirstStrategy;
-    private final Parcelable[] mStrategies; // must be a Parcelable[] instead of RestServerStrategy[] because I wouldn't be
-                                            // able to read it (can't cast Parcelable[] to RestServerStrategy[] )
+    private final RestServerRequest mFirstStrategy;
+    private final Parcelable[] mStrategies; // must be a Parcelable[] instead of RestServerRequest[] because I wouldn't be
+                                            // able to read it (can't cast Parcelable[] to RestServerRequest[] )
 
     /**
      * Constructor
      */
-    public RestServerCommand(RestServerStrategy firstStrategy, RestServerStrategy... otherStrategies){
+    public RestServerCommand(RestServerRequest firstStrategy, RestServerRequest... otherStrategies){
         mFirstStrategy = firstStrategy;
         mStrategies = otherStrategies;
     }
@@ -45,8 +45,8 @@ public class RestServerCommand extends ServerCommand  {
     }
 
     protected RestServerCommand(Parcel in){
-        mFirstStrategy = in.readParcelable(RestServerStrategy.class.getClassLoader());
-        mStrategies = in.readParcelableArray(RestServerStrategy.class.getClassLoader());
+        mFirstStrategy = in.readParcelable(RestServerRequest.class.getClassLoader());
+        mStrategies = in.readParcelableArray(RestServerRequest.class.getClassLoader());
 
     }
 
@@ -88,7 +88,7 @@ public class RestServerCommand extends ServerCommand  {
             executeStrategy(mFirstStrategy, c);
 
             for(Parcelable p : mStrategies){
-                executeStrategy((RestServerStrategy)p, c);
+                executeStrategy((RestServerRequest)p, c);
             }
             notifyResult("Ok",  c);
 
@@ -103,7 +103,7 @@ public class RestServerCommand extends ServerCommand  {
     }
 
 
-    private void executeStrategy(RestServerStrategy s, Context c) throws OAuthException, PostmanException {
+    private void executeStrategy(RestServerRequest s, Context c) throws OAuthException, PostmanException {
            OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
            s.addParamsToRequest(request);
            String signer = s.getOAuthSigner();
@@ -117,7 +117,7 @@ public class RestServerCommand extends ServerCommand  {
 
 
 
-	private void handleResponse(RestServerStrategy strategy, int statusCode, Response response, Context c) throws PostmanException {
+	private void handleResponse(RestServerRequest strategy, int statusCode, Response response, Context c) throws PostmanException {
 		switch(statusCode){
 			case 200:
 				if(response != null){

@@ -2,7 +2,7 @@ package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.comman
 
 import android.content.Context;
 import android.os.Parcel;
-import com.whiterabbit.postman.commands.RestServerStrategy;
+import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postmanlibsample.StoreUtils;
 import org.codehaus.jackson.JsonNode;
@@ -19,10 +19,10 @@ import java.io.IOException;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class TwitterGetLatestTweetStrategy implements RestServerStrategy{
+public class TwitterGetLatestTweetRequest implements RestServerRequest {
     private static final String url = "https://api.twitter.com/1.1/statuses/home_timeline.json";
 
-    public TwitterGetLatestTweetStrategy(){
+    public TwitterGetLatestTweetRequest(){
 
     }
 
@@ -73,19 +73,19 @@ public class TwitterGetLatestTweetStrategy implements RestServerStrategy{
     }
 
 
-    public static final Creator<TwitterGetLatestTweetStrategy> CREATOR
-            = new Creator<TwitterGetLatestTweetStrategy>() {
-        public TwitterGetLatestTweetStrategy createFromParcel(Parcel in) {
-            return new TwitterGetLatestTweetStrategy(in);
+    public static final Creator<TwitterGetLatestTweetRequest> CREATOR
+            = new Creator<TwitterGetLatestTweetRequest>() {
+        public TwitterGetLatestTweetRequest createFromParcel(Parcel in) {
+            return new TwitterGetLatestTweetRequest(in);
         }
 
-        public TwitterGetLatestTweetStrategy[] newArray(int size) {
-            return new TwitterGetLatestTweetStrategy[size];
+        public TwitterGetLatestTweetRequest[] newArray(int size) {
+            return new TwitterGetLatestTweetRequest[size];
         }
     };
 
 
-    public TwitterGetLatestTweetStrategy(Parcel in){
+    public TwitterGetLatestTweetRequest(Parcel in){
     }
 
 }
