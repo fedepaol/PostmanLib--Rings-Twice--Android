@@ -67,12 +67,12 @@ A RestServerRequest might be used to initialize a RestServerCommand to be sent. 
 
     ServerInteractionHelper.getInstance().sendRestAction(this,"MyRequestId", request1, request2);
 
+####Handling a response
 The
-
 
     void processHttpResult(Response result, Context context);
 
-of any RestServerAction will be called with the result of the http call.
+of all the _RestServerAction_s you passed will be called with the result of the call.
 
 The _Response_ parameter is a scribe Response object. You can get the stringified result using
 
@@ -83,7 +83,6 @@ in case of a text result, such as json.
 Otherwise, a stream can be fetched using:
 
     result.getStream()
-
 
 
 
