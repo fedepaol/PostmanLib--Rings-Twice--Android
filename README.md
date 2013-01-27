@@ -43,30 +43,36 @@ A server command is an implementation of the command pattern. The execute() meth
 executed asynchronously and it is guaranteed to be executed in a background thread.
 
 ###RestServerCommand
-RestServerCommand is a specialization of ServerCommand. It's intended to be used to perform rest operations against a given url. It uses [Java Scribe library][scribe] under the hood, and it can be associated to an authenticated OAuthService to perform oauth authorized requests.
+RestServerCommand is a specialization of ServerCommand. It's intended to be used to perform rest operations against a given url.
+It uses [Java Scribe library][scribe] under the hood, and it can be associated to an authenticated OAuthService to perform oauth authorized requests.
+To perform its actions must be initialized with one or more RestStrategy objects that represent the actions to be performed in background
 
-####Preparing a ServerCommand:
-To make a request you need to build a RestServerCommand:
+####Executing a RestServerRequest
+To make a request you need to implement a RestServerRequestObject.
+The most obvious method to implement are _getUrl_ and _getVerb_ .
 
-    SampleRestCommand c = new SampleRestCommand("http://www.google.com");
-(You can specify different verbs).
-
-Since a RestServerCommand executes a _scribe_ oauth request under the hood (even if not authenticated), you need to implement _addParamsToRequest_ in order to enrich the request. For example, in order to add a "status" parameter in a call to twitter:
+Since a RestServerRequest executes a _scribe_ oauth request under the hood (even if not authenticated), you need to implement _addParamsToRequest_ in order to enrich the request.
+For example, in order to add a "status" parameter in a call:
 
     request.addBodyParameter("status", "this is sparta! *");
 
+or
+
+    request.addQuerystringParameter("status", "this is sparta!");
+
+in case of a query string parameter.
 
 ####Sending a server command:
-Once your command is ready, all it takes to send it is:
+A RestServerRequest might be used to initialize a RestServerCommand to be sent. There is also a facility method that does that for you:
 
-    ServerInteractionHelper.getInstance().sendCommand(this, c, "MyRequestID");
+    ServerInteractionHelper.getInstance().sendRestAction(this,"MyRequestId", request1, request2);
 
 The
 
 
-    protected abstract void processHttpResult(Response result, Context context);
+    void processHttpResult(Response result, Context context);
 
-will be called with the result of the http call.
+of any RestServerAction will be called with the result of the http call.
 
 The _Response_ parameter is a scribe Response object. You can get the stringified result using
 
@@ -77,6 +83,9 @@ in case of a text result, such as json.
 Otherwise, a stream can be fetched using:
 
     result.getStream()
+
+
+
 
 
 ##OAuth Authentication
@@ -92,9 +101,8 @@ A storable builder, which is a simple wrapper to _scribe_'s ServiceBuilder, must
 
     StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
-                .apiKey("COPaViCT6nLRcGROTVZdA")
-                .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
-                .callback("http://your_callback_url");
+                .apiKey("YOURAPIKEY")
+                .apiSecret("YOURAPISECRET");
 
     OAuthHelper o = OAuthHelper.getInstance();
     o.registerOAuthService(builder, this);
@@ -105,11 +113,17 @@ In case the service is not yet authorized, the authorization process must be sta
         o.authenticate(this, "Twitter");
     }
 
-Once the service is registered, all it takes to sign a RestServerCommand is calling the _setOAuthSigner_ method:
 
-    c1.setOAuthSigner("Twitter");
+PostManLib library will provide a dialog to the user containing the webview to authorize the application.
+
+Once the service is registered, all it takes to sign a RestServerRequest is to return the name of the signer in _getOauthSigner_
+
+    public String getOAuthSigner() {
+        return "Twitter";
+    }
 
 Using the same name used to register the service.
+
 
 # NOTES
 
@@ -122,6 +136,8 @@ Using the same name used to register the service.
 * _ServerCommand_ implement Parcelable interface. This is because the command must be passed to the intent service through an intent. In addition to the _Parcelable_ methods, every command implementation must have a static CREATOR field, such as 
     
     public static final Parcelable.Creator<SampleRestCommand> CREATOR = ...
+
+* In case of multiple rest requests, a failure will be notified whenever one of the requests fails, even if the previous ones are executed successfully.
 
 License
 -------
@@ -143,11 +159,9 @@ License
 
 ## TO BE ADDED / ROADMAP
 
-* Send burst of commands to adhere to Reto Meier's big cookie approach
-* Plain authentication handling 
+* Plain authentication handling
 * Localization of error messages 
 * callback url personalization. Not sure yet that __oauth__verifer__  is a standard
-* Switch to SupportFragmentManager to create the oauth fragment in order to target pre HC devices. 
 * Recycling commands using a pool
 * Having more than one intentservice to be round robin served for parallel requests
 
