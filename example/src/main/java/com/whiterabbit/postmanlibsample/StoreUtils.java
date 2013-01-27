@@ -14,7 +14,8 @@ import android.content.SharedPreferences;
 public class StoreUtils {
 	private final static String LATEST_TWEET = "LatestTweet";
 	private final static String PREF_NAME = "MyPrefs";
-	
+    private final static String LINKEDIN_HEADLINE = "LinkedinHeadline";
+
 	public static String getLatestTweet(Context c)
 	{
 		int mode = Activity.MODE_PRIVATE;
@@ -31,4 +32,23 @@ public class StoreUtils {
 		editor.commit();
 
 	}
+
+ 	public static void setLinkedinUserDetails(String latest, Context c)
+	{
+		int mode = Activity.MODE_PRIVATE;
+		SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+		editor.putString(LINKEDIN_HEADLINE, latest);
+		editor.commit();
+
+	}
+
+    public static String getLinkedinUserDetails(Context c)
+    {
+        int mode = Activity.MODE_PRIVATE;
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+        return mySharedPreferences.getString(LINKEDIN_HEADLINE, "Nones");
+    }
+
+
 }

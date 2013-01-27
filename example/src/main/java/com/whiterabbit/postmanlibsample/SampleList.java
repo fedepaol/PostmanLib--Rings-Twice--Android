@@ -39,6 +39,9 @@ public class SampleList extends FragmentActivity implements AdapterView.OnItemCl
             break;
             case 1:
                 j = new Intent(this, NoAuthSample.class);
+                break;
+            case 2:
+                j = new Intent(this, LinkedinSample.class);
             break;
             default:
                 return;

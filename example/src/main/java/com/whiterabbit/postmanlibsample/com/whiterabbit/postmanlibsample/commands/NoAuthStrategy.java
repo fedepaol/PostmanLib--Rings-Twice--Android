@@ -22,10 +22,12 @@ import java.io.IOException;
  * Time: 12:41 AM
  */
 public class NoAuthStrategy implements RestServerStrategy {
-    private static final String url = "http://www.cimonesci.it/cams/polle.jpg";
+    private final String mUrl;
+    private final String mName;
 
-    public NoAuthStrategy(){
-
+    public NoAuthStrategy(String url, String name){
+        mUrl = url;
+        mName = name;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class NoAuthStrategy implements RestServerStrategy {
 
     @Override
     public String getUrl() {
-        return url;
+        return mUrl;
     }
 
     @Override
@@ -47,7 +49,7 @@ public class NoAuthStrategy implements RestServerStrategy {
     public void processHttpResult(Response result, Context context) throws ResultParseException {
         Bitmap b = BitmapFactory.decodeStream(result.getStream());
         File path = context.getExternalFilesDir(null);
-        File target = new File(path, "picture.png");
+        File target = new File(path, mName);
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(target);
@@ -72,6 +74,8 @@ public class NoAuthStrategy implements RestServerStrategy {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mUrl);
+        parcel.writeString(mName);
     }
 
 
@@ -88,6 +92,8 @@ public class NoAuthStrategy implements RestServerStrategy {
 
 
     public NoAuthStrategy(Parcel in){
+        mUrl = in.readString();
+        mName = in.readString();
     }
 
 }

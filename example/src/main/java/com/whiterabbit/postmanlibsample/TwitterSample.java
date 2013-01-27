@@ -20,6 +20,8 @@ import org.scribe.builder.api.TwitterApi;
 public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
 	static final String UPDATE_STATUS = "StatusUpdate";
     static final String REQUEST_LATEST_TWEET = "LatestTweet";
+    private final static String mApiKey = "APIKEY"; // <- must be set from the real one got from www.twitter.com
+    private final static String mApiSecret = "APISECRET"; // <- must be set from the real one got from www.twitter.com
 
     TextView mRequestStatus;
 	EditText mStatusToSend;
@@ -32,7 +34,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.twitter);
         
         
         mRequestStatus = (TextView) findViewById(R.id.TwitterRequestStatus);
@@ -44,6 +46,12 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 
         mLatestTweet.setText(StoreUtils.getLatestTweet(this));
 
+
+        if(mApiKey.equals("APIKEY")){
+            Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+
         registerToTwitter();
 
     }
@@ -51,8 +59,8 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     private void registerToTwitter(){
        StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
-                .apiKey("COPaViCT6nLRcGROTVZdA")
-                .apiSecret("OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk")
+                .apiKey(mApiKey)
+                .apiSecret(mApiSecret)
                 .callback("http://your_callback_url");
 
         OAuthHelper o = OAuthHelper.getInstance();
@@ -126,9 +134,9 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.TwitterUpdateStatusButton:
-                TwitterUpdateStatusStrategy statusCommand = new TwitterUpdateStatusStrategy(mStatusToSend.getText().toString());
+                TwitterUpdateStatusStrategy statusStrategy = new TwitterUpdateStatusStrategy(mStatusToSend.getText().toString());
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, statusCommand, UPDATE_STATUS);
+                    ServerInteractionHelper.getInstance().sendRestCommand(this, UPDATE_STATUS, statusStrategy);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
@@ -137,7 +145,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
             case R.id.TwitterGetLatestTweetButton:
                 TwitterGetLatestTweetStrategy c = new TwitterGetLatestTweetStrategy();
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, c, REQUEST_LATEST_TWEET);
+                    ServerInteractionHelper.getInstance().sendRestCommand(this, REQUEST_LATEST_TWEET, c);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

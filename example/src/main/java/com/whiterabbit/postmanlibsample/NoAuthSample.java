@@ -16,9 +16,13 @@ import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.command
 
 import java.io.*;
 
+/**
+ * Sample class to show the download of multiple images with one call
+ */
 public class NoAuthSample extends FragmentActivity implements ServerInteractionResponseInterface, View.OnClickListener {
 	static final String DOWNLOAD_IMAGE = "DownloadImage";
     ImageView mImage;
+    ImageView mImage1;
     TextView mStatusText;
     Button mDownloadButton;
 
@@ -30,6 +34,7 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
         setContentView(R.layout.no_auth);
 
         mImage = (ImageView) findViewById(R.id.noauth_downloaded_image);
+        mImage1 = (ImageView) findViewById(R.id.noauth_downloaded_image1);
         mStatusText = (TextView) findViewById(R.id.noauth_status);
         mDownloadButton = (Button) findViewById(R.id.no_auth_download_button);
         mDownloadButton.setOnClickListener(this);
@@ -55,16 +60,22 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
 	@Override
 	public void onServerResult(String result, String requestId) {
         if(requestId.equals(DOWNLOAD_IMAGE)){
-            AsyncTask<Void, Void, Bitmap> loadImage = new AsyncTask<Void, Void, Bitmap>() {
+            AsyncTask<Void, Void, Bitmap[]> loadImage = new AsyncTask<Void, Void, Bitmap[]>() {
                 @Override
-                protected Bitmap doInBackground(Void... voids) {
+                protected Bitmap[] doInBackground(Void... voids) {
+                    Bitmap[] res = new Bitmap[2];
                     File path = NoAuthSample.this.getExternalFilesDir(null);
-                    File target = new File(path, "picture.png");
+                    File polle = new File(path, "polle.png");
+                    File abetone = new File(path, "abetone.png");
 
                     try {
-                        InputStream s = new FileInputStream(target);
+                        InputStream s = new FileInputStream(polle);
                         Bitmap bitmap = BitmapFactory.decodeStream(s);
-                        return bitmap;
+                        res[0] = bitmap;
+                        s = new FileInputStream(abetone);
+                        Bitmap bitmap1 = BitmapFactory.decodeStream(s);
+                        res[1] = bitmap1;
+                        return res;
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                     }
@@ -72,11 +83,12 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
                 }
 
                 @Override
-                protected void onPostExecute(Bitmap bitmap) {
+                protected void onPostExecute(Bitmap[] bitmap) {
                     if(bitmap == null){
                         return;
                     }
-                    mImage.setImageBitmap(bitmap);
+                    mImage.setImageBitmap(bitmap[0]);
+                    mImage1.setImageBitmap(bitmap[1]);
                 }
             };
             loadImage.execute();
@@ -95,9 +107,10 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.no_auth_download_button:
-                NoAuthStrategy c = new NoAuthStrategy();
+                NoAuthStrategy polle = new NoAuthStrategy("http://www.cimonesci.it/cams/polle.jpg", "polle.png");
+                NoAuthStrategy abetone = new NoAuthStrategy("http://www.aptabetone.it/abetone/pics/lat001.jpg", "abetone.png");
                 try {
-                    ServerInteractionHelper.getInstance().sendRestCommand(this, c, DOWNLOAD_IMAGE);
+                    ServerInteractionHelper.getInstance().sendRestCommand(this, DOWNLOAD_IMAGE, polle, abetone);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
