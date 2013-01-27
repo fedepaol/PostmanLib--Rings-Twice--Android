@@ -63,7 +63,7 @@ or
 in case of a query string parameter.
 
 ####Sending a server command:
-A RestServerRequest might be used to initialize a RestServerCommand to be sent. There is also a facility method that does that for you:
+A RestServerRequest might be used to initialize a RestServerCommand to be sent. There is also an helper method to make the things easier:
 
     ServerInteractionHelper.getInstance().sendRestAction(this,"MyRequestId", request1, request2);
 
