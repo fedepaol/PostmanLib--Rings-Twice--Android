@@ -27,11 +27,26 @@ After having it _in progress_ for more than a year I now decided (XMas 2012) to 
 
 ###Setup
 
-The service used by the library must be declared into the application's manifest:
+The services used by the library must be declared into the application's manifest:
 
     <service
             android:enabled="true"
             android:name="com.whiterabbit.postman.InteractionService" />  
+
+You can declare up to 4 services. The number of services you define in the manifest describes the concurrency level used by the library.
+At least one service must be declared
+
+    <service
+            android:enabled="true"
+            android:name="com.whiterabbit.postman.InteractionService1" />
+
+    <service
+            android:enabled="true"
+            android:name="com.whiterabbit.postman.InteractionService2" />
+
+    <service
+            android:enabled="true"
+            android:name="com.whiterabbit.postman.InteractionService3" />
 
 
 ##ServerInteractionHelper
@@ -138,6 +153,11 @@ Using the same name used to register the service.
 
 * In case of multiple rest requests, a failure will be notified whenever one of the requests fails, even if the previous ones are executed successfully.
 
+* Since plain authentication is just an header property, I preferred not to give a straight handler to it. Implementing _addParamsToRequest_ and calling:
+    request.addHeader("Authorization", "Basic "+Base64.encode(username+":"+password));
+
+should work. I don't have a proper server to test it against.
+
 License
 -------
 
@@ -158,12 +178,9 @@ License
 
 ## TO BE ADDED / ROADMAP
 
-* Plain authentication handling
-* Localization of error messages 
+* Localization of error messages
 * callback url personalization. Not sure yet that __oauth__verifer__  is a standard
 * Recycling commands using a pool
-* Having more than one intentservice to be round robin served for parallel requests
-
 
 
 

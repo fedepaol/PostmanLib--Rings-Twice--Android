@@ -1,18 +1,19 @@
 package com.whiterabbit.postman;
 
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.commands.ServerCommand;
+import com.whiterabbit.postman.exceptions.OAuthServiceException;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.utils.Constants;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,16 +26,19 @@ public class ServerInteractionHelper {
     private IntentFilter                  		mErrorFilter;
     private Map<String, Boolean>	mPendingRequests;   // TODO Sparse array. Change request id to long
     private boolean         mCachingEnabled;
+    private int mServiceCounter;
+    private int mNumOfServices;
+    private ArrayList<Class<? extends InteractionService>> mServices;
 
 	
-	
-	
+
 	private ServerInteractionHelper(){
 		mReceiver = new ServiceResultReceiver();
 		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
 		mFilter = new IntentFilter(Constants.SERVER_RESULT);
 		mErrorFilter = new IntentFilter(Constants.SERVER_ERROR);
         mCachingEnabled = false;
+        mServices = new ArrayList<Class<? extends InteractionService>>(4);
 
 	}
 
@@ -160,7 +164,50 @@ public class ServerInteractionHelper {
     private void requestDone(String requestId) {
     	mPendingRequests.remove(requestId);
     }
-    
+
+
+    private boolean isServiceEnabled(Context c, Class<? extends InteractionService> service){
+        if(c.getPackageManager().getComponentEnabledSetting(new ComponentName(c, service)) == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private void initEnabledServices(Context c){
+        if(mNumOfServices > 0)
+            return;
+
+        if(isServiceEnabled(c, InteractionService.class)){
+            mServices.add(InteractionService.class);
+            mNumOfServices++;
+        }
+        if(isServiceEnabled(c, InteractionService1.class)){
+            mServices.add(InteractionService1.class);
+            mNumOfServices++;
+        }
+        if(isServiceEnabled(c, InteractionService2.class)){
+            mServices.add(InteractionService2.class);
+            mNumOfServices++;
+        }
+        if(isServiceEnabled(c, InteractionService3.class)){
+            mServices.add(InteractionService3.class);
+            mNumOfServices++;
+        }
+
+        if(mNumOfServices == 0){
+            Log.d(Constants.LOG_TAG, "No service available. Did you remember to add at least one interaction service to your manifest?");
+            throw new OAuthServiceException("No services available");
+        }
+
+    }
+
+
+    private Class<? extends InteractionService> getTargetService(Context c){
+        initEnabledServices(c);
+        mServiceCounter = (mServiceCounter + 1) % mNumOfServices;
+        return mServices.get(mServiceCounter);
+    }
     
     /**
      * Sends the given command to the server
@@ -179,7 +226,7 @@ public class ServerInteractionHelper {
             setRequestPending(requestId);
 
             msg.setRequestId(requestId);
-            Intent i = new Intent(c, InteractionService.class);
+            Intent i = new Intent(c, getTargetService(c));
             msg.fillIntent(i);
             c.startService(i);
         } else {

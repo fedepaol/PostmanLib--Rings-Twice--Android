@@ -31,8 +31,17 @@
         </activity>
 
         <service
+                android:enabled="true"
+                android:name="com.whiterabbit.postman.InteractionService" />
+        <service
+                android:enabled="true"
+                android:name="com.whiterabbit.postman.InteractionService1" />
+        <service
+                android:enabled="true"
+                android:name="com.whiterabbit.postman.InteractionService2" />
+        <service
 			android:enabled="true"
-			android:name="com.whiterabbit.postman.InteractionService" />    
+			android:name="com.whiterabbit.postman.InteractionService3" />
     
     </application>
 
