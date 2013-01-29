@@ -26,6 +26,7 @@ After having it _in progress_ for more than a year I now decided (XMas 2012) to 
 ---
 
 ###Setup
+PostmanLib must be added as a library project. If you are using eclipse or intellij, just create a library project using the library folder as source.
 
 The services used by the library must be declared into the application's manifest:
 
