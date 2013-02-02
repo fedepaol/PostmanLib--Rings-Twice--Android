@@ -26,7 +26,42 @@ After having it _in progress_ for more than a year I now decided (XMas 2012) to 
 ---
 
 ###Setup
-PostmanLib must be added as a library project. If you are using eclipse or intellij, just create a library project using the library folder as source.
+PostmanLib must be added as a library project.
+Since it uses fragment dialog to open a webview, it depends on compatibility-v4 library in order to support pre HC devices.
+It uses also [Java Scribe library][scribe].
+
+
+####Maven
+Just add
+        <dependency>
+            <groupId>com.whiterabbit.postman</groupId>
+            <artifactId>library</artifactId>
+            <type>apklib</type>
+            <version>1.0.0</version>
+        </dependency>
+
+to your pom.xml dependencies section. You may incur in errors like:
+    java.lang.IllegalArgumentException: already added: Landroid/support/v4/widget/CursorAdapter$1;
+
+which means that some other dependency already includes a compatibiltiy library. In this case just exclude it from the dependency:
+
+        <dependency>
+            <groupId>com.whiterabbit.postman</groupId>
+            <artifactId>library</artifactId>
+            <type>apklib</type>
+            <version>1.0.0</version>
+
+            <exclusions>
+                <exclusion>
+                    <groupId>android.support</groupId>
+                    <artifactId>compatibility-v4</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+
+####Eclipse / Intellij
+If you are using eclipse or intellij, just create a library project using the library folder as source. You will also need to add scribe jar and support library.
 
 The services used by the library must be declared into the application's manifest:
 
