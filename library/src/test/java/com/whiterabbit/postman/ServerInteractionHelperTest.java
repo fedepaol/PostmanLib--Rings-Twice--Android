@@ -36,7 +36,7 @@ public class ServerInteractionHelperTest {
     private void shortcutIntentService(){
         Intent sentIntent = mShadowOfActivity.getNextStartedService();
         ShadowIntent shIntent = shadowOf(sentIntent);
-        assertEquals(shIntent.getIntentClass(), InteractionService.class);
+        assertTrue(InteractionService.class.isAssignableFrom(shIntent.getIntentClass()));
         InteractionService service = new InteractionService();
         service.onHandleIntent(sentIntent);
 
