@@ -33,6 +33,7 @@ It uses also [Java Scribe library][scribe].
 
 ####Maven
 Just add
+
         <dependency>
             <groupId>com.whiterabbit.postman</groupId>
             <artifactId>library</artifactId>
@@ -63,6 +64,7 @@ which means that some other dependency already includes a compatibiltiy library.
 ####Eclipse / Intellij
 If you are using eclipse or intellij, just create a library project using the library folder as source. You will also need to add scribe jar and support library.
 
+####Changes in your app's manifest
 The services used by the library must be declared into the application's manifest:
 
     <service
