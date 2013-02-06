@@ -23,7 +23,6 @@ public class ServerInteractionHelper {
 	private static ServerInteractionHelper mInstance;
 	private ServerInteractionResponseInterface mListener;
     private IntentFilter                  		mFilter;
-    private IntentFilter                  		mErrorFilter;
     private Map<String, Boolean>	mPendingRequests;   // TODO Sparse array. Change request id to long
     private boolean         mCachingEnabled;
     private int mServiceCounter;
@@ -35,8 +34,9 @@ public class ServerInteractionHelper {
 	private ServerInteractionHelper(){
 		mReceiver = new ServiceResultReceiver();
 		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
-		mFilter = new IntentFilter(Constants.SERVER_RESULT);
-		mErrorFilter = new IntentFilter(Constants.SERVER_ERROR);
+		mFilter = new IntentFilter();
+        mFilter.addAction(Constants.SERVER_RESULT);
+		mFilter.addAction(Constants.SERVER_ERROR);
         mCachingEnabled = false;
         mServices = new ArrayList<Class<? extends InteractionService>>(4);
 
@@ -119,7 +119,6 @@ public class ServerInteractionHelper {
     public void registerEventListener(ServerInteractionResponseInterface listener, Context c) {
         mListener = listener;// TODO weak reference
         c.registerReceiver(mReceiver, mFilter);
-        c.registerReceiver(mReceiver, mErrorFilter);
     }
 
     /**
