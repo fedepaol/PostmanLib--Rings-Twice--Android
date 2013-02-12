@@ -25,6 +25,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
     TextView mRequestStatus;
 	Button mGetHeadlineButtn;
     TextView mLinkedinHeadLine;
+    ServerInteractionHelper mServer;
 
     private final static String mApiKey = "APIKEY";// <- must be set from the real one got from www.linkedin.com
     private final static String mApiSecret = "APISECRET";// <- must be set from the real one got from www.linkedin.com
@@ -40,6 +41,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
         mRequestStatus = (TextView) findViewById(R.id.LinkedinRequestStatus);
         mLinkedinHeadLine = (TextView) findViewById(R.id.LinkedinHeadline);
         mGetHeadlineButtn = (Button) findViewById(R.id.LinkedinUpdateHeadlineButton);
+        mServer = ServerInteractionHelper.getInstance(this);
 
         if(mApiKey.equals("APIKEY")){
             Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
@@ -77,7 +79,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
 
 	@Override
 	protected void onPause() {
-		ServerInteractionHelper.getInstance().unregisterEventListener(this, this);
+		mServer.unregisterEventListener(this, this);
         OAuthHelper.getInstance().unregisterListener();
 		super.onPause();
 	}
@@ -86,8 +88,8 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
 	protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
 		
-		ServerInteractionHelper.getInstance().registerEventListener(this, this);
-		if(ServerInteractionHelper.getInstance().isRequestAlreadyPending(REQUEST_CURRENT_USER_DETAILS)){
+		mServer.registerEventListener(this, this);
+		if(mServer.isRequestAlreadyPending(REQUEST_CURRENT_USER_DETAILS)){
 			mRequestStatus.setText("Request in progress...");
 		}
 		super.onResume();
@@ -126,7 +128,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
             case R.id.LinkedinUpdateHeadlineButton:
                 LinkedinGetCurrentUserRequest statusStrategy = new LinkedinGetCurrentUserRequest();
                 try {
-                    ServerInteractionHelper.getInstance().sendRestAction(this, REQUEST_CURRENT_USER_DETAILS, statusStrategy);
+                    mServer.sendRestAction(this, REQUEST_CURRENT_USER_DETAILS, statusStrategy);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

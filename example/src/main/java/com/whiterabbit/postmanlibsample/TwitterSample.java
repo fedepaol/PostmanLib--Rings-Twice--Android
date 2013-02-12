@@ -23,11 +23,12 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     private final static String mApiKey = "APIKEY"; // <- must be set from the real one got from www.twitter.com
     private final static String mApiSecret = "APISECRET"; // <- must be set from the real one got from www.twitter.com
 
-    TextView mRequestStatus;
-	EditText mStatusToSend;
-    TextView mLatestTweet;
-	Button mUpdateStatusButton;
-    Button mGetLatestTweetButton;
+    private TextView mRequestStatus;
+	private EditText mStatusToSend;
+    private TextView mLatestTweet;
+	private Button mUpdateStatusButton;
+    private Button mGetLatestTweetButton;
+    ServerInteractionHelper mServerHelper;
 
 	
     /** Called when the activity is first created. */
@@ -35,6 +36,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.twitter);
+        mServerHelper = ServerInteractionHelper.getInstance(this);
         
         
         mRequestStatus = (TextView) findViewById(R.id.TwitterRequestStatus);
@@ -84,7 +86,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 
 	@Override
 	protected void onPause() {
-		ServerInteractionHelper.getInstance().unregisterEventListener(this, this);
+		mServerHelper.unregisterEventListener(this, this);
         OAuthHelper.getInstance().unregisterListener();
 		super.onPause();
 	}
@@ -93,8 +95,8 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 	protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
 		
-		ServerInteractionHelper.getInstance().registerEventListener(this, this);
-		if(ServerInteractionHelper.getInstance().isRequestAlreadyPending(UPDATE_STATUS)){
+		mServerHelper.registerEventListener(this, this);
+		if(mServerHelper.isRequestAlreadyPending(UPDATE_STATUS)){
 			mRequestStatus.setText("Request in progress...");
 		}
 		super.onResume();
@@ -135,7 +137,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
             case R.id.TwitterUpdateStatusButton:
                 TwitterUpdateStatusRequest statusStrategy = new TwitterUpdateStatusRequest(mStatusToSend.getText().toString());
                 try {
-                    ServerInteractionHelper.getInstance().sendRestAction(this, UPDATE_STATUS, statusStrategy);
+                    mServerHelper.sendRestAction(this, UPDATE_STATUS, statusStrategy);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
@@ -144,7 +146,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
             case R.id.TwitterGetLatestTweetButton:
                 TwitterGetLatestTweetRequest c = new TwitterGetLatestTweetRequest();
                 try {
-                    ServerInteractionHelper.getInstance().sendRestAction(this, REQUEST_LATEST_TWEET, c);
+                    mServerHelper.sendRestAction(this, REQUEST_LATEST_TWEET, c);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }

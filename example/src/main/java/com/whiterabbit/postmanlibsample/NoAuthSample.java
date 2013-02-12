@@ -25,6 +25,7 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
     ImageView mImage1;
     TextView mStatusText;
     Button mDownloadButton;
+    ServerInteractionHelper mServerHelper;
 
 	
     /** Called when the activity is first created. */
@@ -38,20 +39,21 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
         mStatusText = (TextView) findViewById(R.id.noauth_status);
         mDownloadButton = (Button) findViewById(R.id.no_auth_download_button);
         mDownloadButton.setOnClickListener(this);
+        mServerHelper = ServerInteractionHelper.getInstance(this);
     }
 
 
 
 	@Override
 	protected void onPause() {
-		ServerInteractionHelper.getInstance().unregisterEventListener(this, this);
+		ServerInteractionHelper.getInstance(this).unregisterEventListener(this, this);
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
-		ServerInteractionHelper.getInstance().registerEventListener(this, this);
-		if(ServerInteractionHelper.getInstance().isRequestAlreadyPending(DOWNLOAD_IMAGE)){
+		mServerHelper.registerEventListener(this, this);
+		if(mServerHelper.isRequestAlreadyPending(DOWNLOAD_IMAGE)){
 			mStatusText.setText("Request in progress...");
 		}
 		super.onResume();
@@ -110,7 +112,7 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
                 NoAuthRequest polle = new NoAuthRequest("http://www.cimonesci.it/cams/polle.jpg", "polle.png");
                 NoAuthRequest abetone = new NoAuthRequest("http://www.aptabetone.it/abetone/pics/lat001.jpg", "abetone.png");
                 try {
-                    ServerInteractionHelper.getInstance().sendRestAction(this, DOWNLOAD_IMAGE, polle, abetone);
+                    mServerHelper.sendRestAction(this, DOWNLOAD_IMAGE, polle, abetone);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
