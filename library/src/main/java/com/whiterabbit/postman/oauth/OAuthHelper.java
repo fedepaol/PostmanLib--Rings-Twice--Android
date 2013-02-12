@@ -204,12 +204,11 @@ public class OAuthHelper {
     public void registerOAuthService(StorableServiceBuilder builder, Context c) {
         OAuthService service = builder.build(c);
         String name = builder.getName();
-        builder.storeToPreferences(name, c);     // Todo on asynctask
+        builder.storeToPreferences(name, c);
         Token t = getAuthTokenForService(name, c);
         mServices.put(name, new OAuthServiceInfo(service, name, t));
     }
 
-    // TODO weak reference to the activity.
 
     /**
      * Starts the authentication ballet using scribe library
