@@ -23,9 +23,10 @@ public class ServerInteractionHelperTest {
 
 	@Before
     public void setUp() throws Exception {
-        mHelper = ServerInteractionHelper.getInstance();
         mActivity = new SimpleClientActivity();
         mShadowOfActivity = shadowOf(mActivity);
+        ServerInteractionHelper.resetInstance();
+        mHelper = ServerInteractionHelper.getInstance(mActivity);
     }
 
 

@@ -23,8 +23,9 @@ public class RestCommandTest{
 
     @Before
     public void setUp() throws Exception {
-        mHelper = ServerInteractionHelper.getInstance();
         mActivity = new SimpleClientActivity();
+        mHelper.resetInstance();
+        mHelper = ServerInteractionHelper.getInstance(mActivity);
     }
 
 

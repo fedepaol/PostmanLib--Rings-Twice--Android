@@ -67,7 +67,7 @@ public class OauthAuthenticateTest {
 
         mAuthHelper.registerOAuthService(mBuilder, mActivity);
 
-        ServerInteractionHelper.getInstance().registerEventListener(mActivity, mActivity);
+        ServerInteractionHelper.getInstance(mActivity).registerEventListener(mActivity, mActivity);
         OAuthHelper.getInstance().registerListener(mActivity);
 
     }
