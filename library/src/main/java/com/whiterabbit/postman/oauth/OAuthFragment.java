@@ -14,6 +14,8 @@ import android.webkit.WebViewClient;
 import com.whiterabbit.postman.R;
 import com.whiterabbit.postman.utils.Constants;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created with IntelliJ IDEA.
  * User: fedepaol
@@ -29,7 +31,7 @@ class OAuthFragment extends DialogFragment {
 
     private WebView webViewOauth;
     String mUrl;
-    OAuthReceivedInterface mReceivedInterface;
+    WeakReference<OAuthReceivedInterface> mReceivedInterface;
     private boolean mAuthFound;
 
     public static OAuthFragment newInstance(String url, OAuthReceivedInterface receivedInterface) {
@@ -67,7 +69,7 @@ class OAuthFragment extends DialogFragment {
 
 
     public void setReceivedInterface(OAuthReceivedInterface mReceivedInterface) {
-        this.mReceivedInterface = mReceivedInterface;
+        this.mReceivedInterface = new WeakReference<OAuthReceivedInterface>(mReceivedInterface);
     }
 
     private class MyWebViewClient extends WebViewClient {
@@ -90,16 +92,20 @@ class OAuthFragment extends DialogFragment {
     }
 
     private void saveAccessToken(String url) {
-        if(mReceivedInterface != null){
+        OAuthReceivedInterface listener = mReceivedInterface.get();
+        if(listener != null){
             Uri uri=Uri.parse(url);
             String verifier = uri.getQueryParameter("oauth_verifier");
-            mReceivedInterface.onAuthReceived(verifier);
+            listener.onAuthReceived(verifier);
             mAuthFound = true;
         }
     }
 
     private void notifyAuthenticationFailed(){
-        mReceivedInterface.onAuthFailed("Could not verify the auth token, wrong callback url");
+        OAuthReceivedInterface listener = mReceivedInterface.get();
+        if(listener != null){
+            listener.onAuthFailed("Could not verify the auth token, wrong callback url");
+        }
     }
 
 

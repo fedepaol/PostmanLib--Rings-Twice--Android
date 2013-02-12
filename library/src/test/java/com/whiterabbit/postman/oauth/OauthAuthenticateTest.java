@@ -87,7 +87,7 @@ public class OauthAuthenticateTest {
         };
 
         boolean exceptionThrown = false;
-        c.execute(mActivity); // TODO Check if throws the correct exception
+        c.execute(mActivity);
         assertTrue(exceptionThrown);
 
     }
