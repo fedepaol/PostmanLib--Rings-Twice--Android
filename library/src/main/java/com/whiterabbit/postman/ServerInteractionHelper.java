@@ -13,6 +13,7 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.utils.Constants;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import java.util.Map;
 public class ServerInteractionHelper {
 	BroadcastReceiver mReceiver;
 	private static ServerInteractionHelper mInstance;
-	private ServerInteractionResponseInterface mListener;
+    private WeakReference<ServerInteractionResponseInterface> mListener;
     private IntentFilter                  		mFilter;
     private Map<String, Boolean>	mPendingRequests;   // TODO Sparse array. Change request id to long
     private boolean         mCachingEnabled;
@@ -31,7 +32,7 @@ public class ServerInteractionHelper {
 
 	
 
-	private ServerInteractionHelper(){
+	private ServerInteractionHelper(Context c){
 		mReceiver = new ServiceResultReceiver();
 		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
 		mFilter = new IntentFilter();
@@ -39,6 +40,7 @@ public class ServerInteractionHelper {
 		mFilter.addAction(Constants.SERVER_ERROR);
         mCachingEnabled = false;
         mServices = new ArrayList<Class<? extends InteractionService>>(4);
+        c.getApplicationContext().registerReceiver(mReceiver, mFilter);
 
 	}
 
@@ -67,9 +69,9 @@ public class ServerInteractionHelper {
      *
      * @return
      */
-    static public synchronized ServerInteractionHelper getInstance() {
+    static public synchronized ServerInteractionHelper getInstance(Context c) {
         if (mInstance == null) {
-            mInstance = new ServerInteractionHelper();
+            mInstance = new ServerInteractionHelper(c);
             return mInstance;
         } else {
             return mInstance;
@@ -91,8 +93,10 @@ public class ServerInteractionHelper {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
-                if (mListener != null) {
-                    mListener.onServerResult(message, requestId);
+
+                ServerInteractionResponseInterface listener = mListener.get();
+                if (listener != null) {
+                    listener.onServerResult(message, requestId);
                 }
                 requestDone(requestId);
             }
@@ -100,8 +104,9 @@ public class ServerInteractionHelper {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
-                if (mListener != null) {
-                    mListener.onServerError(message, requestId);
+                ServerInteractionResponseInterface listener = mListener.get();
+                if (listener != null) {
+                    listener.onServerError(message, requestId);
                 }
                 requestDone(requestId);
             }
@@ -117,8 +122,7 @@ public class ServerInteractionHelper {
      * @param c
      */
     public void registerEventListener(ServerInteractionResponseInterface listener, Context c) {
-        mListener = listener;// TODO weak reference
-        c.registerReceiver(mReceiver, mFilter);
+        mListener = new WeakReference<ServerInteractionResponseInterface>(listener);
     }
 
     /**
@@ -128,7 +132,6 @@ public class ServerInteractionHelper {
      */
     public void unregisterEventListener(ServerInteractionResponseInterface listener, Context c) {
         mListener = null;
-        c.unregisterReceiver(mReceiver);
     }
 
     /**
@@ -255,6 +258,12 @@ public class ServerInteractionHelper {
 
     }
 
+    /**
+     * Resets instance for unit tests
+     */
+    static void resetInstance(){
+        mInstance = null;
+    }
 
 
 

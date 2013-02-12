@@ -82,7 +82,7 @@ public class RestServerCommand extends ServerCommand  {
 	 */
 	@Override
 	public void execute(Context c) {
-        ServerInteractionHelper.getInstance().enableHttpResponseCache(c); // this looks to be the best place
+        ServerInteractionHelper.getInstance(c).enableHttpResponseCache(c); // this looks to be the best place
 
         try {
             executeStrategy(mFirstStrategy, c);
