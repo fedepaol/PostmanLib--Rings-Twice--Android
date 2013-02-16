@@ -98,7 +98,6 @@ public class OauthAuthenticateTest {
         when(mockedOAuthService.getRequestToken()).thenReturn(mRequestToken);
         when(mockedOAuthService.getAuthorizationUrl(any(Token.class))).thenReturn(AUTH_URL);
 
-
         mAuthHelper.registerOAuthService(mBuilder, mActivity);
 
         Robolectric.getBackgroundScheduler().pause();
@@ -133,7 +132,6 @@ public class OauthAuthenticateTest {
         } catch (OAuthServiceException e) {
             fail();
         }
-
 
     }
 
