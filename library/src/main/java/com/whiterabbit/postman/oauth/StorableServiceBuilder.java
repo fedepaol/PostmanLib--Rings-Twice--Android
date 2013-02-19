@@ -107,7 +107,7 @@ public class StorableServiceBuilder {
 
         SharedPreferences.Editor listEditor = mySharedPreferences.edit();
         listEditor.putString(SERVICES, builder.toString());
-        listEditor.commit();
+        listEditor.apply();
     }
 
     public static String[] getAllServices(Context c){
