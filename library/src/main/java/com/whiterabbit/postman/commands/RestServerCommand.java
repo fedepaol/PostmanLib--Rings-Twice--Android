@@ -84,7 +84,7 @@ public class RestServerCommand extends ServerCommand  {
 	public void execute(Context c) {
         ServerInteractionHelper.getInstance(c).enableHttpResponseCache(c); // this looks to be the best place
 
-        try {
+        try{
             executeStrategy(mFirstStrategy, c);
 
             for(Parcelable p : mStrategies){
@@ -92,9 +92,6 @@ public class RestServerCommand extends ServerCommand  {
             }
             notifyResult("Ok",  c);
 
-        }catch(OAuthException e){
-            notifyError(e.getMessage(), c);
-            return;
         } catch (PostmanException e) {
             notifyError(e.getMessage(), c);
             return;
@@ -103,24 +100,32 @@ public class RestServerCommand extends ServerCommand  {
     }
 
 
-    private void executeStrategy(RestServerRequest s, Context c) throws OAuthException, PostmanException {
-           OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
-           s.addParamsToRequest(request);
-           String signer = s.getOAuthSigner();
-           if(signer != null){
-               OAuthServiceInfo authService  = OAuthHelper.getInstance().getRegisteredService(signer, c);
-               authService.getService().signRequest(authService.getAccessToken(), request);
-           }
-           Response response = request.send();
-           handleResponse(s, response.getCode(), response, c);
+    private void executeStrategy(RestServerRequest s, Context c) throws PostmanException {
+        try{
+            OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
+            s.addParamsToRequest(request);
+            String signer = s.getOAuthSigner();
+            if(signer != null){
+                OAuthServiceInfo authService  = OAuthHelper.getInstance().getRegisteredService(signer, c);
+                authService.getService().signRequest(authService.getAccessToken(), request);
+            }
+            Response response = request.send();
+            handleResponse(s, response.getCode(), response, c);
+        }catch(OAuthException e){
+               if(e.getCause().getMessage().equals("No authentication challenges found")){
+                   // TODO Invalidate token ?
+               }
+               notifyError(e.getMessage(), c);
+               return;
+        }
     }
 
 
 
-	private void handleResponse(RestServerRequest strategy, int statusCode, Response response, Context c) throws PostmanException {
-		switch(statusCode){
-			case 200:
-				if(response != null){
+    private void handleResponse(RestServerRequest strategy, int statusCode, Response response, Context c) throws PostmanException {
+        switch(statusCode){
+            case 200:
+                if(response != null){
                     try {
                         strategy.processHttpResult(response, c);
                     }catch(ResultParseException e){
@@ -139,5 +144,5 @@ public class RestServerCommand extends ServerCommand  {
             default:
                 throw new PostmanException("Generic error " + statusCode);
         }
-	}
+    }
 }
