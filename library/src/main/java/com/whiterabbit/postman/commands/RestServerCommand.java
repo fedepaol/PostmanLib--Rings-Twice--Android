@@ -95,6 +95,9 @@ public class RestServerCommand extends ServerCommand  {
         } catch (PostmanException e) {
             notifyError(e.getMessage(), c);
             return;
+        }catch (OAuthException e){
+            notifyError(e.getMessage(), c);
+            return;
         }
 
     }
@@ -112,11 +115,12 @@ public class RestServerCommand extends ServerCommand  {
             Response response = request.send();
             handleResponse(s, response.getCode(), response, c);
         }catch(OAuthException e){
-               if(e.getCause().getMessage().equals("No authentication challenges found")){
-                   // TODO Invalidate token ?
-               }
-               notifyError(e.getMessage(), c);
-               return;
+            Throwable cause = e.getCause();
+            if(cause != null && cause.getMessage().equals("No authentication challenges found")){
+                Log.d(Constants.LOG_TAG, e.getCause().getMessage());
+                // TODO Invalidate token ?
+            }
+            throw e;
         }
     }
 

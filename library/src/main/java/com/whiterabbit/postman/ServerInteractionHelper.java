@@ -88,13 +88,17 @@ public class ServerInteractionHelper {
 
         @Override
         public void onReceive(Context c, Intent intent) {
+            ServerInteractionResponseInterface listener = null;
+            if(mListener != null){
+                listener = mListener.get();
+            }
+
             String action = intent.getAction();
             if (action.equals(Constants.SERVER_RESULT)) {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
 
-                ServerInteractionResponseInterface listener = mListener.get();
                 if (listener != null) {
                     listener.onServerResult(message, requestId);
                 }
@@ -104,7 +108,6 @@ public class ServerInteractionHelper {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
-                ServerInteractionResponseInterface listener = mListener.get();
                 if (listener != null) {
                     listener.onServerError(message, requestId);
                 }

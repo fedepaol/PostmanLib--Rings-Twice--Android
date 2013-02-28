@@ -56,7 +56,8 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
        final StorableServiceBuilder builder = new StorableServiceBuilder("Linkedin")
                 .provider(LinkedInApi.class)
                 .apiKey(mApiKey)
-                .apiSecret(mApiSecret);
+                .apiSecret(mApiSecret)
+                .callback("www.mycallback.com", "auth_verifier");
 
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);

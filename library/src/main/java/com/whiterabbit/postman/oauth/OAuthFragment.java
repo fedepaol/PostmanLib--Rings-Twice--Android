@@ -29,14 +29,16 @@ class OAuthFragment extends DialogFragment {
 
     private WebView webViewOauth;
     String mUrl;
+    String mRedirectParam;
     OAuthReceivedInterface mReceivedInterface;
     private boolean mAuthFound;
 
-    public static OAuthFragment newInstance(String url, OAuthReceivedInterface receivedInterface) {
+    public static OAuthFragment newInstance(String url, String redirectParam, OAuthReceivedInterface receivedInterface) {
         OAuthFragment f = new OAuthFragment();
-        f.setReceivedInterface(receivedInterface);  // TODO weak reference
+        f.setReceivedInterface(receivedInterface);
         Bundle args = new Bundle();
         args.putString("URL", url);
+        args.putString("PARAM", redirectParam);
         f.setArguments(args);
 
         return f;
@@ -47,6 +49,7 @@ class OAuthFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         mAuthFound = false;
         mUrl = getArguments().getString("URL");
+        mRedirectParam = getArguments().getString("PARAM");
     }
 
     @Override
@@ -75,7 +78,7 @@ class OAuthFragment extends DialogFragment {
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             //check if the login was successful and the access token returned
             //this test depend of your API
-            if (url.contains("oauth_verifier=")) {
+            if (url.contains(mRedirectParam + "=")) {
                 //save your token
                 saveAccessToken(url);
                 getDialog().dismiss();
@@ -92,7 +95,7 @@ class OAuthFragment extends DialogFragment {
     private void saveAccessToken(String url) {
         if(mReceivedInterface != null){
             Uri uri=Uri.parse(url);
-            String verifier = uri.getQueryParameter("oauth_verifier");
+            String verifier = uri.getQueryParameter(mRedirectParam);
             mReceivedInterface.onAuthReceived(verifier);
             mAuthFound = true;
         }

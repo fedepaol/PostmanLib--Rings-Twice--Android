@@ -22,6 +22,8 @@
         <activity
                 android:name=".LinkedinSample" />
         <activity
+                android:name=".FacebookSample" />
+        <activity
             android:name=".NoAuthSample" />
         <activity android:name=".SampleList">
             <intent-filter>

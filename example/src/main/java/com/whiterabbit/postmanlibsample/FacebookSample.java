@@ -15,13 +15,13 @@ import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
 import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetRequest;
 import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
-import org.scribe.builder.api.TwitterApi;
+import org.scribe.builder.api.FacebookApi;
 
-public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
+public class FacebookSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
 	static final String UPDATE_STATUS = "StatusUpdate";
     static final String REQUEST_LATEST_TWEET = "LatestTweet";
-    private final static String mApiKey = "26095549-kIIdivjphrnO3shKvfeqeb4XwaWyz6JADuW63jHOZ"; // <- must be set from the real one got from www.twitter.com
-    private final static String mApiSecret = "KDAJ0qeWLGhF8JoB4eRF9lBH6EA7Hpaq7zq6semvEA"; // <- must be set from the real one got from www.twitter.com
+    private final static String mApiKey = "256728337717987";
+    private final static String mApiSecret = "76e0eeef1db52fae6c20a8c16324e8cb";
 
     private TextView mRequestStatus;
 	private EditText mStatusToSend;
@@ -59,18 +59,18 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     }
 
     private void registerToTwitter(){
-       StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
-                .provider(TwitterApi.class)
+       StorableServiceBuilder builder = new StorableServiceBuilder("Facebook")
+                .provider(FacebookApi.class)
                 .apiKey(mApiKey)
                 .apiSecret(mApiSecret)
-                .callback("www.mycallback.com", "auth_verifier");
+                .callback("http://www.mydearsanta.info/callback", "code");
 
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
 
-        if(!o.isAlreadyAuthenticated("Twitter", this)){
+        if(!o.isAlreadyAuthenticated("Facebook", this)){
             mRequestStatus.setText("Authenticating..");
-            o.authenticate(this, "Twitter");
+            o.authenticate(this, "Facebook");
         }else{
             enableButtons();
         }

@@ -14,16 +14,22 @@ public class OAuthServiceInfo {
     private Token mAccessToken;
     private boolean mAuthenticated;
     private String mServiceName;
+    private String mRedirectParameter;
 
 
     public String getServiceName() {
         return mServiceName;
     }
 
-    public OAuthServiceInfo(OAuthService s, String serviceName, Token accessToken){
+    public OAuthServiceInfo(OAuthService s, String serviceName, String redirectParameter, Token accessToken){
         mService = s;
         mServiceName = serviceName;
         mAccessToken = accessToken;
+        mRedirectParameter = redirectParameter;
+    }
+
+    public String getRedirectParameter(){
+        return mRedirectParameter;
     }
 
     public OAuthService getService(){

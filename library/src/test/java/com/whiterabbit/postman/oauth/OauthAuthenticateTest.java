@@ -61,9 +61,11 @@ public class OauthAuthenticateTest {
 
 
         mockedOAuthService = mock(OAuthService.class);
+        when(mockedOAuthService.getVersion()).thenReturn("1.0");
         mBuilder = mock(StorableServiceBuilder.class);
         when(mBuilder.build(any(Context.class))).thenReturn(mockedOAuthService);
         when(mBuilder.getName()).thenReturn(SERVICE_NAME);
+        when(mBuilder.getRedirectParameter()).thenReturn("oauth_verifier");
 
         mAuthHelper.registerOAuthService(mBuilder, mActivity);
 

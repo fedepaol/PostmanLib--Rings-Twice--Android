@@ -23,14 +23,18 @@ public class StorableServiceBuilder {
     private static final String SIGNATURE_TYPE = "com.whiterabbit.signaturetype";
     private static final String API = "com.whiterabbit.api";
     private static final String SERVICES = "com.whiterabbit.services";
+    private static final String REDIRECT_KEY= "com.whiterabbit.redirect";
+    private static final String REDIRECT_PARAMETER = "com.whiterabbit.redirect_param";
 
     private String apiKey;
     private String apiSecret;
     private String scope;
+    private String redirectUrl;
     private SignatureType signatureType;
     private String mServiceName;
     private Class api;
     private ServiceBuilder mServiceBuilder;
+    private String mAuthRedirectParameter;
 
     public StorableServiceBuilder(String name){
         mServiceName = name;
@@ -43,14 +47,25 @@ public class StorableServiceBuilder {
     }
 
 
+    public String getRedirectParameter(){
+        return mAuthRedirectParameter;
+    }
+
+
     public StorableServiceBuilder provider(Class<? extends Api> apiClass)
     {
         this.api = apiClass;
         mServiceBuilder.provider(apiClass);
-        mServiceBuilder.callback("http://your_callback_url");   // This can be anything since the oauth dialog will intercept the redirect
         return this;
     }
 
+    public StorableServiceBuilder callback(String callback, String redirectParameter)
+    {
+        mAuthRedirectParameter = redirectParameter;
+        redirectUrl = callback;
+        mServiceBuilder.callback(callback);
+        return this;
+    }
 
 
     public StorableServiceBuilder apiKey(String apiKey)
@@ -92,6 +107,8 @@ public class StorableServiceBuilder {
     void storeToPreferences(String serviceName, Context c){
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();
+        editor.putString(REDIRECT_KEY, redirectUrl);
+        editor.putString(REDIRECT_PARAMETER, mAuthRedirectParameter);
         editor.putString(API_KEY, apiKey);
         editor.putString(API_SECRET, apiSecret);
         editor.putString(API_SCOPE, scope);
@@ -120,8 +137,10 @@ public class StorableServiceBuilder {
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         mServiceName = serviceName;
         apiKey = mySharedPreferences.getString(API_KEY, "");
+        mAuthRedirectParameter = mySharedPreferences.getString(REDIRECT_PARAMETER, "");
         apiSecret = mySharedPreferences.getString(API_SECRET, "");
         scope = mySharedPreferences.getString(API_SCOPE, "");
+        redirectUrl = mySharedPreferences.getString(REDIRECT_KEY, "");
         signatureType = SignatureType.values()[mySharedPreferences.getInt(SIGNATURE_TYPE, -1)];
 
 

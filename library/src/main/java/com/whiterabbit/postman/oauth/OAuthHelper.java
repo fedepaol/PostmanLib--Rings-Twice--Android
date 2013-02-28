@@ -83,7 +83,13 @@ public class OAuthHelper {
         @Override
         protected List doInBackground(OAuthServiceInfo... oAuthServiceInfos) {
             try{
-                Token requestToken = oAuthServiceInfos[0].getService().getRequestToken();
+                OAuthService service = oAuthServiceInfos[0].getService();
+                Token requestToken;
+                if(service.getVersion().equals("1.0")){
+                    requestToken = service.getRequestToken();
+                }else{
+                    requestToken = null; // because in oauth 2.0 the request token is not needed
+                }
                 String url = oAuthServiceInfos[0].getService().getAuthorizationUrl(requestToken);
                 List<Object> res = new ArrayList<Object>(2);
                 res.add(0, requestToken);
@@ -114,7 +120,7 @@ public class OAuthHelper {
             String url = (String) res.get(1);
 
             FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
-            OAuthFragment newFragment = OAuthFragment.newInstance(url, new OAuthReceivedInterface() {
+            OAuthFragment newFragment = OAuthFragment.newInstance(url, mService.getRedirectParameter(), new OAuthReceivedInterface() {
                 @Override
                 public void onAuthReceived(String url) {
                     // Gets called when the user authorizes the app
@@ -206,7 +212,7 @@ public class OAuthHelper {
         String name = builder.getName();
         builder.storeToPreferences(name, c);
         Token t = getAuthTokenForService(name, c);
-        mServices.put(name, new OAuthServiceInfo(service, name, t));
+        mServices.put(name, new OAuthServiceInfo(service, name, builder.getRedirectParameter(), t));
     }
 
 
