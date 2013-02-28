@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.whiterabbit.postman.ServerInteractionHelper;
@@ -13,21 +12,18 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetRequest;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.FacebookGet;
 import org.scribe.builder.api.FacebookApi;
 
 public class FacebookSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
-	static final String UPDATE_STATUS = "StatusUpdate";
-    static final String REQUEST_LATEST_TWEET = "LatestTweet";
+	static final String GET_INFOS = "FbGetInfos";
     private final static String mApiKey = "256728337717987";
     private final static String mApiSecret = "76e0eeef1db52fae6c20a8c16324e8cb";
 
     private TextView mRequestStatus;
-	private EditText mStatusToSend;
-    private TextView mLatestTweet;
-	private Button mUpdateStatusButton;
-    private Button mGetLatestTweetButton;
+    private TextView mFbName;
+    private TextView mFbLink;
+	private Button mGetInfosButton;
     ServerInteractionHelper mServerHelper;
 
 	
@@ -35,18 +31,14 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.twitter);
+        setContentView(R.layout.fb);
         mServerHelper = ServerInteractionHelper.getInstance(this);
         
         
-        mRequestStatus = (TextView) findViewById(R.id.TwitterRequestStatus);
-        mUpdateStatusButton = (Button) findViewById(R.id.TwitterUpdateStatusButton);
-
-        mStatusToSend = (EditText) findViewById(R.id.TwitterStatusToPublish);
-        mLatestTweet = (TextView) findViewById(R.id.LatestTweet);
-        mGetLatestTweetButton = (Button) findViewById(R.id.TwitterGetLatestTweetButton);
-
-        mLatestTweet.setText(StoreUtils.getLatestTweet(this));
+        mRequestStatus = (TextView) findViewById(R.id.FbRequestStatus);
+        mFbName = (TextView) findViewById(R.id.FbName);
+        mFbLink = (TextView) findViewById(R.id.FbLink);
+        mGetInfosButton = (Button) findViewById(R.id.FbGetInfosButton);
 
 
         if(mApiKey.equals("APIKEY")){
@@ -54,11 +46,11 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
             toast.show();
         }
 
-        registerToTwitter();
+        registerToFb();
 
     }
 
-    private void registerToTwitter(){
+    private void registerToFb(){
        StorableServiceBuilder builder = new StorableServiceBuilder("Facebook")
                 .provider(FacebookApi.class)
                 .apiKey(mApiKey)
@@ -77,8 +69,8 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
     }
 
     private void enableButtons(){
-        mUpdateStatusButton.setOnClickListener(this);
-        mGetLatestTweetButton.setOnClickListener(this);
+        mGetInfosButton.setOnClickListener(this);
+
     }
 
 
@@ -97,7 +89,7 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
         OAuthHelper.getInstance().registerListener(this);
 		
 		mServerHelper.registerEventListener(this, this);
-		if(mServerHelper.isRequestAlreadyPending(UPDATE_STATUS)){
+		if(mServerHelper.isRequestAlreadyPending(GET_INFOS)){
 			mRequestStatus.setText("Request in progress...");
 		}
 		super.onResume();
@@ -105,11 +97,9 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
 
 	@Override
 	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(REQUEST_LATEST_TWEET)){
-            mLatestTweet.setText(StoreUtils.getLatestTweet(this));
-        }
-        if(requestId.equals(UPDATE_STATUS)){
-            mRequestStatus.setText("Status updated!");
+        if(requestId.equals(GET_INFOS)){
+            mFbLink.setText(StoreUtils.getFbLink(this));
+            mFbName.setText(StoreUtils.getFBName(this));
         }
 	}
 
@@ -135,23 +125,14 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
     @Override
     public void onClick(View view) {
         switch(view.getId()){
-            case R.id.TwitterUpdateStatusButton:
-                TwitterUpdateStatusRequest statusStrategy = new TwitterUpdateStatusRequest(mStatusToSend.getText().toString());
+            case R.id.FbGetInfosButton:
+                FacebookGet updateStrategy = new FacebookGet();
                 try {
-                    mServerHelper.sendRestAction(this, UPDATE_STATUS, statusStrategy);
+                    mServerHelper.sendRestAction(this, GET_INFOS, updateStrategy);
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
             break;
-
-            case R.id.TwitterGetLatestTweetButton:
-                TwitterGetLatestTweetRequest c = new TwitterGetLatestTweetRequest();
-                try {
-                    mServerHelper.sendRestAction(this, REQUEST_LATEST_TWEET, c);
-                } catch (SendingCommandException e) {
-                    e.printStackTrace();
-                }
-                break;
         }
     }
 }

@@ -15,6 +15,34 @@ public class StoreUtils {
 	private final static String LATEST_TWEET = "LatestTweet";
 	private final static String PREF_NAME = "MyPrefs";
     private final static String LINKEDIN_HEADLINE = "LinkedinHeadline";
+    private final static String FB_NAME = "FbName";
+    private final static String FB_LINK = "FbLink";
+
+    public static String getFBName(Context c)
+    {
+        int mode = Activity.MODE_PRIVATE;
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+        return mySharedPreferences.getString(FB_NAME, "Nones");
+    }
+
+	public static String getFbLink(Context c)
+	{
+		int mode = Activity.MODE_PRIVATE;
+		SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+		return mySharedPreferences.getString(FB_LINK, "Nones");
+	}
+
+	public static void setFbProperties(String name, String link, Context c)
+	{
+		int mode = Activity.MODE_PRIVATE;
+		SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+		SharedPreferences.Editor editor = mySharedPreferences.edit();
+		editor.putString(FB_NAME, name);
+        editor.putString(FB_LINK, link);
+		editor.commit();
+
+	}
+
 
 	public static String getLatestTweet(Context c)
 	{

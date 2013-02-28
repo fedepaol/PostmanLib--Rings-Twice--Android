@@ -268,7 +268,6 @@ public class OAuthHelper {
         String secret = mySharedPreferences.getString(Constants.SECRET, "");
         String raw = mySharedPreferences.getString(Constants.RAW_RES, "");
         if (token.equals("") ||
-            secret.equals("") ||
             raw.equals("")){
             return null;
         }
