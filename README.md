@@ -154,7 +154,8 @@ A storable builder, which is a simple wrapper to _scribe_'s ServiceBuilder, must
     StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
                 .apiKey("YOURAPIKEY")
-                .apiSecret("YOURAPISECRET");
+                .apiSecret("YOURAPISECRET")
+                .callback("http://YOUR_CALLBACK_URL", "CALLBACK_TOKEN_PARAMETER");
 
     OAuthHelper o = OAuthHelper.getInstance();
     o.registerOAuthService(builder, this);
@@ -165,6 +166,13 @@ In case the service is not yet authorized, the authorization process must be sta
         o.authenticate(this, "Twitter");
     }
 
+
+The callback url is the one that will be called after the first step of the authorization has been completed. It will be intercepted
+by the webview, so it should not care. However, some services (such as facebook) will check the domain it belongs to so be sure it's the same you put
+into the api console.
+
+The callback token parameter is the parameter of the callback that contains the token to be used in order to proceed with the authentication. It generally is
+_"auth_verifier"_ but in case of facebook it was _"code"_ .
 
 PostManLib library will provide a dialog to the user containing the webview to authorize the application.
 
