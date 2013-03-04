@@ -37,10 +37,13 @@ public interface RestServerRequest extends Parcelable{
 	 * To be implemented to process the result of the http call
 	 * throw ResultParseException to notify the caller that result parsing failed
      * NOTE: this method is executed in a background thread
-	 * @param result
-	 * @param context
+	 * @param result the result returned by the http call
+     * @param executor a request executor that might be used to execute inner requests. The requests passed to the
+     *                 executor will be executed immediately in the same thread that is executing the current request, as if
+     *                 it was originally sent by the client
+	 * @param context an android context, might be used to store data
 	 */
-	public void processHttpResult(Response result, Context context) throws ResultParseException;
+	public void processHttpResult(Response result, RequestExecutor executor, Context context) throws ResultParseException;
 
     /**
      * To be implemented to add parameters to the request according to scribe documentation.

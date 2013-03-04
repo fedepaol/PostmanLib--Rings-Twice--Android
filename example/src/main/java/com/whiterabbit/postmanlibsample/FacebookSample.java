@@ -12,7 +12,7 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.FacebookGet;
+import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.FacebookGetUserId;
 import org.scribe.builder.api.FacebookApi;
 
 public class FacebookSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
@@ -98,7 +98,7 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
 	@Override
 	public void onServerResult(String result, String requestId) {
         if(requestId.equals(GET_INFOS)){
-            mFbLink.setText(StoreUtils.getFbLink(this));
+            mFbLink.setText(StoreUtils.getFbGender(this));
             mFbName.setText(StoreUtils.getFBName(this));
         }
 	}
@@ -126,7 +126,7 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.FbGetInfosButton:
-                FacebookGet updateStrategy = new FacebookGet();
+                FacebookGetUserId updateStrategy = new FacebookGetUserId("Federico Paolinelli");
                 try {
                     mServerHelper.sendRestAction(this, GET_INFOS, updateStrategy);
                 } catch (SendingCommandException e) {

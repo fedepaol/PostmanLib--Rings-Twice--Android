@@ -2,6 +2,7 @@ package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.comman
 
 import android.content.Context;
 import android.os.Parcel;
+import com.whiterabbit.postman.commands.RequestExecutor;
 import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postmanlibsample.StoreUtils;
@@ -42,7 +43,7 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
     }
 
     @Override
-    public void processHttpResult(Response result, Context context) throws ResultParseException {
+    public void processHttpResult(Response result, RequestExecutor executor, Context context) throws ResultParseException {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(result.getBody());

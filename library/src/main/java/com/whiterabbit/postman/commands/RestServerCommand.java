@@ -21,7 +21,7 @@ import org.scribe.model.Verb;
  * @author fede
  *
  */
-public class RestServerCommand extends ServerCommand  {
+public class RestServerCommand extends ServerCommand implements RequestExecutor  {
     private final RestServerRequest mFirstStrategy;
     private final Parcelable[] mStrategies; // must be a Parcelable[] instead of RestServerRequest[] because I wouldn't be
                                             // able to read it (can't cast Parcelable[] to RestServerRequest[] )
@@ -103,7 +103,8 @@ public class RestServerCommand extends ServerCommand  {
     }
 
 
-    private void executeStrategy(RestServerRequest s, Context c) throws PostmanException {
+    @Override
+    public void executeStrategy(RestServerRequest s, Context c) throws PostmanException {
         try{
             OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
             s.addParamsToRequest(request);
@@ -131,7 +132,7 @@ public class RestServerCommand extends ServerCommand  {
             case 200:
                 if(response != null){
                     try {
-                        strategy.processHttpResult(response, c);
+                        strategy.processHttpResult(response, this, c);
                     }catch(ResultParseException e){
                         notifyError("Failed to parse result " + e.getMessage(), c);
                         Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
@@ -149,4 +150,5 @@ public class RestServerCommand extends ServerCommand  {
                 throw new PostmanException("Generic error " + statusCode);
         }
     }
+
 }

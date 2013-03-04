@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Parcel;
+import com.whiterabbit.postman.commands.RequestExecutor;
 import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import org.scribe.model.OAuthRequest;
@@ -46,7 +47,7 @@ public class NoAuthRequest implements RestServerRequest {
     }
 
     @Override
-    public void processHttpResult(Response result, Context context) throws ResultParseException {
+    public void processHttpResult(Response result, RequestExecutor executor, Context context) throws ResultParseException {
         Bitmap b = BitmapFactory.decodeStream(result.getStream());
         File path = context.getExternalFilesDir(null);
         File target = new File(path, mName);

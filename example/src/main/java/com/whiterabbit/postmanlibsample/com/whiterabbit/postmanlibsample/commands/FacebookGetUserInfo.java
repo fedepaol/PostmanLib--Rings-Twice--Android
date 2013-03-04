@@ -2,6 +2,7 @@ package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.comman
 
 import android.content.Context;
 import android.os.Parcel;
+import com.whiterabbit.postman.commands.RequestExecutor;
 import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
 import com.whiterabbit.postmanlibsample.StoreUtils;
@@ -19,11 +20,11 @@ import java.io.IOException;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class FacebookGet implements RestServerRequest {
-    private static final String url = "https://graph.facebook.com/me";
+public class FacebookGetUserInfo implements RestServerRequest {
+    private final String mId;
 
-    public FacebookGet(){
-
+    public FacebookGetUserInfo(String id){
+        mId = id;
     }
 
     @Override
@@ -33,7 +34,7 @@ public class FacebookGet implements RestServerRequest {
 
     @Override
     public String getUrl() {
-        return url;
+        return "https://graph.facebook.com/" + mId;
     }
 
     @Override
@@ -42,14 +43,14 @@ public class FacebookGet implements RestServerRequest {
     }
 
     @Override
-    public void processHttpResult(Response result, Context context) throws ResultParseException {
+    public void processHttpResult(Response result, RequestExecutor executor, Context context) throws ResultParseException {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(result.getBody());
-            String name= root.path("name").toString();
-            String link = root.path("link").toString();
+            String name= root.path("first_name").getTextValue();
+            String gender = root.path("gender").getTextValue();
+            StoreUtils.setFbProperties(name, gender, context);
 
-            StoreUtils.setFbProperties(name, link, context);
         } catch (IOException e) {
             throw new ResultParseException("Failed to parse response");
         }
@@ -58,6 +59,7 @@ public class FacebookGet implements RestServerRequest {
 
     @Override
     public void addParamsToRequest(OAuthRequest request) {
+        request.addQuerystringParameter("fields", "gender,first_name,hometown");
     }
 
     @Override
@@ -67,22 +69,24 @@ public class FacebookGet implements RestServerRequest {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mId);
     }
 
 
-    public static final Creator<FacebookGet> CREATOR
-            = new Creator<FacebookGet>() {
-        public FacebookGet createFromParcel(Parcel in) {
-            return new FacebookGet(in);
+    public static final Creator<FacebookGetUserInfo> CREATOR
+            = new Creator<FacebookGetUserInfo>() {
+        public FacebookGetUserInfo createFromParcel(Parcel in) {
+            return new FacebookGetUserInfo(in);
         }
 
-        public FacebookGet[] newArray(int size) {
-            return new FacebookGet[size];
+        public FacebookGetUserInfo[] newArray(int size) {
+            return new FacebookGetUserInfo[size];
         }
     };
 
 
-    public FacebookGet(Parcel in){
+    public FacebookGetUserInfo(Parcel in){
+        mId = in.readString();
     }
 
 }

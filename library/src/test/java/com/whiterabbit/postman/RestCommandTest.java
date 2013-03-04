@@ -123,5 +123,60 @@ public class RestCommandTest{
 
     }
 
+    @Test
+    public void testCommandExecutionNested(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        NestedRestRequest s = new NestedRestRequest(mockedRequest, false);
+        RestServerCommand command = new RestServerCommand(s){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
+
+        Response mockedResponse = mock(Response.class);
+        when(mockedRequest.send()).thenReturn(mockedResponse);
+
+        when(mockedResponse.getBody()).thenReturn("Ciao");
+        when(mockedResponse.getCode()).thenReturn(200);
+
+        command.execute(mActivity);
+        verify(mockedRequest, times(2)).addHeader("Key", "Value");
+        verify(mockedRequest, times(2)).send();
+
+        assertEquals(mActivity.getServerResult(), "Ok");
+
+    }
+
+
+    @Test
+    public void testCommandNestedCommandFailure(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        NestedRestRequest s = new NestedRestRequest(mockedRequest, false);
+        RestServerCommand command = new RestServerCommand(s){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
+
+        when(mockedRequest.send()).thenThrow(new OAuthException("Fava"));
+
+        command.execute(mActivity);
+        verify(mockedRequest).addHeader("Key", "Value");
+        verify(mockedRequest).send();
+
+        assertTrue(mActivity.isIsFailure());
+
+    }
+
 }
 
