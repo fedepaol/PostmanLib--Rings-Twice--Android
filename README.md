@@ -13,6 +13,7 @@ LibPostman (Rings Twice) for Android is a library intended to make the asynchron
 It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. The minSdkVersion declared in the lib's manifest is 8 since scribe itself uses HttpUrlConnection which received a significant amount of bugfixes in ApiLevel 8, 
 
 
+###QUESTIONS? Did you check the [faq][faq]
 
 Architecture
 -------
@@ -123,9 +124,9 @@ A RestServerRequest might be used to initialize a RestServerCommand to be sent. 
 ####Handling a response
 The
 
-    void processHttpResult(Response result, Context context);
+    void processHttpResult(Response result, RequestExecutor executor, Context context);
 
-of all the _RestServerAction_s you passed will be called with the result of the call.
+of all the _RestServerAction_ s you passed will be called with the result of the call.
 
 The _Response_ parameter is a scribe Response object. You can get the stringified result using
 
@@ -137,8 +138,10 @@ Otherwise, a stream can be fetched using:
 
     result.getStream()
 
+####Chained requests
+In many cases (such as facebook graph api), the rest api may require to use a request's result as a parameter of a newer request. This might be tricky using the callbacks given by the ServerInteractionHelper. To handlethese special cases, the executor parameter of the _processHttpResult_ call. Its _executeRequest_ method allows to execute new requests in the same thread (or service) that is handling the current request.
 
-
+Check FacebookExample for more details.
 
 ##OAuth Authentication
 
@@ -231,6 +234,6 @@ License
 
 
 [scribe]: https://github.com/fernandezpablo85/scribe-java
-
+[faqurl]: https://github.com/fedepaol/PostmanLib--Rings-Twice--Android/wiki/FAQ
 
 
