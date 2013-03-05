@@ -85,10 +85,10 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
         ServerInteractionHelper.getInstance(c).enableHttpResponseCache(c); // this looks to be the best place
 
         try{
-            executeStrategy(mFirstStrategy, c);
+            executeRequest(mFirstStrategy, c);
 
             for(Parcelable p : mStrategies){
-                executeStrategy((RestServerRequest)p, c);
+                executeRequest((RestServerRequest) p, c);
             }
             notifyResult("Ok",  c);
 
@@ -104,7 +104,7 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
 
 
     @Override
-    public void executeStrategy(RestServerRequest s, Context c) throws PostmanException {
+    public void executeRequest(RestServerRequest s, Context c) throws PostmanException {
         try{
             OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
             s.addParamsToRequest(request);

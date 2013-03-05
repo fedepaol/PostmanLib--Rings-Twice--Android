@@ -59,7 +59,7 @@ public class NestedRestRequest implements RestServerRequest {
         mResultString = result.getBody();
         SimpleRestRequest newRequest = new SimpleRestRequest(mMockedRequest, mMustSign);
         try {
-            executor.executeStrategy(newRequest, context);
+            executor.executeRequest(newRequest, context);
         } catch (PostmanException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }

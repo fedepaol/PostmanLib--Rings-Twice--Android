@@ -57,7 +57,7 @@ public class FacebookGetUserId implements RestServerRequest {
                 FacebookGetUserInfo getUserInfo = new FacebookGetUserInfo(id);
 
                 try {
-                    executor.executeStrategy(getUserInfo, context);
+                    executor.executeRequest(getUserInfo, context);
                 } catch (PostmanException e) {
                     e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
