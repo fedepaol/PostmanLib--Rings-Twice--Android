@@ -13,7 +13,7 @@ LibPostman (Rings Twice) for Android is a library intended to make the asynchron
 It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. The minSdkVersion declared in the lib's manifest is 8 since scribe itself uses HttpUrlConnection which received a significant amount of bugfixes in ApiLevel 8, 
 
 
-###QUESTIONS? Did you check the [faq][faq_url]
+###QUESTIONS? Did you check the [faq][faqurl]
 
 Architecture
 -------
