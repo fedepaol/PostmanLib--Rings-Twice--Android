@@ -4,6 +4,7 @@ package com.whiterabbit.postman;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.commands.RestServerRequest;
@@ -40,7 +41,9 @@ public class ServerInteractionHelper {
 		mFilter.addAction(Constants.SERVER_ERROR);
         mCachingEnabled = false;
         mServices = new ArrayList<Class<? extends InteractionService>>(4);
-        c.getApplicationContext().registerReceiver(mReceiver, mFilter);
+
+
+        LocalBroadcastManager.getInstance(c.getApplicationContext()).registerReceiver(mReceiver, mFilter);
 
 	}
 

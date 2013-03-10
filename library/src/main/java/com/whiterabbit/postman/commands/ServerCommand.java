@@ -3,6 +3,7 @@ package com.whiterabbit.postman.commands;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
+import android.support.v4.content.LocalBroadcastManager;
 import com.whiterabbit.postman.utils.Constants;
 
 public abstract class ServerCommand implements Parcelable{
@@ -47,7 +48,7 @@ public abstract class ServerCommand implements Parcelable{
         Intent intent = new Intent(Constants.SERVER_RESULT);
         intent.putExtra(Constants.MESSAGE_ID, message);
         intent.putExtra(Constants.REQUEST_ID, mRequestId);
-        c.sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
     }
 	
 	/**
@@ -59,7 +60,7 @@ public abstract class ServerCommand implements Parcelable{
         Intent intent = new Intent(Constants.SERVER_ERROR);
         intent.putExtra(Constants.MESSAGE_ID, message);
         intent.putExtra(Constants.REQUEST_ID, mRequestId);
-        c.sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
     }
 	
 	/**
@@ -72,8 +73,7 @@ public abstract class ServerCommand implements Parcelable{
         intent.putExtra(Constants.MESSAGE_ID, message);
 		String reqID = i.getExtras().getString(Constants.REQUEST_ID);
         intent.putExtra(Constants.REQUEST_ID, reqID);
-        c.sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
 	}
-
 
 }
