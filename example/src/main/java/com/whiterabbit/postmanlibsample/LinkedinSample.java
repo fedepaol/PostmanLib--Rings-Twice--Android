@@ -12,7 +12,7 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.LinkedinGetCurrentUserRequest;
+import com.whiterabbit.postmanlibsample.commands.LinkedinGetCurrentUserRequest;
 import org.scribe.builder.api.LinkedInApi;
 
 /**

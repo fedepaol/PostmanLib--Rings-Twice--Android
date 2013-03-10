@@ -13,8 +13,8 @@ import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetRequest;
-import com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
+import com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetRequest;
+import com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
 import org.scribe.builder.api.TwitterApi;
 
 public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {

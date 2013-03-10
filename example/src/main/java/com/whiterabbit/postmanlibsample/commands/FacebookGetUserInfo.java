@@ -1,4 +1,4 @@
-package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands;
+package com.whiterabbit.postmanlibsample.commands;
 
 import android.content.Context;
 import android.os.Parcel;
@@ -20,21 +20,21 @@ import java.io.IOException;
  * Date: 12/18/12
  * Time: 12:41 AM
  */
-public class TwitterGetLatestTweetRequest implements RestServerRequest {
-    private static final String url = "https://api.twitter.com/1.1/statuses/home_timeline.json";
+public class FacebookGetUserInfo implements RestServerRequest {
+    private final String mId;
 
-    public TwitterGetLatestTweetRequest(){
-
+    public FacebookGetUserInfo(String id){
+        mId = id;
     }
 
     @Override
     public String getOAuthSigner() {
-        return "Twitter";
+        return "Facebook";
     }
 
     @Override
     public String getUrl() {
-        return url;
+        return "https://graph.facebook.com/" + mId;
     }
 
     @Override
@@ -47,12 +47,10 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(result.getBody());
-            for (JsonNode tweet : root){
-                String text = tweet.path("text").toString();
-                String user = tweet.path("user").path("name").toString();
+            String name= root.path("first_name").getTextValue();
+            String gender = root.path("gender").getTextValue();
+            StoreUtils.setFbProperties(name, gender, context);
 
-                StoreUtils.setLatestTweet(String.format("%s -> %s", user, text), context);
-            }
         } catch (IOException e) {
             throw new ResultParseException("Failed to parse response");
         }
@@ -61,7 +59,7 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
 
     @Override
     public void addParamsToRequest(OAuthRequest request) {
-        request.addQuerystringParameter("count", "1");
+        request.addQuerystringParameter("fields", "gender,first_name,hometown");
     }
 
     @Override
@@ -71,22 +69,24 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mId);
     }
 
 
-    public static final Creator<TwitterGetLatestTweetRequest> CREATOR
-            = new Creator<TwitterGetLatestTweetRequest>() {
-        public TwitterGetLatestTweetRequest createFromParcel(Parcel in) {
-            return new TwitterGetLatestTweetRequest(in);
+    public static final Creator<FacebookGetUserInfo> CREATOR
+            = new Creator<FacebookGetUserInfo>() {
+        public FacebookGetUserInfo createFromParcel(Parcel in) {
+            return new FacebookGetUserInfo(in);
         }
 
-        public TwitterGetLatestTweetRequest[] newArray(int size) {
-            return new TwitterGetLatestTweetRequest[size];
+        public FacebookGetUserInfo[] newArray(int size) {
+            return new FacebookGetUserInfo[size];
         }
     };
 
 
-    public TwitterGetLatestTweetRequest(Parcel in){
+    public FacebookGetUserInfo(Parcel in){
+        mId = in.readString();
     }
 
 }

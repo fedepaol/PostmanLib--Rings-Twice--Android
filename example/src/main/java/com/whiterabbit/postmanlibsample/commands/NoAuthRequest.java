@@ -1,4 +1,4 @@
-package com.whiterabbit.postmanlibsample.com.whiterabbit.postmanlibsample.commands;
+package com.whiterabbit.postmanlibsample.commands;
 
 import android.content.Context;
 import android.graphics.Bitmap;
