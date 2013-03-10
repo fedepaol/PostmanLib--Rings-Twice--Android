@@ -3,7 +3,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.whiterabbit.postman</groupId>
+	<groupId>com.fedepaolapps.postman</groupId>
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
@@ -17,13 +17,19 @@
 		<module>example</module>
 	</modules>
 
+    <scm>
+        <url>https://github.com/fedepaol/PostmanLib--Rings-Twice--Android/</url>
+        <connection>scm:git: git://github.com/fedepaol/PostmanLib--Rings-Twice--Android.git</connection>
+        <developerConnection>scm:git:git@github.com:fedepaol/PostmanLib--Rings-Twice--Android.git</developerConnection>
+    </scm>
+
 	<developers>
 		<developer>
 			<name>Federico Paolinelli</name>
 			<email>fedepaol@gmail.com</email>
 			<id>fedepaol</id>
 			<url>http://mytechaddiction.blogspot.com</url>
-			<timezone>-5</timezone>
+			<timezone>1</timezone>
 			<roles>
 				<role>developer</role>
 			</roles>
