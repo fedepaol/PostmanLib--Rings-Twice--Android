@@ -55,6 +55,7 @@ public class RestCommandTest{
         verify(mockedRequest).addHeader("Key", "Value");
         verify(mockedRequest).send();
 
+        assertEquals(s.getResultStatus(), 200);
         assertEquals(mActivity.getServerResult(), "Ok");
 
     }
@@ -120,6 +121,7 @@ public class RestCommandTest{
         verify(mockedRequest).send();
 
         assertTrue(mActivity.isIsFailure());
+        assertTrue(s.isExceptionThrown());
 
     }
 
@@ -177,6 +179,41 @@ public class RestCommandTest{
         assertTrue(mActivity.isIsFailure());
 
     }
+
+
+
+
+    @Test
+    public void testCommand401(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+
+        final OAuthRequest mockedRequest = mock(OAuthRequest.class);
+        SimpleRestRequest s = new SimpleRestRequest(mockedRequest, false);
+        RestServerCommand command = new RestServerCommand(s){
+
+            @Override
+            protected OAuthRequest getRequest(Verb v, String url) {
+                return mockedRequest;
+            }
+        };
+
+        Response mockedResponse = mock(Response.class);
+        when(mockedRequest.send()).thenReturn(mockedResponse);
+
+        when(mockedResponse.getBody()).thenReturn(null);
+        when(mockedResponse.getCode()).thenReturn(401);
+
+        command.execute(mActivity);
+        verify(mockedRequest).addHeader("Key", "Value");
+        verify(mockedRequest).send();
+
+        assertTrue(mActivity.isIsFailure());
+        assertEquals(s.getResultStatus(), 401);
+    }
+
+
+
 
 }
 

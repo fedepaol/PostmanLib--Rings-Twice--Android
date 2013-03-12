@@ -5,6 +5,7 @@ import android.os.Parcel;
 import com.whiterabbit.postman.commands.RequestExecutor;
 import com.whiterabbit.postman.commands.RestServerRequest;
 import com.whiterabbit.postman.exceptions.ResultParseException;
+import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
@@ -21,6 +22,8 @@ public class SimpleRestRequest implements RestServerRequest {
     private String mResultString;
     private OAuthRequest mMockedRequest;
     private boolean mMustSign;
+    private int mResultStatus = 0;
+    private boolean mExceptionThrown = false;
 
 
 
@@ -54,8 +57,21 @@ public class SimpleRestRequest implements RestServerRequest {
     }
 
     @Override
-    public void processHttpResult(Response result, RequestExecutor executor, Context context) throws ResultParseException {
-        mResultString = result.getBody();
+    public void onHttpError(int statusCode, RequestExecutor executor, Context context) {
+        mResultStatus = statusCode;
+    }
+
+    @Override
+    public void onOAuthExceptionThrown(OAuthException exception) {
+        mExceptionThrown = true;
+    }
+
+    @Override
+    public void onHttpResult(Response result, int statusCode, RequestExecutor executor, Context context) throws ResultParseException {
+        mResultStatus = statusCode;
+        if(statusCode == 200){
+            mResultString = result.getBody();
+        }
     }
 
     @Override
@@ -74,5 +90,14 @@ public class SimpleRestRequest implements RestServerRequest {
 
     public String getResultString(){
         return mResultString;
+    }
+
+    public int getResultStatus(){
+        return mResultStatus;
+    }
+
+
+    public boolean isExceptionThrown(){
+        return mExceptionThrown;
     }
 }

@@ -116,6 +116,7 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
             Response response = request.send();
             handleResponse(s, response.getCode(), response, c);
         }catch(OAuthException e){
+            s.onOAuthExceptionThrown(e);
             Throwable cause = e.getCause();
             if(cause != null && cause.getMessage().equals("No authentication challenges found")){
                 Log.d(Constants.LOG_TAG, e.getCause().getMessage());
@@ -128,26 +129,28 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
 
 
     private void handleResponse(RestServerRequest strategy, int statusCode, Response response, Context c) throws PostmanException {
-        switch(statusCode){
-            case 200:
-                if(response != null){
-                    try {
-                        strategy.processHttpResult(response, this, c);
-                    }catch(ResultParseException e){
-                        notifyError("Failed to parse result " + e.getMessage(), c);
-                        Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
-                    }
-                }
-            break;
-            case 204:
-            break;
-            case 404:
-                throw new PostmanException("Not found");
-            case 401:
-                throw new PostmanException("No permission");
-                // TODO Invalidate token ??
-            default:
-                throw new PostmanException("Generic error " + statusCode);
+
+        if(statusCode >= 200 && statusCode < 300){ // success
+            try {
+                strategy.onHttpResult(response, statusCode, this, c);
+            }catch(ResultParseException e){
+                notifyError("Failed to parse result " + e.getMessage(), c);
+                Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
+            }
+        }else if(statusCode >= 400 && statusCode < 600){ // error
+            strategy.onHttpError(statusCode, this, c);
+            switch(statusCode){
+                case 404:
+                    throw new PostmanException("Not found");
+                case 401:
+                    throw new PostmanException("No permission");
+                    // TODO Invalidate token ??
+                default:
+                    throw new PostmanException("Generic error " + statusCode);
+            }
+        } else {
+            Log.e(Constants.LOG_TAG, "Unexpected http result " + statusCode);
+            throw new PostmanException("Generic error " + statusCode);
         }
     }
 

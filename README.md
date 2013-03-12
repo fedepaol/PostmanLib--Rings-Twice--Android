@@ -124,10 +124,11 @@ A RestServerRequest might be used to initialize a RestServerCommand to be sent. 
 ####Handling a response
 The
 
-    void processHttpResult(Response result, RequestExecutor executor, Context context);
+    void onHttpResult(Response result, int statusCode, RequestExecutor executor, Context context);
 
 of all the _RestServerAction_ s you passed will be called with the result of the call.
 
+The _statusCode_ parameter is the status code returned by the http call. In case it is 200 (success), a response can be parsed.
 The _Response_ parameter is a scribe Response object. You can get the stringified result using
 
     result.getBody()
@@ -138,8 +139,11 @@ Otherwise, a stream can be fetched using:
 
     result.getStream()
 
+
+Other callbacks are available to get notified of errors.
+
 ####Chained requests
-In many cases (such as facebook graph api), the rest api may require to use a request's result as a parameter of a newer request. This might be tricky using the callbacks given by the ServerInteractionHelper. To handlethese special cases, the executor parameter of the _processHttpResult_ call. Its _executeRequest_ method allows to execute new requests in the same thread (or service) that is handling the current request.
+In many cases (such as facebook graph api), the rest api may require to use a request's result as a parameter of a newer request. This might be tricky using the callbacks given by the ServerInteractionHelper. To handlethese special cases, the executor parameter of the _onHttpResult_ call. Its _executeRequest_ method allows to execute new requests in the same thread (or service) that is handling the current request.
 
 Check FacebookExample for more details.
 
@@ -194,7 +198,7 @@ Using the same name used to register the service.
 
 * Adding call parameters is straight. You however need to rely on [Scribe][scribe] documentation in order to check how to add them
 
-* The common pattern I suggest to use with postman lib is not to return all the data to the activity, but update your data model <b>inside the processHttpResult</b> method and only update the ui when the activity gets notified of the end of the request
+* The common pattern I suggest to use with postman lib is not to return all the data to the activity, but update your data model <b>inside the onHttpResult</b> method and only update the ui when the activity gets notified of the end of the request
 
 * _ServerCommand_ and _RestServerAction_ implement Parcelable interface. This is because the command must be passed to the intent service through an intent. As per the official android doc, in addition to the _Parcelable_ methods, every command implementation must have a static CREATOR field, such as
     
