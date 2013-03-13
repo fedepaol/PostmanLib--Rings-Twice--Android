@@ -6,7 +6,7 @@
 	<groupId>com.fedepaolapps.postman</groupId>
 	<artifactId>parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 
 	<name>Android PostmanLib (Parent)</name>
 	<description>Android library for asynchronous interaction with remote server</description>
@@ -100,6 +100,20 @@
 					</configuration>
 					<extensions>true</extensions>
 				</plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
 
 			</plugins>
 		</pluginManagement>

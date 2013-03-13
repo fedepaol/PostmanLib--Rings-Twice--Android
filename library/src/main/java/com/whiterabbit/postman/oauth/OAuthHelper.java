@@ -282,10 +282,10 @@ public class OAuthHelper {
      * @return
      */
     public boolean isAlreadyAuthenticated(String serviceName, Context c){
-        if(mServices.get(serviceName).getAccessToken() != null){
+        OAuthServiceInfo s = mServices.get(serviceName);
+        if(s != null && s.getAccessToken() != null){
             return true;
         }
-
         return (getAuthTokenForService(serviceName, c) != null);
     }
 
@@ -308,4 +308,7 @@ public class OAuthHelper {
         s.setAccessToken(null);
     }
 
+    public static void dropSingleton(){
+        mInstance = null;
+    }
 }
