@@ -141,7 +141,14 @@ public class StorableServiceBuilder {
         apiSecret = mySharedPreferences.getString(API_SECRET, "");
         scope = mySharedPreferences.getString(API_SCOPE, "");
         redirectUrl = mySharedPreferences.getString(REDIRECT_KEY, "");
-        signatureType = SignatureType.values()[mySharedPreferences.getInt(SIGNATURE_TYPE, -1)];
+
+        int storedSType = mySharedPreferences.getInt(SIGNATURE_TYPE, -1);
+
+        if(storedSType != -1){
+            signatureType = SignatureType.values()[storedSType];
+        }else{
+            signatureType = SignatureType.Header;
+        }
 
 
         String className = mySharedPreferences.getString(API, "");
