@@ -32,6 +32,7 @@ class OAuthFragment extends DialogFragment {
     String mRedirectParam;
     OAuthReceivedInterface mReceivedInterface;
     private boolean mAuthFound;
+    private boolean mUrlParsed;
 
     public static OAuthFragment newInstance(String url, String redirectParam, OAuthReceivedInterface receivedInterface) {
         OAuthFragment f = new OAuthFragment();
@@ -50,6 +51,7 @@ class OAuthFragment extends DialogFragment {
         mAuthFound = false;
         mUrl = getArguments().getString("URL");
         mRedirectParam = getArguments().getString("PARAM");
+        mUrlParsed = false;
     }
 
     @Override
@@ -74,11 +76,21 @@ class OAuthFragment extends DialogFragment {
     }
 
     private class MyWebViewClient extends WebViewClient {
+        /**
+         *
+         * @param url
+         * @return
+         */
         private boolean parseUrl(String url){
-            //checks if the login was successful and the access token returned
+            if(mUrlParsed){
+                return true;
+            }
+
             //this test depend of your API
+            //checks if the login was successful and the access token returned
             if (url.contains(mRedirectParam + "=")) {
                 //save your token
+                mUrlParsed = true;
                 saveAccessToken(url);
                 getDialog().dismiss();
                 return true;
@@ -128,6 +140,7 @@ class OAuthFragment extends DialogFragment {
         super.onViewCreated(arg0, arg1);
         //load the url of the oAuth login page
         webViewOauth.loadUrl(mUrl);
+        mUrlParsed = false;
         //set the web client
         webViewOauth.setWebViewClient(new MyWebViewClient());
         //activates JavaScript (just in case)
