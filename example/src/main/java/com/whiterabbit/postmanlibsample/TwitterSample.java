@@ -20,8 +20,8 @@ import org.scribe.builder.api.TwitterApi;
 public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
 	static final String UPDATE_STATUS = "StatusUpdate";
     static final String REQUEST_LATEST_TWEET = "LatestTweet";
-    private final static String mApiKey = "26095549-kIIdivjphrnO3shKvfeqeb4XwaWyz6JADuW63jHOZ"; // <- must be set from the real one got from www.twitter.com
-    private final static String mApiSecret = "KDAJ0qeWLGhF8JoB4eRF9lBH6EA7Hpaq7zq6semvEA"; // <- must be set from the real one got from www.twitter.com
+    private final static String mApiKey = "COPaViCT6nLRcGROTVZdA"; // <- must be set from the real one got from www.twitter.com
+    private final static String mApiSecret = "OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk"; // <- must be set from the real one got from www.twitter.com
 
     private TextView mRequestStatus;
 	private EditText mStatusToSend;
@@ -63,7 +63,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
                 .provider(TwitterApi.class)
                 .apiKey(mApiKey)
                 .apiSecret(mApiSecret)
-                .callback("www.mycallback.com", "auth_verifier");
+                .callback("www.mycallback.com", "oauth_verifier");
 
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
