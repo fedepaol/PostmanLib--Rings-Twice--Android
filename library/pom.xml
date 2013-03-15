@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.fedepaolapps.postman</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
     <dependencies>
@@ -54,7 +54,7 @@
 
     </dependencies>
 
-    <repositories>
+    <!-- repositories>
         <repository>
             <id>oss-sonatype</id>
             <name>oss-sonatype</name>
@@ -63,7 +63,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-    </repositories>
+    </repositories-->
 
     <build>
         <plugins>

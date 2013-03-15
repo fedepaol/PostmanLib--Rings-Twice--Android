@@ -16,6 +16,11 @@
 		<module>library</module>
 		<module>example</module>
 	</modules>
+        <parent>
+            <groupId>org.sonatype.oss</groupId>
+            <artifactId>oss-parent</artifactId>
+            <version>7</version>
+        </parent>
 
     <scm>
         <url>https://github.com/fedepaol/PostmanLib--Rings-Twice--Android/</url>
@@ -65,15 +70,6 @@
 		<android-maven.version>3.2.0</android-maven.version>
 	</properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>.android</groupId>
-				<artifactId>android</artifactId>
-				<version>${android.version}</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<pluginManagement>
@@ -119,6 +115,20 @@
 		</pluginManagement>
 
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.0-alpha-4</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
@@ -129,4 +139,6 @@
 			</plugin>
 		</plugins>
 	</build>
+        <repositories></repositories>
+        <pluginRepositories></pluginRepositories>
 </project>
