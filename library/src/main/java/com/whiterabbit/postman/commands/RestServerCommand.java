@@ -15,6 +15,8 @@ import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
+import java.util.concurrent.TimeUnit;
+
 
 /**
  * Server command implementation intended to be used to interact with a rest server
@@ -108,6 +110,10 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
         try{
             OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
             s.addParamsToRequest(request);
+
+            request.setConnectTimeout(5, TimeUnit.SECONDS); // 5 seconds seems a reasonable timeout
+            request.setReadTimeout(10, TimeUnit.SECONDS);
+
             String signer = s.getOAuthSigner();
             if(signer != null){
                 OAuthServiceInfo authService  = OAuthHelper.getInstance().getRegisteredService(signer, c);
@@ -116,10 +122,11 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
             Response response = request.send();
             handleResponse(s, response.getCode(), response, c);
         }catch(OAuthException e){
+            Log.e(Constants.LOG_TAG, "Exception while executing " + getRequestId() + e.getMessage());
             s.onOAuthExceptionThrown(e);
             Throwable cause = e.getCause();
-            if(cause != null && cause.getMessage().equals("No authentication challenges found")){
-                Log.d(Constants.LOG_TAG, e.getCause().getMessage());
+            if(cause != null && cause.getMessage() != null && cause.getMessage().equals("No authentication challenges found")){
+                Log.d(Constants.LOG_TAG, cause.getMessage());
                 // TODO Invalidate token ?
             }
             throw e;
