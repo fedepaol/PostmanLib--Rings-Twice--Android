@@ -33,13 +33,14 @@ It uses also [Java Scribe library][scribe].
 
 
 ####Maven
+PostManLib is available from MavenCentral
 Just add
 
         <dependency>
-            <groupId>com.whiterabbit.postman</groupId>
+            <groupId>com.fedepaolapps.postman</groupId>
             <artifactId>library</artifactId>
             <type>apklib</type>
-            <version>1.0.0</version>
+            <version>1.0.2</version>
         </dependency>
 
 to your pom.xml dependencies section. You may incur in errors like:
