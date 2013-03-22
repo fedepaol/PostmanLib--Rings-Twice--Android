@@ -10,7 +10,7 @@ _'With my brains and your looks, we could go places' - Frank Chambers, The postm
 
 LibPostman (Rings Twice) for Android is a library intended to make the asynchronous interaction with a remote server easier, without having to deal with all the well known problems related to asynctasks bound to activities.
 
-It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. The minSdkVersion declared in the lib's manifest is 8 since scribe itself uses HttpUrlConnection which received a significant amount of bugfixes in ApiLevel 8, 
+It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. The `minSdkVersion` declared in the lib's manifest is 8 since scribe itself uses `HttpUrlConnection` which received a significant amount of bugfixes in ApiLevel 8, 
 
 
 ###QUESTIONS? Did you check the [faqs][faqurl]?
@@ -33,60 +33,71 @@ It uses also [Java Scribe library][scribe].
 
 
 ####Maven
-PostManLib is available from MavenCentral
+PostManLib is available from MavenCentral.
 Just add
 
-        <dependency>
-            <groupId>com.fedepaolapps.postman</groupId>
-            <artifactId>library</artifactId>
-            <type>apklib</type>
-            <version>1.0.2</version>
-        </dependency>
+```xml
+<dependency>
+    <groupId>com.fedepaolapps.postman</groupId>
+    <artifactId>library</artifactId>
+    <type>apklib</type>
+    <version>1.0.2</version>
+</dependency>
+```
 
-to your pom.xml dependencies section. You may incur in errors like:
-    java.lang.IllegalArgumentException: already added: Landroid/support/v4/widget/CursorAdapter$1;
+to your `pom.xml` dependencies section. You may incur in errors like:
+
+```
+java.lang.IllegalArgumentException: already added: Landroid/support/v4/widget/CursorAdapter$1;
+```
 
 which means that some other dependency already includes a compatibiltiy library. In this case just exclude it from the dependency:
 
-        <dependency>
-            <groupId>com.whiterabbit.postman</groupId>
-            <artifactId>library</artifactId>
-            <type>apklib</type>
-            <version>1.0.0</version>
+```xml
+<dependency>
+    <groupId>com.whiterabbit.postman</groupId>
+    <artifactId>library</artifactId>
+    <type>apklib</type>
+    <version>1.0.0</version>
 
-            <exclusions>
-                <exclusion>
-                    <groupId>android.support</groupId>
-                    <artifactId>compatibility-v4</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+    <exclusions>
+        <exclusion>
+            <groupId>android.support</groupId>
+            <artifactId>compatibility-v4</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+```
 
 
-####Eclipse / Intellij
-If you are using eclipse or intellij, just create a library project using the library folder as source. You will also need to add scribe jar and support library.
+####Eclipse / IntelliJ
+If you are using Eclipse or intelliJ, just create a library project using the library folder as source. You will also need to add scribe jar and support library.
 
 ####Changes in your app's manifest
 The services used by the library must be declared into the application's manifest:
 
-    <service
-            android:enabled="true"
-            android:name="com.whiterabbit.postman.InteractionService" />  
+```xml
+<service
+        android:enabled="true"
+        android:name="com.whiterabbit.postman.InteractionService" />  
+```
 
 You can declare up to 4 services. The number of services you define in the manifest describes the concurrency level used by the library.
 At least one service must be declared
 
-    <service
-            android:enabled="true"
-            android:name="com.whiterabbit.postman.InteractionService1" />
+```xml
+<service
+        android:enabled="true"
+        android:name="com.whiterabbit.postman.InteractionService1" />
 
-    <service
-            android:enabled="true"
-            android:name="com.whiterabbit.postman.InteractionService2" />
+<service
+        android:enabled="true"
+        android:name="com.whiterabbit.postman.InteractionService2" />
 
-    <service
-            android:enabled="true"
-            android:name="com.whiterabbit.postman.InteractionService3" />
+<service
+        android:enabled="true"
+        android:name="com.whiterabbit.postman.InteractionService3" />
+```
 
 
 ##ServerInteractionHelper
@@ -109,37 +120,48 @@ The most obvious method to implement are _getUrl_ and _getVerb_ .
 Since a RestServerRequest executes a _scribe_ oauth request under the hood (even if not authenticated), you need to implement _addParamsToRequest_ in order to enrich the request.
 For example, in order to add a "status" parameter in a call:
 
-    request.addBodyParameter("status", "this is sparta! *");
+```java
+request.addBodyParameter("status", "this is sparta! *");
+```
 
 or
 
-    request.addQuerystringParameter("status", "this is sparta!");
+```java
+request.addQuerystringParameter("status", "this is sparta!");
+```
 
 in case of a query string parameter.
 
 ####Sending a server command:
 A RestServerRequest might be used to initialize a RestServerCommand to be sent. There is also an helper method to make the things easier:
 
-    ServerInteractionHelper.getInstance().sendRestAction(this,"MyRequestId", request1, request2);
+```java
+ServerInteractionHelper.getInstance().sendRestAction(this,"MyRequestId", request1, request2);
+```
 
 ####Handling a response
 The
 
-    void onHttpResult(Response result, int statusCode, RequestExecutor executor, Context context);
+```java
+void onHttpResult(Response result, int statusCode, RequestExecutor executor, Context context);
+```
 
 of all the _RestServerAction_ s you passed will be called with the result of the call.
 
 The _statusCode_ parameter is the status code returned by the http call. In case it is 200 (success), a response can be parsed.
 The _Response_ parameter is a scribe Response object. You can get the stringified result using
 
-    result.getBody()
+```java
+result.getBody()
+```
 
 in case of a text result, such as json.
 
 Otherwise, a stream can be fetched using:
 
-    result.getStream()
-
+```java
+result.getStream()
+```
 
 Other callbacks are available to get notified of errors.
 
@@ -159,20 +181,24 @@ Another feature provided by ServerInteractionHelper is to asynchronously authori
 Requesting an authorization is quite simple.
 A storable builder, which is a simple wrapper to _scribe_'s ServiceBuilder, must be created and registered against the _OAuthHelper_.
 
-    StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
-                .provider(TwitterApi.class)
-                .apiKey("YOURAPIKEY")
-                .apiSecret("YOURAPISECRET")
-                .callback("http://YOUR_CALLBACK_URL", "CALLBACK_TOKEN_PARAMETER");
+```java
+StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
+            .provider(TwitterApi.class)
+            .apiKey("YOURAPIKEY")
+            .apiSecret("YOURAPISECRET")
+            .callback("http://YOUR_CALLBACK_URL", "CALLBACK_TOKEN_PARAMETER");
 
-    OAuthHelper o = OAuthHelper.getInstance();
-    o.registerOAuthService(builder, this);
+OAuthHelper o = OAuthHelper.getInstance();
+o.registerOAuthService(builder, this);
+```
 
 In case the service is not yet authorized, the authorization process must be started:
 
-    if(!o.isAlreadyAuthenticated("Twitter", this)){
-        o.authenticate(this, "Twitter");
-    }
+```java
+if(!o.isAlreadyAuthenticated("Twitter", this)){
+    o.authenticate(this, "Twitter");
+}
+```
 
 
 The callback url is the one that will be called after the first step of the authorization has been completed. It will be intercepted
@@ -186,9 +212,11 @@ PostManLib library will provide a dialog to the user containing the webview to a
 
 Once the service is registered, all it takes to sign a RestServerRequest is to return the name of the signer in _getOauthSigner_
 
-    public String getOAuthSigner() {
-        return "Twitter";
-    }
+```java
+public String getOAuthSigner() {
+    return "Twitter";
+}
+```
 
 Using the same name used to register the service.
 
