@@ -8,6 +8,7 @@ import com.whiterabbit.postman.utils.Constants;
 
 public abstract class ServerCommand implements Parcelable{
 	private String mRequestId;
+    private boolean mIgnorePending;
 
 	/**
      *  requestid getter and setter
@@ -19,8 +20,14 @@ public abstract class ServerCommand implements Parcelable{
 	public String getRequestId(){
 		return mRequestId;
 	}
-	
 
+    public boolean getIgnorePending(){
+        return mIgnorePending;
+    }
+
+    public void setIgnorePending(boolean ignorePending){
+        mIgnorePending = ignorePending;
+    }
 
 	/** 
 	 * Prepares the intent to be serialized 
@@ -28,12 +35,14 @@ public abstract class ServerCommand implements Parcelable{
 	 */
 	public void fillIntent(Intent i){
 		i.putExtra(Constants.REQUEST_ID, getRequestId());
+        i.putExtra(Constants.IGNORE_PENDING_ID, mIgnorePending);
         i.putExtra(Constants.PAYLOAD, this);
 	}
 	
 	
 	public void fillFromIntent(Intent i){
 		String reqID = i.getExtras().getString(Constants.REQUEST_ID);
+        mIgnorePending = i.getExtras().getBoolean(Constants.IGNORE_PENDING_ID);
 		setRequestId(reqID);
 	}
 	
@@ -48,6 +57,7 @@ public abstract class ServerCommand implements Parcelable{
         Intent intent = new Intent(Constants.SERVER_RESULT);
         intent.putExtra(Constants.MESSAGE_ID, message);
         intent.putExtra(Constants.REQUEST_ID, mRequestId);
+        intent.putExtra(Constants.IGNORE_PENDING_ID, mIgnorePending);
         LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
     }
 	
@@ -60,6 +70,7 @@ public abstract class ServerCommand implements Parcelable{
         Intent intent = new Intent(Constants.SERVER_ERROR);
         intent.putExtra(Constants.MESSAGE_ID, message);
         intent.putExtra(Constants.REQUEST_ID, mRequestId);
+        intent.putExtra(Constants.IGNORE_PENDING_ID, mIgnorePending);
         LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
     }
 	
@@ -71,8 +82,9 @@ public abstract class ServerCommand implements Parcelable{
 	public static void notifyUnrecoverableError(Intent i, String message, Context c){
 		Intent intent = new Intent(Constants.SERVER_ERROR);
         intent.putExtra(Constants.MESSAGE_ID, message);
-		String reqID = i.getExtras().getString(Constants.REQUEST_ID);
+		String reqID = i.getStringExtra(Constants.REQUEST_ID);
         intent.putExtra(Constants.REQUEST_ID, reqID);
+        intent.putExtra(Constants.IGNORE_PENDING_ID, i.getBooleanExtra(Constants.IGNORE_PENDING_ID, false));
         LocalBroadcastManager.getInstance(c).sendBroadcast(intent);
 	}
 

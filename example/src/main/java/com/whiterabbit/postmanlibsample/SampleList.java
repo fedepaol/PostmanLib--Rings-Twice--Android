@@ -16,7 +16,7 @@ import android.widget.ListView;
  */
 public class SampleList extends FragmentActivity implements AdapterView.OnItemClickListener {
     private ListView mSamples;
-    private String[] sampleList = { "Twitter", "NoAuth", "Linkedin", "Facebook"  };
+    private String[] sampleList = { "Twitter", "NoAuth", "Linkedin", "Facebook", "Alarm"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,9 @@ public class SampleList extends FragmentActivity implements AdapterView.OnItemCl
             break;
             case 3:
                 j = new Intent(this, FacebookSample.class);
+                break;
+            case 4:
+                j = new Intent(this, AlarmManagerSample.class);
             break;
             default:
                 return;

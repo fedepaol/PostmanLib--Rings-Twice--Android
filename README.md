@@ -170,6 +170,19 @@ In many cases (such as facebook graph api), the rest api may require to use a re
 
 Check FacebookExample for more details.
 
+####Scheduled requests
+Despite PostmanLib does not natively provide a way to schedule requests, it provides a facility to retrieve a PendingIntent that will execute the given request once triggered.
+Calling
+
+```java
+helper.getActionToSchedule(context, "MyRequestID", myRequest);
+```
+
+will result in a pending intent that can be passed to any alarmmanager.
+This provides a higher flexibility because the whole scheduling management is left to the user of the library.
+For a simple example check AlarmManagerSample class.
+
+
 ##OAuth Authentication
 
 Another feature provided by ServerInteractionHelper is to asynchronously authorize a [Scribe][scribe] OAuth service, displaying a webview to the user for authorization. Once the OAuthService is registered, it can be used to sign RestServer commands.

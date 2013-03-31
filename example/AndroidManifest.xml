@@ -24,7 +24,9 @@
         <activity
                 android:name=".FacebookSample" />
         <activity
-            android:name=".NoAuthSample" />
+                android:name=".NoAuthSample" />
+        <activity
+            android:name=".AlarmManagerSample" />
         <activity android:name=".SampleList">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

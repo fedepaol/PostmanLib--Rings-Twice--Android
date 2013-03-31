@@ -28,6 +28,8 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
     private final Parcelable[] mStrategies; // must be a Parcelable[] instead of RestServerRequest[] because I wouldn't be
                                             // able to read it (can't cast Parcelable[] to RestServerRequest[] )
 
+    private OAuthRequest mMockedRequest;
+
     /**
      * Constructor
      */
@@ -75,7 +77,19 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
      * @return
      */
     protected OAuthRequest getRequest(Verb v, String url){
+        if(mMockedRequest != null){
+            return mMockedRequest;
+        }
         return new OAuthRequest(v, url);
+    }
+
+    /**
+     * Utility method to provide a mocked request instead of connecting to the
+     * real server. To be used for testing purpouses only
+     * @param r
+     */
+    public void setMockedRequest(OAuthRequest r){
+        mMockedRequest = r;
     }
 
 

@@ -54,6 +54,25 @@ public class ServerInteractionHelperTest {
         } catch (SendingCommandException e) {
             fail("sending command exception");
         }
+        assertTrue(mHelper.isRequestAlreadyPending(COMMAND_REQUEST));
+
+        shortcutIntentService();
+
+    }
+
+    @Test
+    public void testSendsCommandNoPending(){
+        mActivity.onCreate(null);
+        mHelper.registerEventListener(mActivity, mActivity);
+
+        SimpleServerCommand command = new SimpleServerCommand(true, RESULT_MESSAGE);
+        command.setIgnorePending(true);
+        try {
+            mHelper.sendCommand(mActivity, command, COMMAND_REQUEST);
+        } catch (SendingCommandException e) {
+            fail("sending command exception");
+        }
+        assertFalse(mHelper.isRequestAlreadyPending(COMMAND_REQUEST));
 
         shortcutIntentService();
 

@@ -17,6 +17,7 @@ public class StoreUtils {
     private final static String LINKEDIN_HEADLINE = "LinkedinHeadline";
     private final static String FB_NAME = "FbName";
     private final static String FB_GENDER = "FbGender";
+    private final static String TWITTER_SCHEDULE_STATE = "TwitSchedule";
 
     public static String getFBName(Context c)
     {
@@ -76,6 +77,23 @@ public class StoreUtils {
         int mode = Activity.MODE_PRIVATE;
         SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
         return mySharedPreferences.getString(LINKEDIN_HEADLINE, "Nones");
+    }
+
+    public static void setTwitScheduleStatus(boolean active, Context c)
+    {
+        int mode = Activity.MODE_PRIVATE;
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+        SharedPreferences.Editor editor = mySharedPreferences.edit();
+        editor.putBoolean(TWITTER_SCHEDULE_STATE, active);
+        editor.commit();
+
+    }
+
+    public static boolean getTwitScheduleStatus(Context c)
+    {
+        int mode = Activity.MODE_PRIVATE;
+        SharedPreferences mySharedPreferences = c.getSharedPreferences(PREF_NAME, mode);
+        return mySharedPreferences.getBoolean(TWITTER_SCHEDULE_STATE, false);
     }
 
 

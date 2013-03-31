@@ -1,6 +1,7 @@
 package com.whiterabbit.postman;
 
 
+import android.app.PendingIntent;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -30,6 +31,12 @@ public class ServerInteractionHelper {
     private int mServiceCounter;
     private int mNumOfServices;
     private ArrayList<Class<? extends InteractionService>> mServices;
+
+
+    private enum ServiceChoiceType {
+        ROUND_ROBIN_SERVICE,
+        FIRST_SERVICE
+    }
 
 	
 
@@ -101,20 +108,27 @@ public class ServerInteractionHelper {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
+                boolean ignorePending = extras.getBoolean(Constants.IGNORE_PENDING_ID);
 
                 if (listener != null) {
                     listener.onServerResult(message, requestId);
                 }
-                requestDone(requestId);
+                if(!ignorePending){
+                    requestDone(requestId);
+                }
             }
             if (action.equals(Constants.SERVER_ERROR)) {
                 Bundle extras = intent.getExtras();
                 String requestId = extras.getString(Constants.REQUEST_ID);
                 String message = extras.getString(Constants.MESSAGE_ID);
+                boolean ignorePending = extras.getBoolean(Constants.IGNORE_PENDING_ID);
+
                 if (listener != null) {
                     listener.onServerError(message, requestId);
                 }
-                requestDone(requestId);
+                if(!ignorePending){
+                    requestDone(requestId);
+                }
             }
         }
     }
@@ -216,7 +230,36 @@ public class ServerInteractionHelper {
         mServiceCounter = (mServiceCounter + 1) % mNumOfServices;
         return mServices.get(mServiceCounter);
     }
-    
+
+    /**
+     * Returns the first available service. This is useful because I must be sure that I always have
+     * the same service in order to be able to retrieve the same pending intent for cancel it
+     * @param c
+     * @return
+     */
+    private Class<? extends InteractionService> getServiceToSchedule(Context c){
+        initEnabledServices(c);
+        return mServices.get(0);    // hopefully at least one service will be available
+    }
+
+
+    private Intent getIntentFromCommand(Context c, ServerCommand msg, String requestId, ServiceChoiceType type){
+        msg.setRequestId(requestId);
+        Intent i;
+        switch(type){
+            case FIRST_SERVICE:
+                i = new Intent(c, getServiceToSchedule(c));
+            break;
+            case ROUND_ROBIN_SERVICE:
+            default:
+                i = new Intent(c, getTargetService(c));
+            break;
+        }
+        msg.fillIntent(i);
+        return i;
+    }
+
+
     /**
      * Sends the given command to the server
      *
@@ -230,17 +273,21 @@ public class ServerInteractionHelper {
     public void sendCommand(Context c, ServerCommand msg, String requestId)
             throws SendingCommandException {
 
-        if (!isRequestAlreadyPending(requestId)) {
-            setRequestPending(requestId);
+        if (!isRequestAlreadyPending(requestId) || msg.getIgnorePending()) {
 
-            msg.setRequestId(requestId);
-            Intent i = new Intent(c, getTargetService(c));
-            msg.fillIntent(i);
+            if(!msg.getIgnorePending()){
+                setRequestPending(requestId);
+            }
+
+            Intent i = getIntentFromCommand(c, msg, requestId, ServiceChoiceType.ROUND_ROBIN_SERVICE);
             c.startService(i);
         } else {
             throw new SendingCommandException("Same request already pending");
         }
     }
+
+
+
 
 
     /**
@@ -254,14 +301,38 @@ public class ServerInteractionHelper {
      *         a loopback param with the request id that will be returned with the result
      * @param s
      *         a mandatory strategy
-     * @param moreStrategies
+     * @param moreRequests
      *        optional other strategies to be executed together
      * @throws SendingCommandException
      */
-    public void sendRestAction(Context c, String requestId, RestServerRequest s, RestServerRequest... moreStrategies) throws SendingCommandException {
-        RestServerCommand command = new RestServerCommand(s, moreStrategies);   // TODO use a pool of commands
+    public void sendRestAction(Context c, String requestId, RestServerRequest s, RestServerRequest... moreRequests) throws SendingCommandException {
+        RestServerCommand command = new RestServerCommand(s, moreRequests);   // TODO use a pool of commands
         sendCommand(c, command, requestId);
 
+    }
+
+
+    /**
+     * In some cases the asynchronous requests must be schedule. The library only provides a shortcut to get a pending intent
+     * which must be attached to an alarmmanager. This is done to provide the same amount of flexibility given by alarmmanager without wrapping them
+     * inside the library
+     * @param c
+     *         the context of the caller
+     * @param requestId
+     *         a unique identifier of this request, to be linked with the results
+     * @param s
+     *         a mandatory request to be scheduled
+     * @param moreRequests
+     *         optional other requests to be scheduled in the same pending intent
+     * @return
+     */
+    public PendingIntent getActionToSchedule(Context c, String requestId, RestServerRequest s, RestServerRequest... moreRequests){
+        RestServerCommand command = new RestServerCommand(s, moreRequests);
+        command.setIgnorePending(true);
+        Intent toSchedule = getIntentFromCommand(c, command, requestId, ServiceChoiceType.FIRST_SERVICE);
+        toSchedule.setAction(requestId);
+        PendingIntent res = PendingIntent.getService(c, 0, toSchedule, 0);
+        return res;
     }
 
     /**
