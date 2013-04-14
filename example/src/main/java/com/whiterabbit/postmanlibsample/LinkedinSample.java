@@ -1,11 +1,12 @@
 package com.whiterabbit.postmanlibsample;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Window;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
@@ -19,10 +20,10 @@ import org.scribe.builder.api.LinkedInApi;
  * Sample activity to show linkedin interaction.
  * ApiKey / Secret must be set with real one
  */
-public class LinkedinSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
+public class LinkedinSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
     static final String REQUEST_CURRENT_USER_DETAILS = "LinkedinUser";
 
-    TextView mRequestStatus;
+    TextView mAuthStatus;
 	Button mGetHeadlineButtn;
     TextView mLinkedinHeadLine;
     ServerInteractionHelper mServer;
@@ -35,12 +36,9 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.linkedin);
-        
-        
-        mRequestStatus = (TextView) findViewById(R.id.LinkedinRequestStatus);
-        mLinkedinHeadLine = (TextView) findViewById(R.id.LinkedinHeadline);
-        mGetHeadlineButtn = (Button) findViewById(R.id.LinkedinUpdateHeadlineButton);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setupViews();
+
         mServer = ServerInteractionHelper.getInstance(this);
 
         if(mApiKey.equals("APIKEY")){
@@ -51,6 +49,16 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
         registerToLinkedin();
 
     }
+
+    private void setupViews(){
+        setContentView(R.layout.linkedin);
+        mAuthStatus = (TextView) findViewById(R.id.LinkedinAuthStatus);
+        mLinkedinHeadLine = (TextView) findViewById(R.id.LinkedinHeadline);
+        mGetHeadlineButtn = (Button) findViewById(R.id.LinkedinUpdateHeadlineButton);
+    }
+
+
+
 
     private void registerToLinkedin(){
        final StorableServiceBuilder builder = new StorableServiceBuilder("Linkedin")
@@ -63,9 +71,10 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
         o.registerOAuthService(builder, this);
 
         if(!o.isAlreadyAuthenticated("Linkedin", this)){
-            mRequestStatus.setText("Authenticating..");
+            mAuthStatus.setText("Authenticating..");
             o.authenticate(this, "Linkedin");
         }else{
+            mAuthStatus.setText("Authenticated");
             enableButtons();
         }
     }
@@ -73,9 +82,6 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
     private void enableButtons(){
         mGetHeadlineButtn.setOnClickListener(this);
     }
-
-
-
 
 
 	@Override
@@ -91,7 +97,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
 		
 		mServer.registerEventListener(this, this);
 		if(mServer.isRequestAlreadyPending(REQUEST_CURRENT_USER_DETAILS)){
-			mRequestStatus.setText("Request in progress...");
+            setUpdating();
 		}
 		super.onResume();
 	}
@@ -100,18 +106,19 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
 	public void onServerResult(String result, String requestId) {
         if(requestId.equals(REQUEST_CURRENT_USER_DETAILS)){
             mLinkedinHeadLine.setText(StoreUtils.getLinkedinUserDetails(this));
-            mRequestStatus.setText("Request done");
+            updateDone();
         }
 	}
 
 	@Override
 	public void onServerError(String result, String requestId) {
-		mRequestStatus.setText(result);
+        updateDone();
 	}
 
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
+        mAuthStatus.setText("Authenticated");
         Toast toast = Toast.makeText(this, String.format("%s authenticated", serviceName), Toast.LENGTH_SHORT);
         toast.show();
         enableButtons();
@@ -119,6 +126,7 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
 
     @Override
     public void onServiceAuthenticationFailed(String serviceName, String reason) {
+        mAuthStatus.setText("Authentication failed");
         Toast toast = Toast.makeText(this, String.format("Failed to authenticate %s: %s", serviceName, reason), Toast.LENGTH_SHORT);
         toast.show();
     }
@@ -130,10 +138,21 @@ public class LinkedinSample extends FragmentActivity implements ServerInteractio
                 LinkedinGetCurrentUserRequest statusStrategy = new LinkedinGetCurrentUserRequest();
                 try {
                     mServer.sendRestAction(this, REQUEST_CURRENT_USER_DETAILS, statusStrategy);
+                    setUpdating();
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
             break;
         }
+    }
+
+    private void setUpdating(){
+        setSupportProgressBarIndeterminateVisibility(true);
+        invalidateOptionsMenu();
+    }
+
+    private void updateDone(){
+        setSupportProgressBarIndeterminateVisibility(false);
+        invalidateOptionsMenu();
     }
 }

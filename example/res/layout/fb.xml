@@ -7,11 +7,11 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="RequestStatus" />
+        android:text="AuthenticationStatus" />
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/FbRequestStatus" />
+        android:id="@+id/FbAuthStatus" />
 
    <TextView
             android:layout_width="fill_parent"

@@ -1,12 +1,13 @@
 package com.whiterabbit.postmanlibsample;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Window;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
@@ -17,13 +18,13 @@ import com.whiterabbit.postmanlibsample.commands.TwitterGetLatestTweetRequest;
 import com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
 import org.scribe.builder.api.TwitterApi;
 
-public class TwitterSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
+public class TwitterSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
 	static final String UPDATE_STATUS = "StatusUpdate";
     static final String REQUEST_LATEST_TWEET = "LatestTweet";
     private final static String mApiKey = "COPaViCT6nLRcGROTVZdA"; // <- must be set from the real one got from www.twitter.com
     private final static String mApiSecret = "OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk"; // <- must be set from the real one got from www.twitter.com
 
-    private TextView mRequestStatus;
+    private TextView mAuthenticationStatus;
 	private EditText mStatusToSend;
     private TextView mLatestTweet;
 	private Button mUpdateStatusButton;
@@ -35,18 +36,12 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         setContentView(R.layout.twitter);
         mServerHelper = ServerInteractionHelper.getInstance(this);
-        
-        
-        mRequestStatus = (TextView) findViewById(R.id.TwitterRequestStatus);
-        mUpdateStatusButton = (Button) findViewById(R.id.TwitterUpdateStatusButton);
 
-        mStatusToSend = (EditText) findViewById(R.id.TwitterStatusToPublish);
-        mLatestTweet = (TextView) findViewById(R.id.LatestTweet);
-        mGetLatestTweetButton = (Button) findViewById(R.id.TwitterGetLatestTweetButton);
-
-        mLatestTweet.setText(StoreUtils.getLatestTweet(this));
+        setupViews();
 
 
         if(mApiKey.equals("APIKEY")){
@@ -56,6 +51,17 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 
         registerToTwitter();
 
+    }
+
+    private void setupViews(){
+        mAuthenticationStatus = (TextView) findViewById(R.id.TwitterAuthStatus);
+        mUpdateStatusButton = (Button) findViewById(R.id.TwitterUpdateStatusButton);
+
+        mStatusToSend = (EditText) findViewById(R.id.TwitterStatusToPublish);
+        mLatestTweet = (TextView) findViewById(R.id.LatestTweet);
+        mGetLatestTweetButton = (Button) findViewById(R.id.TwitterGetLatestTweetButton);
+
+        mLatestTweet.setText(StoreUtils.getLatestTweet(this));
     }
 
     private void registerToTwitter(){
@@ -69,9 +75,10 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
         o.registerOAuthService(builder, this);
 
         if(!o.isAlreadyAuthenticated("Twitter", this)){
-            mRequestStatus.setText("Authenticating..");
+            mAuthenticationStatus.setText("Authenticating..");
             o.authenticate(this, "Twitter");
         }else{
+            mAuthenticationStatus.setText("Authenticated");
             enableButtons();
         }
     }
@@ -98,7 +105,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 		
 		mServerHelper.registerEventListener(this, this);
 		if(mServerHelper.isRequestAlreadyPending(UPDATE_STATUS)){
-			mRequestStatus.setText("Request in progress...");
+			mAuthenticationStatus.setText("Authenticated");
 		}
 		super.onResume();
 	}
@@ -107,21 +114,23 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
 	public void onServerResult(String result, String requestId) {
         if(requestId.equals(REQUEST_LATEST_TWEET)){
             mLatestTweet.setText(StoreUtils.getLatestTweet(this));
+            updateDone();
         }
         if(requestId.equals(UPDATE_STATUS)){
-            mRequestStatus.setText("Status updated!");
+            updateDone();
         }
 	}
 
 	@Override
 	public void onServerError(String result, String requestId) {
-		mRequestStatus.setText(result);
+        updateDone();
 	}
 
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
         Toast toast = Toast.makeText(this, String.format("%s authenticated", serviceName), Toast.LENGTH_SHORT);
+        mAuthenticationStatus.setText("Authenticated");
         toast.show();
         enableButtons();
     }
@@ -139,6 +148,7 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
                 TwitterUpdateStatusRequest statusStrategy = new TwitterUpdateStatusRequest(mStatusToSend.getText().toString());
                 try {
                     mServerHelper.sendRestAction(this, UPDATE_STATUS, statusStrategy);
+                    setUpdating();
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
@@ -148,10 +158,22 @@ public class TwitterSample extends FragmentActivity implements ServerInteraction
                 TwitterGetLatestTweetRequest c = new TwitterGetLatestTweetRequest();
                 try {
                     mServerHelper.sendRestAction(this, REQUEST_LATEST_TWEET, c);
+                    setUpdating();
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
                 break;
         }
+    }
+
+
+    private void setUpdating(){
+        setSupportProgressBarIndeterminateVisibility(true);
+        invalidateOptionsMenu();
+    }
+
+    private void updateDone(){
+        setSupportProgressBarIndeterminateVisibility(false);
+        invalidateOptionsMenu();
     }
 }

@@ -4,45 +4,49 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Window;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
 import com.whiterabbit.postmanlibsample.commands.NoAuthRequest;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 /**
  * Sample class to show the download of multiple images with one call
  */
-public class NoAuthSample extends FragmentActivity implements ServerInteractionResponseInterface, View.OnClickListener {
+public class NoAuthSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, View.OnClickListener {
 	static final String DOWNLOAD_IMAGE = "DownloadImage";
     ImageView mImage;
     ImageView mImage1;
-    TextView mStatusText;
     Button mDownloadButton;
     ServerInteractionHelper mServerHelper;
 
 	
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setupViews();
+    }
+
+
+    private void setupViews(){
         setContentView(R.layout.no_auth);
 
         mImage = (ImageView) findViewById(R.id.noauth_downloaded_image);
         mImage1 = (ImageView) findViewById(R.id.noauth_downloaded_image1);
-        mStatusText = (TextView) findViewById(R.id.noauth_status);
         mDownloadButton = (Button) findViewById(R.id.no_auth_download_button);
         mDownloadButton.setOnClickListener(this);
         mServerHelper = ServerInteractionHelper.getInstance(this);
     }
-
-
 
 	@Override
 	protected void onPause() {
@@ -54,7 +58,7 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
 	protected void onResume() {
 		mServerHelper.registerEventListener(this, this);
 		if(mServerHelper.isRequestAlreadyPending(DOWNLOAD_IMAGE)){
-			mStatusText.setText("Request in progress...");
+            setUpdating();
 		}
 		super.onResume();
 	}
@@ -94,13 +98,14 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
                 }
             };
             loadImage.execute();
+            updateDone();
 
         }
 	}
 
 	@Override
 	public void onServerError(String result, String requestId) {
-		mStatusText.setText(result);
+        updateDone();
 	}
 
 
@@ -113,10 +118,21 @@ public class NoAuthSample extends FragmentActivity implements ServerInteractionR
                 NoAuthRequest abetone = new NoAuthRequest("http://www.aptabetone.it/abetone/pics/lat001.jpg", "abetone.png");
                 try {
                     mServerHelper.sendRestAction(this, DOWNLOAD_IMAGE, polle, abetone);
+                    setUpdating();
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
                 break;
         }
+    }
+
+    private void setUpdating(){
+        setSupportProgressBarIndeterminateVisibility(true);
+        invalidateOptionsMenu();
+    }
+
+    private void updateDone(){
+        setSupportProgressBarIndeterminateVisibility(false);
+        invalidateOptionsMenu();
     }
 }

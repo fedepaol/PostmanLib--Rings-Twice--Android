@@ -35,7 +35,8 @@ public class ServerInteractionHelper {
 
     private enum ServiceChoiceType {
         ROUND_ROBIN_SERVICE,
-        FIRST_SERVICE
+        FIRST_SERVICE,
+        WAKEFUL_SERVICE
     }
 
 	
@@ -250,6 +251,9 @@ public class ServerInteractionHelper {
             case FIRST_SERVICE:
                 i = new Intent(c, getServiceToSchedule(c));
             break;
+            case WAKEFUL_SERVICE:
+                i = new Intent(c, WakefulInteractionService.class);
+            break;
             case ROUND_ROBIN_SERVICE:
             default:
                 i = new Intent(c, getTargetService(c));
@@ -320,20 +324,46 @@ public class ServerInteractionHelper {
      *         the context of the caller
      * @param requestId
      *         a unique identifier of this request, to be linked with the results
-     * @param s
+     * @param r
      *         a mandatory request to be scheduled
      * @param moreRequests
      *         optional other requests to be scheduled in the same pending intent
      * @return
      */
-    public PendingIntent getActionToSchedule(Context c, String requestId, RestServerRequest s, RestServerRequest... moreRequests){
-        RestServerCommand command = new RestServerCommand(s, moreRequests);
+    public PendingIntent getActionToSchedule(Context c, String requestId, RestServerRequest r, RestServerRequest... moreRequests){
+        RestServerCommand command = new RestServerCommand(r, moreRequests);
         command.setIgnorePending(true);
         Intent toSchedule = getIntentFromCommand(c, command, requestId, ServiceChoiceType.FIRST_SERVICE);
         toSchedule.setAction(requestId);
         PendingIntent res = PendingIntent.getService(c, 0, toSchedule, 0);
         return res;
     }
+
+
+     /**
+     * Sends the given command to a com.whiterabbit.postman.wakeful intent service.
+     * This relies on commonsware WakefulIntentService implementation. The aim of this structure is to have a working
+     * com.whiterabbit.postman.wakeful alarm manager. In order to achieve that, a com.whiterabbit.postman.wakeful alarm must trigger a broadcast receiver which in turn
+     * needs to make the sendWakefulRequest call
+     *
+     * @param c
+     *
+     * @param requestId
+     *            an id associated to the request. Will be returned along with
+     *            the result
+     * @param r
+     *         a mandatory request to be sent to the com.whiterabbit.postman.wakeful intent serive
+     * @param moreRequests
+     *         optional other requests to be scheduled in the same pending intent
+     *
+     */
+    public void sendWakefulRequest(Context c, String requestId, RestServerRequest r, RestServerRequest... moreRequests) {
+            RestServerCommand command = new RestServerCommand(r, moreRequests);
+            command.setIgnorePending(true);
+            Intent i = getIntentFromCommand(c, command, requestId, ServiceChoiceType.WAKEFUL_SERVICE);
+            WakefulInteractionService.sendWakefulWork(c, i);
+    }
+
 
     /**
      * Resets instance for unit tests

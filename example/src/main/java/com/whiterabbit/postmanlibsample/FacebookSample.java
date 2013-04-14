@@ -1,11 +1,12 @@
 package com.whiterabbit.postmanlibsample;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Window;
 import com.whiterabbit.postman.ServerInteractionHelper;
 import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
@@ -15,12 +16,12 @@ import com.whiterabbit.postman.oauth.StorableServiceBuilder;
 import com.whiterabbit.postmanlibsample.commands.FacebookGetUserId;
 import org.scribe.builder.api.FacebookApi;
 
-public class FacebookSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
+public class FacebookSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
 	static final String GET_INFOS = "FbGetInfos";
     private final static String mApiKey = "256728337717987";
     private final static String mApiSecret = "76e0eeef1db52fae6c20a8c16324e8cb";
 
-    private TextView mRequestStatus;
+    private TextView mAuthStatus;
     private TextView mFbName;
     private TextView mFbLink;
 	private Button mGetInfosButton;
@@ -31,14 +32,12 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.fb);
+
         mServerHelper = ServerInteractionHelper.getInstance(this);
-        
-        
-        mRequestStatus = (TextView) findViewById(R.id.FbRequestStatus);
-        mFbName = (TextView) findViewById(R.id.FbName);
-        mFbLink = (TextView) findViewById(R.id.FbLink);
-        mGetInfosButton = (Button) findViewById(R.id.FbGetInfosButton);
+
+        setupViews();
 
 
         if(mApiKey.equals("APIKEY")){
@@ -50,6 +49,15 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
 
     }
 
+
+    private void setupViews(){
+        mAuthStatus = (TextView) findViewById(R.id.FbAuthStatus);
+        mFbName = (TextView) findViewById(R.id.FbName);
+        mFbLink = (TextView) findViewById(R.id.FbLink);
+        mGetInfosButton = (Button) findViewById(R.id.FbGetInfosButton);
+    }
+
+    // Performs the registration
     private void registerToFb(){
        StorableServiceBuilder builder = new StorableServiceBuilder("Facebook")
                 .provider(FacebookApi.class)
@@ -61,9 +69,10 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
         o.registerOAuthService(builder, this);
 
         if(!o.isAlreadyAuthenticated("Facebook", this)){
-            mRequestStatus.setText("Authenticating..");
+            mAuthStatus.setText("Authenticating..");
             o.authenticate(this, "Facebook");
         }else{
+            mAuthStatus.setText("Authenticated");
             enableButtons();
         }
     }
@@ -72,9 +81,6 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
         mGetInfosButton.setOnClickListener(this);
 
     }
-
-
-
 
 
 	@Override
@@ -87,30 +93,35 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
 	@Override
 	protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
+        setSupportProgressBarIndeterminateVisibility(false);
 		
 		mServerHelper.registerEventListener(this, this);
 		if(mServerHelper.isRequestAlreadyPending(GET_INFOS)){
-			mRequestStatus.setText("Request in progress...");
+            setUpdating();
 		}
 		super.onResume();
 	}
+
+
 
 	@Override
 	public void onServerResult(String result, String requestId) {
         if(requestId.equals(GET_INFOS)){
             mFbLink.setText(StoreUtils.getFbGender(this));
             mFbName.setText(StoreUtils.getFBName(this));
+            updateDone();
         }
 	}
 
 	@Override
 	public void onServerError(String result, String requestId) {
-		mRequestStatus.setText(result);
+        updateDone();
 	}
 
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
+        mAuthStatus.setText("Authenticated");
         Toast toast = Toast.makeText(this, String.format("%s authenticated", serviceName), Toast.LENGTH_SHORT);
         toast.show();
         enableButtons();
@@ -118,6 +129,7 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
 
     @Override
     public void onServiceAuthenticationFailed(String serviceName, String reason) {
+        mAuthStatus.setText("Authentication failed");
         Toast toast = Toast.makeText(this, String.format("Failed to authenticate %s: %s", serviceName, reason), Toast.LENGTH_SHORT);
         toast.show();
     }
@@ -126,13 +138,24 @@ public class FacebookSample extends FragmentActivity implements ServerInteractio
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.FbGetInfosButton:
-                FacebookGetUserId updateStrategy = new FacebookGetUserId("Federico Paolinelli");
+                FacebookGetUserId updateStrategy = new FacebookGetUserId("Federico Paolinelli");    // yes, that's me
                 try {
                     mServerHelper.sendRestAction(this, GET_INFOS, updateStrategy);
+                    setUpdating();
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
             break;
         }
+    }
+
+    private void setUpdating(){
+        setSupportProgressBarIndeterminateVisibility(true);
+        invalidateOptionsMenu();
+    }
+
+    private void updateDone(){
+        setSupportProgressBarIndeterminateVisibility(false);
+        invalidateOptionsMenu();
     }
 }

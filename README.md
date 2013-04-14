@@ -99,6 +99,16 @@ At least one service must be declared
         android:name="com.whiterabbit.postman.InteractionService3" />
 ```
 
+If you need to perform wakeful scheduled requests, you need to add
+
+```xml
+<service
+        android:enabled="true"
+        android:name="com.whiterabbit.postman.WakefulInteractionService" />
+```
+as well.
+
+
 
 ##ServerInteractionHelper
 It's a singleton class to be used to send asynchronous commands. Allows also to register listener to be notified of execution results / failures.
@@ -182,6 +192,17 @@ will result in a pending intent that can be passed to any alarmmanager.
 This provides a higher flexibility because the whole scheduling management is left to the user of the library.
 For a simple example check AlarmManagerSample class.
 
+####Wakeful scheduled requests
+Wakeful request need to be performed while keeping the wakelock for the length of the operation. This can be achieved using a wakeful alarm manager that triggers a broadcast receiver.
+In the broadcast receiver postmanlib can be used to execute wakeful requests.
+In short, bind an alarm receiver to a wakeful alarm and perform:
+
+```java
+helper.sendWakefulRequest(context, "RequestID", request);
+```
+
+Wakeful requests rely on Commonsware WakefulIntentService pattern (more details [here][wakeful])
+Check the WakefulAlarmManagerExample class from samples for more details.
 
 ##OAuth Authentication
 
@@ -281,5 +302,5 @@ License
 
 [scribe]: https://github.com/fernandezpablo85/scribe-java
 [faqurl]: https://github.com/fedepaol/PostmanLib--Rings-Twice--Android/wiki/FAQ
-
+[wakeful]: https://github.com/commonsguy/cwac-wakeful
 

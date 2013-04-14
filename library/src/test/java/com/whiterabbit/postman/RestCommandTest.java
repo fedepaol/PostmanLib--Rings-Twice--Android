@@ -291,7 +291,5 @@ public class RestCommandTest{
 
     }
 
-
-
 }
 

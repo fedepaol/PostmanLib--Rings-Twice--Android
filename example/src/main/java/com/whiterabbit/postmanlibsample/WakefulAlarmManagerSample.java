@@ -3,6 +3,7 @@ package com.whiterabbit.postmanlibsample;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
@@ -15,11 +16,11 @@ import com.whiterabbit.postman.ServerInteractionResponseInterface;
 import com.whiterabbit.postman.oauth.OAuthHelper;
 import com.whiterabbit.postman.oauth.OAuthResponseInterface;
 import com.whiterabbit.postman.oauth.StorableServiceBuilder;
-import com.whiterabbit.postmanlibsample.commands.TwitterScheduledGetStatusRequest;
+import com.whiterabbit.postmanlibsample.wakeful.WakefulAlarmReceiver;
 import org.scribe.builder.api.TwitterApi;
 
-public class AlarmManagerSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
-    public static final String SCHEDULED_LATEST_TWEET = "ScheduledLatestTweet";
+public class WakefulAlarmManagerSample extends FragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
+    public static final String WAKEFUL_SCHEDULED_LATEST_TWEET = "WakefulScheduledLatestTweet";
     private final static String mApiKey = "COPaViCT6nLRcGROTVZdA"; // <- must be set from the real one got from www.twitter.com
     private final static String mApiSecret = "OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk"; // <- must be set from the real one got from www.twitter.com
 
@@ -39,6 +40,7 @@ public class AlarmManagerSample extends FragmentActivity implements ServerIntera
 
         setupViews();
 
+
         if(mApiKey.equals("APIKEY")){
             Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
             toast.show();
@@ -53,6 +55,7 @@ public class AlarmManagerSample extends FragmentActivity implements ServerIntera
         mToggleAutoUpdate = (Button) findViewById(R.id.TwitScheduledEnable);
         mLatestTweet = (TextView) findViewById(R.id.TwitScheduledLatestTweet);
         mLatestTweet.setText(StoreUtils.getLatestTweet(this));
+
     }
 
     private void registerToTwitter(){
@@ -75,6 +78,9 @@ public class AlarmManagerSample extends FragmentActivity implements ServerIntera
     private void enableButtons(){
         mToggleAutoUpdate.setOnClickListener(this);
     }
+
+
+
 
 
 	@Override
@@ -103,7 +109,7 @@ public class AlarmManagerSample extends FragmentActivity implements ServerIntera
 
 	@Override
 	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(SCHEDULED_LATEST_TWEET)){
+        if(requestId.equals(WAKEFUL_SCHEDULED_LATEST_TWEET)){
             mLatestTweet.setText(StoreUtils.getLatestTweet(this));
         }
 	}
@@ -128,35 +134,37 @@ public class AlarmManagerSample extends FragmentActivity implements ServerIntera
         toast.show();
     }
 
+
     /**
-     * Sample code that shows how to toggle a repeating non wakeful alarm
+     * Sample code that shows how to toggle a repeating wakeful alarm that will interact with sendWakefulRequest method
      */
+    private void toggleWakeful(){
+        boolean enabled = StoreUtils.getWakefulTwitScheduleStatus(this);
 
-    private void toggleNotWakeful(){
-         TwitterScheduledGetStatusRequest request = new TwitterScheduledGetStatusRequest();
-         PendingIntent pi = mServerHelper.getActionToSchedule(this, SCHEDULED_LATEST_TWEET, request);
+        AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(this, WakefulAlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
 
 
-         AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-         boolean enabled = StoreUtils.getTwitScheduleStatus(this);
+        if(enabled){
+            mgr.cancel(pi);
+        }else{
+            mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + 60000,
+                    PERIOD,
+                    pi);
 
-         if(enabled){
-             mgr.cancel(pi);
-         }else{
-             mgr.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + PERIOD, PERIOD, pi);
-         }
-
-         boolean newStatus = !enabled;
-         setStatusString(newStatus);
-         StoreUtils.setTwitScheduleStatus(newStatus, this);
+        }
+        boolean newStatus = !enabled;
+        setStatusString(newStatus);
+        StoreUtils.setWakefulTwitScheduleStatus(newStatus, this);
     }
-
 
     @Override
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.TwitScheduledEnable:
-                    toggleNotWakeful();
+                toggleWakeful();
             break;
         }
     }

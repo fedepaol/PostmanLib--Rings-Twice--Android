@@ -7,11 +7,11 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="RequestStatus" />
+        android:text="Authentication Status" />
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/LinkedinRequestStatus" />
+        android:id="@+id/LinkedinAuthStatus" />
 
     <TextView
             android:layout_width="fill_parent"
