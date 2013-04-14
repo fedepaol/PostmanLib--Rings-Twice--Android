@@ -193,7 +193,7 @@ This provides a higher flexibility because the whole scheduling management is le
 For a simple example check AlarmManagerSample class.
 
 ####Wakeful scheduled requests
-Wakeful request need to be performed while keeping the wakelock for the length of the operation. This can be achieved using a wakeful alarm manager that triggers a broadcast receiver.
+Wakeful requests need to be performed while keeping the wakelock for the length of the operation. This can be achieved using a wakeful alarm manager that triggers a broadcast receiver.
 In the broadcast receiver postmanlib can be used to execute wakeful requests.
 In short, bind an alarm receiver to a wakeful alarm and perform:
 
