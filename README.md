@@ -41,7 +41,7 @@ Just add
     <groupId>com.fedepaolapps.postman</groupId>
     <artifactId>library</artifactId>
     <type>apklib</type>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
