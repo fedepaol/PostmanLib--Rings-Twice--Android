@@ -13,12 +13,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/TwitScheduledStatus" />
 
-    <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wakeful"
-            android:id="@+id/TwitterWakefulButton" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -2,6 +2,7 @@ package com.whiterabbit.postmanlibsample.commands;
 
 import android.content.Context;
 import android.os.Parcel;
+import android.util.Log;
 import android.widget.Toast;
 import com.whiterabbit.postman.commands.RequestExecutor;
 import com.whiterabbit.postman.commands.RestServerRequest;
@@ -53,11 +54,8 @@ public class TwitterScheduledGetStatusRequest implements RestServerRequest {
                 for (JsonNode tweet : root){
                     String text = tweet.path("text").toString();
                     String user = tweet.path("user").path("name").toString();
-
                     StoreUtils.setLatestTweet(String.format("%s -> %s", user, text), context);
-                    Toast t = Toast.makeText(context, "Status Updated", Toast.LENGTH_SHORT);
-                    t.show();
-
+                    Log.d("Twit", "Twit updated");
                 }
             } catch (IOException e) {
                 throw new ResultParseException("Failed to parse response");
