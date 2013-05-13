@@ -1,13 +1,13 @@
 <FrameLayout android:layout_gravity="center"
               android:layout_height="400dp"
-              android:layout_width="320dp"
+              android:layout_width="600dp"
               android:orientation="vertical"
               xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <WebView android:id="@+id/web_oauth" android:layout_height="400dp" android:layout_width="320dp" />
+    <WebView android:id="@+id/web_oauth" android:layout_height="wrap_content" android:layout_width="600dp" />
 
     <ProgressBar android:id="@+id/web_oauth_progress"
                  android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
+                 android:layout_height="400dp"
                  android:layout_gravity="center" />
 </FrameLayout>
