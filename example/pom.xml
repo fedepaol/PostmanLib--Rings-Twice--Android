@@ -15,7 +15,7 @@
     </parent>
 
     <properties>
-         <platform.version>4.0.3_r3</platform.version>
+         <platform.version>4.1.1.4</platform.version>
     </properties>
 
     <dependencies>
@@ -26,7 +26,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>android</groupId>
+            <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <version>${platform.version}</version>
             <scope>provided</scope>
