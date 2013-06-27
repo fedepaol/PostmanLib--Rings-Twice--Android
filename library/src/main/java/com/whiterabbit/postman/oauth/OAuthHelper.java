@@ -160,6 +160,9 @@ public class OAuthHelper {
         @Override
         protected Void doInBackground(String... urls) {
             try{
+                if (urls.length == 0 || urls[0] == null) {
+                    return null;
+                }
                 Verifier verifier = new Verifier(urls[0]);
                 Token accessToken = mService.getService().getAccessToken(mRequestToken, verifier);
 

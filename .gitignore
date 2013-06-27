@@ -1,0 +1,6 @@
+example/gen-external-apklibs
+.idea
+target
+example/target
+out
+library/tmp
