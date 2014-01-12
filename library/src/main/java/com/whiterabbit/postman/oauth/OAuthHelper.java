@@ -160,6 +160,9 @@ public class OAuthHelper {
         @Override
         protected Void doInBackground(String... urls) {
             try{
+                if (urls[0] == null) {
+                    throw new OAuthException("Invalid authenticator");
+                }
                 Verifier verifier = new Verifier(urls[0]);
                 Token accessToken = mService.getService().getAccessToken(mRequestToken, verifier);
 
