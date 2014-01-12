@@ -161,7 +161,7 @@ public class StorableServiceBuilder {
         mServiceBuilder = new ServiceBuilder();
         mServiceBuilder.provider(api).apiKey(apiKey).apiSecret(apiSecret);  // mandatory
         mServiceBuilder.signatureType(signatureType);
-        mServiceBuilder.callback("http://your_callback_url");   // This can be anything since the oauth dialog will intercept the redirect
+        mServiceBuilder.callback(redirectUrl);
 
         if(!scope.equals("")){
             mServiceBuilder.scope(scope);
