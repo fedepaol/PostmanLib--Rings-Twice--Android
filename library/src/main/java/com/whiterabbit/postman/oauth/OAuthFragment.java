@@ -56,6 +56,7 @@ class OAuthFragment extends DialogFragment {
         mUrl = getArguments().getString("URL");
         mRedirectParam = getArguments().getString("PARAM");
         mUrlParsed = false;
+        setRetainInstance(true);
     }
 
     @Override
