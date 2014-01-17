@@ -2,14 +2,14 @@ package com.whiterabbit.postman;
 
 import android.content.Intent;
 import com.whiterabbit.postman.exceptions.SendingCommandException;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowActivity;
-import com.xtremelabs.robolectric.shadows.ShadowIntent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowIntent;
 
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.junit.Assert.*;
 
 @RunWith(RobolectricTestRunner.class)
@@ -23,8 +23,8 @@ public class ServerInteractionHelperTest {
 
 	@Before
     public void setUp() throws Exception {
-        mActivity = new SimpleClientActivity();
-        mShadowOfActivity = shadowOf(mActivity);
+        mActivity = Robolectric.buildActivity(SimpleClientActivity.class).create().start().resume().get();
+        mShadowOfActivity = Robolectric.shadowOf(mActivity);
         ServerInteractionHelper.resetInstance();
         mHelper = ServerInteractionHelper.getInstance(mActivity);
     }
@@ -36,7 +36,7 @@ public class ServerInteractionHelperTest {
      */
     private void shortcutIntentService(){
         Intent sentIntent = mShadowOfActivity.getNextStartedService();
-        ShadowIntent shIntent = shadowOf(sentIntent);
+        ShadowIntent shIntent = Robolectric.shadowOf(sentIntent);
         assertTrue(InteractionService.class.isAssignableFrom(shIntent.getIntentClass()));
         InteractionService service = new InteractionService();
         service.onHandleIntent(sentIntent);
@@ -45,7 +45,6 @@ public class ServerInteractionHelperTest {
 
 	@Test
     public void testSendsCommand(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         SimpleServerCommand command = new SimpleServerCommand(true, RESULT_MESSAGE);
@@ -62,7 +61,6 @@ public class ServerInteractionHelperTest {
 
     @Test
     public void testSendsCommandNoPending(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         SimpleServerCommand command = new SimpleServerCommand(true, RESULT_MESSAGE);
@@ -82,7 +80,6 @@ public class ServerInteractionHelperTest {
 
 	@Test
     public void testCommandSuccess(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
         SimpleServerCommand command = new SimpleServerCommand(true, RESULT_MESSAGE);
         try {
@@ -101,7 +98,6 @@ public class ServerInteractionHelperTest {
 
 	@Test
     public void testCommandFail(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
         SimpleServerCommand command = new SimpleServerCommand(false, RESULT_MESSAGE);
         try {
@@ -119,7 +115,6 @@ public class ServerInteractionHelperTest {
 
 	@Test
     public void testTwoSameCommandsAndPending(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
         SimpleServerCommand command = new SimpleServerCommand(false, RESULT_MESSAGE);
         try {

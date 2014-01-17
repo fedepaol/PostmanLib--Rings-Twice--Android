@@ -1,5 +1,6 @@
 package com.whiterabbit.postman.oauth;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -9,13 +10,13 @@ import com.whiterabbit.postman.SimpleClientActivity;
 import com.whiterabbit.postman.SimpleRestRequest;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.exceptions.OAuthServiceException;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowDialogFragment;
-import com.xtremelabs.robolectric.shadows.ShadowWebView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.shadows.ShadowDialog;
+import org.robolectric.shadows.ShadowWebView;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Token;
@@ -23,7 +24,6 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -52,7 +52,7 @@ public class OauthAuthenticateTest {
     @Before
     public void setUp() throws Exception {
         mAuthHelper = OAuthHelper.getInstance();
-        mActivity = new SimpleClientActivity();
+        mActivity = Robolectric.buildActivity(SimpleClientActivity.class).create().start().resume().get();
 
 
 
@@ -111,11 +111,11 @@ public class OauthAuthenticateTest {
         }
 
         Robolectric.getBackgroundScheduler().runOneTask();
-        Robolectric.getUiThreadScheduler().runOneTask();
+        //Robolectric.getUiThreadScheduler().runOneTask();
 
-        OAuthFragment s = (OAuthFragment) ShadowDialogFragment.getLatestDialogFragment();
-        WebView webView = (WebView) s.getView().findViewById(R.id.web_oauth);
-        ShadowWebView webShadow = shadowOf(webView);
+        Dialog d = ShadowDialog.getLatestDialog();
+        WebView webView = (WebView) d.findViewById(R.id.web_oauth);
+        ShadowWebView webShadow = Robolectric.shadowOf(webView);
         WebViewClient client = webShadow.getWebViewClient();
 
         Robolectric.getBackgroundScheduler().pause();
@@ -184,10 +184,10 @@ public class OauthAuthenticateTest {
         Robolectric.getBackgroundScheduler().runOneTask();
         Robolectric.getUiThreadScheduler().runOneTask();
 
-        OAuthFragment s = (OAuthFragment) ShadowDialogFragment.getLatestDialogFragment();
-        WebView webView = (WebView) s.getView().findViewById(R.id.web_oauth);
+        Dialog s = (Dialog) ShadowDialog.getLatestDialog();
+        WebView webView = (WebView) s.findViewById(R.id.web_oauth);
         s.dismiss();
-        s.onDismiss(null);  // this should be a result of the former. I've should modify robolectric but this is faster
+        // s.onDismiss(null);  // this should be a result of the former. I've should modify robolectric but this is faster
 
         assertFalse(mActivity.isServiceAuthenticatedSuccess());
         assertEquals(mActivity.getServiceNotAuthenticatedReason(), "Could not verify the auth token, wrong callback url");
@@ -215,9 +215,10 @@ public class OauthAuthenticateTest {
         Robolectric.getBackgroundScheduler().runOneTask();
         Robolectric.getUiThreadScheduler().runOneTask();
 
-        OAuthFragment s = (OAuthFragment) ShadowDialogFragment.getLatestDialogFragment();
-        WebView webView = (WebView) s.getView().findViewById(R.id.web_oauth);
-        ShadowWebView webShadow = shadowOf(webView);
+        //OAuthFragment s = (OAuthFragment) ShadowDialogFragment.getLatestDialogFragment();
+        Dialog d = ShadowDialog.getLatestDialog();
+        WebView webView = (WebView) d.findViewById(R.id.web_oauth);
+        ShadowWebView webShadow = Robolectric.shadowOf(webView);
         WebViewClient client = webShadow.getWebViewClient();
 
         assertEquals(webShadow.getLastLoadedUrl(), AUTH_URL);
@@ -225,8 +226,8 @@ public class OauthAuthenticateTest {
         Robolectric.getBackgroundScheduler().pause();
         client.shouldOverrideUrlLoading(webView, "www.google.com");
 
-        s.dismiss();
-        s.onDismiss(null);  // this should be a result of the former. I've should modify robolectric but this is faster
+        d.dismiss();
+        // s.onDismiss(null);  // this should be a result of the former. I've should modify robolectric but this is faster
 
         assertFalse(mActivity.isServiceAuthenticatedSuccess());
         assertEquals(mActivity.getServiceNotAuthenticatedReason(), "Could not verify the auth token, wrong callback url");
@@ -254,9 +255,10 @@ public class OauthAuthenticateTest {
         Robolectric.getBackgroundScheduler().runOneTask();
         Robolectric.getUiThreadScheduler().runOneTask();
 
-        OAuthFragment s = (OAuthFragment) ShadowDialogFragment.getLatestDialogFragment();
-        WebView webView = (WebView) s.getView().findViewById(R.id.web_oauth);
-        ShadowWebView webShadow = shadowOf(webView);
+        //OAuthFragment s = (OAuthFragment) ShadowDialogFragment.getLatestDialogFragment();
+        Dialog d = ShadowDialog.getLatestDialog();
+        WebView webView = (WebView) d.findViewById(R.id.web_oauth);
+        ShadowWebView webShadow = Robolectric.shadowOf(webView);
         WebViewClient client = webShadow.getWebViewClient();
 
         Robolectric.getBackgroundScheduler().pause();

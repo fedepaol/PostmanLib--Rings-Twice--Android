@@ -7,18 +7,18 @@ import android.content.Intent;
 import android.os.SystemClock;
 import com.whiterabbit.postman.commands.RestServerCommand;
 import com.whiterabbit.postman.utils.Constants;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
-import com.xtremelabs.robolectric.shadows.ShadowAlarmManager;
-import com.xtremelabs.robolectric.shadows.ShadowPendingIntent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.shadows.ShadowAlarmManager;
+import org.robolectric.shadows.ShadowPendingIntent;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +32,7 @@ public class RestCommandTest{
 
     @Before
     public void setUp() throws Exception {
-        mActivity = new SimpleClientActivity();
+        mActivity = Robolectric.buildActivity(SimpleClientActivity.class).create().start().resume().get();
         mHelper.resetInstance();
         mHelper = ServerInteractionHelper.getInstance(mActivity);
     }
@@ -41,7 +41,6 @@ public class RestCommandTest{
 
     @Test
     public void testCommandExecution(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
@@ -71,7 +70,6 @@ public class RestCommandTest{
 
    @Test
     public void testCommandExecutionBulk(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
@@ -110,7 +108,6 @@ public class RestCommandTest{
 
     @Test
     public void testCommandFailure(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
@@ -136,7 +133,6 @@ public class RestCommandTest{
 
     @Test
     public void testCommandExecutionNested(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
@@ -166,7 +162,6 @@ public class RestCommandTest{
 
     @Test
     public void testCommandNestedCommandFailure(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
@@ -194,7 +189,6 @@ public class RestCommandTest{
 
     @Test
     public void testCommand401(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
@@ -225,14 +219,13 @@ public class RestCommandTest{
 
     @Test
     public void testPendingRequest(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
         SimpleRestRequest s = new SimpleRestRequest(mockedRequest, false);
 
         PendingIntent i = mHelper.getActionToSchedule(mActivity, "ReqID", s);
-        ShadowPendingIntent shadow = shadowOf(i);
+        ShadowPendingIntent shadow = Robolectric.shadowOf(i);
         assertTrue(shadow.isServiceIntent());
 
         Intent savedIntent = shadow.getSavedIntent();
@@ -258,29 +251,28 @@ public class RestCommandTest{
 
     }
 
-
-
     @Test
     public void testPendingAndCancel(){
-        mActivity.onCreate(null);
         mHelper.registerEventListener(mActivity, mActivity);
 
         final OAuthRequest mockedRequest = mock(OAuthRequest.class);
         SimpleRestRequest s = new SimpleRestRequest(mockedRequest, false);
 
         PendingIntent i = mHelper.getActionToSchedule(mActivity, "ReqID", s);
-        ShadowPendingIntent shadow = shadowOf(i);
+        ShadowPendingIntent shadow = Robolectric.shadowOf(i);
         assertTrue(shadow.isServiceIntent());
 
         AlarmManager mgr=
                 (AlarmManager)mActivity.getSystemService(Context.ALARM_SERVICE);
 
-        ShadowAlarmManager shAlarm = shadowOf(mgr);
+        ShadowAlarmManager shAlarm = Robolectric.shadowOf(mgr);
 
         mgr.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, 1000, i);
 
         ShadowAlarmManager.ScheduledAlarm nextAlarm = shAlarm.peekNextScheduledAlarm();
-        assertEquals(nextAlarm.operation, i);
+        ShadowPendingIntent shadowPendingIntent = Robolectric.shadowOf(nextAlarm.operation);
+        assertEquals(shadowPendingIntent.getSavedIntent().getComponent().getClassName(), "com.whiterabbit.postman.InteractionService");
+
 
         // here I cancel a different pending intent in order to check that the manager will deschedule it
         PendingIntent i1 = mHelper.getActionToSchedule(mActivity, "ReqID", s);
