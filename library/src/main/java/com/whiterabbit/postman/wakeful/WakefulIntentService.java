@@ -25,7 +25,6 @@ import android.os.PowerManager;
  * Here all the scheduling facilities were removed in order to simplify the class and allow interaction
  * with PostmanLib. The package and the intent name were changed in order to avoid conflicts in case of integration
  * of both libraries.
- *
  */
 abstract public class WakefulIntentService extends IntentService {
     abstract protected void doWakefulWork(Intent intent);

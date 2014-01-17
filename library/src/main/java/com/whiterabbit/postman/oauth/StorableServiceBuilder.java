@@ -23,7 +23,7 @@ public class StorableServiceBuilder {
     private static final String SIGNATURE_TYPE = "com.whiterabbit.signaturetype";
     private static final String API = "com.whiterabbit.api";
     private static final String SERVICES = "com.whiterabbit.services";
-    private static final String REDIRECT_KEY= "com.whiterabbit.redirect";
+    private static final String REDIRECT_KEY = "com.whiterabbit.redirect";
     private static final String REDIRECT_PARAMETER = "com.whiterabbit.redirect_param";
 
     private String apiKey;
@@ -36,31 +36,29 @@ public class StorableServiceBuilder {
     private ServiceBuilder mServiceBuilder;
     private String mAuthRedirectParameter;
 
-    public StorableServiceBuilder(String name){
+    public StorableServiceBuilder(String name) {
         mServiceName = name;
         mServiceBuilder = new ServiceBuilder();
         signatureType = SignatureType.Header;
     }
 
-    public String getName(){
+    public String getName() {
         return mServiceName;
     }
 
 
-    public String getRedirectParameter(){
+    public String getRedirectParameter() {
         return mAuthRedirectParameter;
     }
 
 
-    public StorableServiceBuilder provider(Class<? extends Api> apiClass)
-    {
+    public StorableServiceBuilder provider(Class<? extends Api> apiClass) {
         this.api = apiClass;
         mServiceBuilder.provider(apiClass);
         return this;
     }
 
-    public StorableServiceBuilder callback(String callback, String redirectParameter)
-    {
+    public StorableServiceBuilder callback(String callback, String redirectParameter) {
         mAuthRedirectParameter = redirectParameter;
         redirectUrl = callback;
         mServiceBuilder.callback(callback);
@@ -68,43 +66,37 @@ public class StorableServiceBuilder {
     }
 
 
-    public StorableServiceBuilder apiKey(String apiKey)
-    {
+    public StorableServiceBuilder apiKey(String apiKey) {
         this.apiKey = apiKey;
         mServiceBuilder.apiKey(apiKey);
         return this;
     }
 
-    public StorableServiceBuilder apiSecret(String apiSecret)
-    {
+    public StorableServiceBuilder apiSecret(String apiSecret) {
         this.apiSecret = apiSecret;
         mServiceBuilder.apiSecret(apiSecret);
         return this;
     }
 
-    public StorableServiceBuilder scope(String scope)
-    {
+    public StorableServiceBuilder scope(String scope) {
         this.scope = scope;
         mServiceBuilder.scope(scope);
         return this;
     }
 
-    public StorableServiceBuilder signatureType(SignatureType type)
-    {
+    public StorableServiceBuilder signatureType(SignatureType type) {
         this.signatureType = type;
         mServiceBuilder.signatureType(type);
         return this;
     }
 
 
-    public OAuthService build(Context c)
-    {
+    public OAuthService build(Context c) {
         return mServiceBuilder.build();
     }
 
 
-
-    void storeToPreferences(String serviceName, Context c){
+    void storeToPreferences(String serviceName, Context c) {
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();
         editor.putString(REDIRECT_KEY, redirectUrl);
@@ -127,13 +119,13 @@ public class StorableServiceBuilder {
         listEditor.apply();
     }
 
-    public static String[] getAllServices(Context c){
+    public static String[] getAllServices(Context c) {
         SharedPreferences listPreferences = c.getSharedPreferences(Constants.ALL_SERVICES, Activity.MODE_PRIVATE);
         String[] res = listPreferences.getString(SERVICES, "").split(";");
         return res;
     }
 
-    StorableServiceBuilder(String serviceName, Context c){
+    StorableServiceBuilder(String serviceName, Context c) {
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         mServiceName = serviceName;
         apiKey = mySharedPreferences.getString(API_KEY, "");
@@ -144,9 +136,9 @@ public class StorableServiceBuilder {
 
         int storedSType = mySharedPreferences.getInt(SIGNATURE_TYPE, -1);
 
-        if(storedSType != -1){
+        if (storedSType != -1) {
             signatureType = SignatureType.values()[storedSType];
-        }else{
+        } else {
             signatureType = SignatureType.Header;
         }
 
@@ -163,7 +155,7 @@ public class StorableServiceBuilder {
         mServiceBuilder.signatureType(signatureType);
         mServiceBuilder.callback(redirectUrl);
 
-        if(!scope.equals("")){
+        if (!scope.equals("")) {
             mServiceBuilder.scope(scope);
         }
     }

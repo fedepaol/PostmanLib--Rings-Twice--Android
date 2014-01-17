@@ -6,6 +6,7 @@ package com.whiterabbit.postman.oauth;
  */
 interface OAuthReceivedInterface {
     public void onAuthReceived(String url);
+
     public void onAuthFailed(String reason);
 
 }

@@ -20,20 +20,20 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Server command implementation intended to be used to interact with a rest server
- * @author fede
  *
+ * @author fede
  */
-public class RestServerCommand extends ServerCommand implements RequestExecutor  {
+public class RestServerCommand extends ServerCommand implements RequestExecutor {
     private final RestServerRequest mFirstStrategy;
     private final Parcelable[] mStrategies; // must be a Parcelable[] instead of RestServerRequest[] because I wouldn't be
-                                            // able to read it (can't cast Parcelable[] to RestServerRequest[] )
+    // able to read it (can't cast Parcelable[] to RestServerRequest[] )
 
     private OAuthRequest mMockedRequest;
 
     /**
      * Constructor
      */
-    public RestServerCommand(RestServerRequest firstStrategy, RestServerRequest... otherStrategies){
+    public RestServerCommand(RestServerRequest firstStrategy, RestServerRequest... otherStrategies) {
         mFirstStrategy = firstStrategy;
         mStrategies = otherStrategies;
     }
@@ -48,7 +48,7 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
         parcel.writeParcelableArray(mStrategies, 0);
     }
 
-    protected RestServerCommand(Parcel in){
+    protected RestServerCommand(Parcel in) {
         mFirstStrategy = in.readParcelable(RestServerRequest.class.getClassLoader());
         mStrategies = in.readParcelableArray(RestServerRequest.class.getClassLoader());
 
@@ -66,18 +66,16 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
     };
 
 
-
-
-
     /**
      * Utility method to be used for mocking up request objects
      * inside unit tests
+     *
      * @param v
      * @param url
      * @return
      */
-    protected OAuthRequest getRequest(Verb v, String url){
-        if(mMockedRequest != null){
+    protected OAuthRequest getRequest(Verb v, String url) {
+        if (mMockedRequest != null) {
             return mMockedRequest;
         }
         return new OAuthRequest(v, url);
@@ -86,32 +84,33 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
     /**
      * Utility method to provide a mocked request instead of connecting to the
      * real server. To be used for testing purpouses only
+     *
      * @param r
      */
-    public void setMockedRequest(OAuthRequest r){
+    public void setMockedRequest(OAuthRequest r) {
         mMockedRequest = r;
     }
 
 
-	/**
-	 * The real execution of the command. Performs the basic rest interaction
-	 */
-	@Override
-	public void execute(Context c) {
+    /**
+     * The real execution of the command. Performs the basic rest interaction
+     */
+    @Override
+    public void execute(Context c) {
         ServerInteractionHelper.getInstance(c).enableHttpResponseCache(c); // this looks to be the best place
 
-        try{
+        try {
             executeRequest(mFirstStrategy, c);
 
-            for(Parcelable p : mStrategies){
+            for (Parcelable p : mStrategies) {
                 executeRequest((RestServerRequest) p, c);
             }
-            notifyResult("Ok",  c);
+            notifyResult("Ok", c);
 
         } catch (PostmanException e) {
             notifyError(e.getMessage(), c);
             return;
-        }catch (OAuthException e){
+        } catch (OAuthException e) {
             notifyError(e.getMessage(), c);
             return;
         }
@@ -121,7 +120,7 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
 
     @Override
     public void executeRequest(RestServerRequest s, Context c) throws PostmanException {
-        try{
+        try {
             OAuthRequest request = getRequest(s.getVerb(), s.getUrl());
             s.addParamsToRequest(request);
 
@@ -129,17 +128,17 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
             request.setReadTimeout(10, TimeUnit.SECONDS);
 
             String signer = s.getOAuthSigner();
-            if(signer != null){
-                OAuthServiceInfo authService  = OAuthHelper.getInstance().getRegisteredService(signer, c);
+            if (signer != null) {
+                OAuthServiceInfo authService = OAuthHelper.getInstance().getRegisteredService(signer, c);
                 authService.getService().signRequest(authService.getAccessToken(), request);
             }
             Response response = request.send();
             handleResponse(s, response.getCode(), response, c);
-        }catch(OAuthException e){
+        } catch (OAuthException e) {
             Log.e(Constants.LOG_TAG, "Exception while executing " + getRequestId() + e.getMessage());
             s.onOAuthExceptionThrown(e);
             Throwable cause = e.getCause();
-            if(cause != null && cause.getMessage() != null && cause.getMessage().equals("No authentication challenges found")){
+            if (cause != null && cause.getMessage() != null && cause.getMessage().equals("No authentication challenges found")) {
                 Log.d(Constants.LOG_TAG, cause.getMessage());
                 // TODO Invalidate token ?
             }
@@ -148,19 +147,18 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
     }
 
 
-
     private void handleResponse(RestServerRequest strategy, int statusCode, Response response, Context c) throws PostmanException {
 
-        if(statusCode >= 200 && statusCode < 300){ // success
+        if (statusCode >= 200 && statusCode < 300) { // success
             try {
                 strategy.onHttpResult(response, statusCode, this, c);
-            }catch(ResultParseException e){
+            } catch (ResultParseException e) {
                 notifyError("Failed to parse result " + e.getMessage(), c);
                 Log.e(Constants.LOG_TAG, "Result parse failed: " + response);
             }
-        }else if(statusCode >= 400 && statusCode < 600){ // error
+        } else if (statusCode >= 400 && statusCode < 600) { // error
             strategy.onHttpError(statusCode, this, c);
-            switch(statusCode){
+            switch (statusCode) {
                 case 404:
                     throw new PostmanException("Not found");
                 case 401:

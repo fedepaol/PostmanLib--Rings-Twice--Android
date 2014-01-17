@@ -8,7 +8,7 @@ import android.content.Context;
  * Date: 12/26/12
  * Time: 3:55 PM
  */
-public class PostmanException  extends Exception {
+public class PostmanException extends Exception {
     /**
      *
      */

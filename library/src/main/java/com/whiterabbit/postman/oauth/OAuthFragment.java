@@ -62,7 +62,7 @@ class OAuthFragment extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         Log.i(Constants.LOG_TAG, "Oauth dialog dismissed with no authentication");
-        if(!mAuthFound){
+        if (!mAuthFound) {
             notifyAuthenticationFailed();
         }
     }
@@ -70,7 +70,7 @@ class OAuthFragment extends DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog) {
         Log.i(Constants.LOG_TAG, "Oauth dialog dismissed with no authentication");
-        if(!mAuthFound){
+        if (!mAuthFound) {
             notifyAuthenticationFailed();
         }
     }
@@ -82,12 +82,11 @@ class OAuthFragment extends DialogFragment {
 
     private class MyWebViewClient extends WebViewClient {
         /**
-         *
          * @param url
          * @return
          */
-        private boolean parseUrl(String url){
-            if(mUrlParsed){
+        private boolean parseUrl(String url) {
+            if (mUrlParsed) {
                 return true;
             }
 
@@ -99,16 +98,16 @@ class OAuthFragment extends DialogFragment {
                 saveAccessToken(url);
                 getDialog().dismiss();
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if(parseUrl(url)){
+            if (parseUrl(url)) {
                 return true;
-            }else{
+            } else {
                 Log.d(Constants.LOG_TAG,
                         String.format("Could not find oauth_verifier in callback url, %s , are you sure you set a callback url in your service?",
                                 url));
@@ -126,16 +125,16 @@ class OAuthFragment extends DialogFragment {
     }
 
     private void saveAccessToken(String url) {
-        if(mReceivedInterface != null){
-            Uri uri=Uri.parse(url);
+        if (mReceivedInterface != null) {
+            Uri uri = Uri.parse(url);
             String verifier = uri.getQueryParameter(mRedirectParam);
             mReceivedInterface.onAuthReceived(verifier);
             mAuthFound = true;
         }
     }
 
-    private void notifyAuthenticationFailed(){
-        if(mReceivedInterface != null){
+    private void notifyAuthenticationFailed() {
+        if (mReceivedInterface != null) {
             mReceivedInterface.onAuthFailed("Could not verify the auth token, wrong callback url");
         }
     }

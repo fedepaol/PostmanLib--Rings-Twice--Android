@@ -21,18 +21,18 @@ public class OAuthServiceInfo {
         return mServiceName;
     }
 
-    public OAuthServiceInfo(OAuthService s, String serviceName, String redirectParameter, Token accessToken){
+    public OAuthServiceInfo(OAuthService s, String serviceName, String redirectParameter, Token accessToken) {
         mService = s;
         mServiceName = serviceName;
         mAccessToken = accessToken;
         mRedirectParameter = redirectParameter;
     }
 
-    public String getRedirectParameter(){
+    public String getRedirectParameter() {
         return mRedirectParameter;
     }
 
-    public OAuthService getService(){
+    public OAuthService getService() {
         return mService;
     }
 

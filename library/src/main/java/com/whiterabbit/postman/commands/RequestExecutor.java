@@ -9,6 +9,7 @@ import com.whiterabbit.postman.exceptions.PostmanException;
 public interface RequestExecutor {
     /**
      * Tries to execute the given request
+     *
      * @param s the strategy to be executed
      * @param c
      * @throws PostmanException

@@ -5,14 +5,14 @@ import android.content.Context;
 
 public class SendingCommandException extends Exception {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -6762209841735489432L;
 
     public SendingCommandException(int strResId, Context ctx) {
         super(ctx.getString(strResId));
     }
-    
+
     /**
      * @param detailMessage
      */

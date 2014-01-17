@@ -5,14 +5,16 @@ package com.whiterabbit.postman.oauth;
  * oauth process result
  */
 public interface OAuthResponseInterface {
-   /**
+    /**
      * Listener interface to get notified of the end of an oauth authentication process
+     *
      * @param serviceName
      */
     public void onServiceAuthenticated(String serviceName);
 
     /**
      * Listener interface to get notified of the failure of an oauth authentication process
+     *
      * @param serviceName
      * @param reason
      */

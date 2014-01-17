@@ -9,7 +9,7 @@ import com.whiterabbit.postman.wakeful.WakefulIntentService;
 /**
  * WakefulIntentService child. Allows ServerCommands to be executed in a wakeful way.
  */
-public class WakefulInteractionService extends WakefulIntentService{
+public class WakefulInteractionService extends WakefulIntentService {
     public WakefulInteractionService() {
         super("WakefulInteraction");
     }
@@ -19,9 +19,9 @@ public class WakefulInteractionService extends WakefulIntentService{
         ServerCommand c = intent.getParcelableExtra(Constants.PAYLOAD);
         c.fillFromIntent(intent);
 
-        if(c != null){
+        if (c != null) {
             c.execute(this);
-        }else{
+        } else {
             Log.e(Constants.LOG_TAG, "Unable to convert message");
             ServerCommand.notifyUnrecoverableError(intent, getString(R.string.unable_to_convert), this);
         }

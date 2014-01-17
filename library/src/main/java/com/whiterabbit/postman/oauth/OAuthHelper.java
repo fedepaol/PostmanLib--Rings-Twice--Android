@@ -36,7 +36,7 @@ public class OAuthHelper {
     }
 
 
-   /**
+    /**
      * Singleton factory method
      *
      * @return
@@ -53,9 +53,10 @@ public class OAuthHelper {
 
     /**
      * Register a listener to be used to get feedbacks for the autehntication process
+     *
      * @param listener
      */
-    public void registerListener(OAuthResponseInterface listener){
+    public void registerListener(OAuthResponseInterface listener) {
         mListener = listener;
     }
 
@@ -63,31 +64,32 @@ public class OAuthHelper {
     /**
      * Unregisters the listener
      */
-    public void unregisterListener(){
+    public void unregisterListener() {
         mListener = null;
     }
 
     /**
      * Asks for the request token and launches the authorization dialog
      */
-    private class RequestTask extends AsyncTask<OAuthServiceInfo, Void , List<Object>> {
+    private class RequestTask extends AsyncTask<OAuthServiceInfo, Void, List<Object>> {
         private final FragmentActivity mActivity;
         private final OAuthServiceInfo mService;
         private Exception mThrownException;
 
-        public RequestTask(FragmentActivity a, OAuthServiceInfo s){
+        public RequestTask(FragmentActivity a, OAuthServiceInfo s) {
             mActivity = a;
             mService = s;
 
         }
+
         @Override
         protected List doInBackground(OAuthServiceInfo... oAuthServiceInfos) {
-            try{
+            try {
                 OAuthService service = oAuthServiceInfos[0].getService();
                 Token requestToken;
-                if(service.getVersion().equals("1.0")){
+                if (service.getVersion().equals("1.0")) {
                     requestToken = service.getRequestToken();
-                }else{
+                } else {
                     requestToken = null; // because in oauth 2.0 the request token is not needed
                 }
                 String url = oAuthServiceInfos[0].getService().getAuthorizationUrl(requestToken);
@@ -95,7 +97,7 @@ public class OAuthHelper {
                 res.add(0, requestToken);
                 res.add(1, url);
                 return res;
-            }catch (OAuthException e) {
+            } catch (OAuthException e) {
                 mThrownException = e;
             }
             return null;
@@ -104,14 +106,14 @@ public class OAuthHelper {
 
         @Override
         protected void onPostExecute(List<Object> res) {
-            if(mThrownException != null){
-                if(mListener != null){
+            if (mThrownException != null) {
+                if (mListener != null) {
                     mListener.onServiceAuthenticationFailed(mService.getServiceName(), mThrownException.getMessage());
                 }
                 return;
             }
 
-            if(mActivity == null){
+            if (mActivity == null) {
                 Log.d(Constants.LOG_TAG, "Request task: Activity unregistered before showing oauth fragment, exiting...");
                 return;
             }
@@ -131,7 +133,7 @@ public class OAuthHelper {
 
                 @Override
                 public void onAuthFailed(String reason) {
-                    if(mListener != null){
+                    if (mListener != null) {
                         mListener.onServiceAuthenticationFailed(mService.getServiceName(), reason);
                     }
                     Log.e(Constants.LOG_TAG, mService.getServiceName() + " failed to authenticate for " + reason);
@@ -139,19 +141,21 @@ public class OAuthHelper {
             });
             newFragment.show(ft, "dialog");
         }
-    };
+    }
+
+    ;
 
 
     /**
      * Used to retrieve the authorization token
      */
-    private class AuthTask extends AsyncTask<String, Void, Void>{
+    private class AuthTask extends AsyncTask<String, Void, Void> {
         private final Token mRequestToken;
         private final OAuthServiceInfo mService;
         private final Context mContext;
         private Exception mThrownException;
 
-        public AuthTask(Token requestToken, OAuthServiceInfo service, Context c){
+        public AuthTask(Token requestToken, OAuthServiceInfo service, Context c) {
             mRequestToken = requestToken;
             mService = service;
             mContext = c;
@@ -159,7 +163,7 @@ public class OAuthHelper {
 
         @Override
         protected Void doInBackground(String... urls) {
-            try{
+            try {
                 if (urls[0] == null) {
                     throw new OAuthException("Invalid authenticator");
                 }
@@ -175,12 +179,12 @@ public class OAuthHelper {
                 editor.commit();
 
                 final OAuthServiceInfo s = mServices.get(mService.getServiceName());
-                if(s != null){
+                if (s != null) {
                     s.setAccessToken(accessToken);
-                }else{
+                } else {
                     throw new OAuthException("Service not found");
                 }
-            }catch (OAuthException e){
+            } catch (OAuthException e) {
                 mThrownException = e;
             }
 
@@ -189,12 +193,12 @@ public class OAuthHelper {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(mThrownException == null){
-                if(mListener != null){
+            if (mThrownException == null) {
+                if (mListener != null) {
                     mListener.onServiceAuthenticated(mService.getServiceName());
                 }
-            }else{
-                if(mListener != null){
+            } else {
+                if (mListener != null) {
                     mListener.onServiceAuthenticationFailed(mService.getServiceName(), mThrownException.getMessage());
                 }
                 return;
@@ -207,6 +211,7 @@ public class OAuthHelper {
     /**
      * Registers the given oauth service to the library.
      * A name must be provided to reference the service from the library
+     *
      * @param builder the storable service builder to be used to build the oauth service
      * @param c
      */
@@ -222,12 +227,13 @@ public class OAuthHelper {
     /**
      * Starts the authentication ballet using scribe library
      * An activity is needed because the library will open a dialog fragment to get the user's authorization from
+     *
      * @param a
      * @param serviceName
      */
     public void authenticate(final FragmentActivity a, String serviceName) throws OAuthServiceException {
         final OAuthServiceInfo s = mServices.get(serviceName);
-        if(s == null){
+        if (s == null) {
             throw new OAuthServiceException(String.format("Service %s not found", serviceName));
         }
 
@@ -239,19 +245,20 @@ public class OAuthHelper {
     /**
      * Returns a registered service to be used to authenticate a request.
      * Should be called inside a request message, hosted in a background thread
+     *
      * @param serviceName the name of the service to be retrieved
      * @return
      * @throws OAuthServiceException
      */
     public OAuthServiceInfo getRegisteredService(String serviceName, Context c) throws OAuthServiceException {
         OAuthServiceInfo res = mServices.get(serviceName);
-        if(res == null){
+        if (res == null) {
             StorableServiceBuilder builder = new StorableServiceBuilder(serviceName, c);
             registerOAuthService(builder, c);
             res = mServices.get(serviceName);   // just another access to the map
         }
 
-        if(res == null || res.getAccessToken() == null){
+        if (res == null || res.getAccessToken() == null) {
             throw new OAuthServiceException(String.format("Service %s not authenticated yet", serviceName));
         }
 
@@ -261,17 +268,18 @@ public class OAuthHelper {
 
     /**
      * Returns a stored oauth token for the given service
+     *
      * @param serviceName
      * @param c
      * @return
      */
-    private Token getAuthTokenForService(String serviceName, Context c){
+    private Token getAuthTokenForService(String serviceName, Context c) {
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         String token = mySharedPreferences.getString(Constants.TOKEN, "");
         String secret = mySharedPreferences.getString(Constants.SECRET, "");
         String raw = mySharedPreferences.getString(Constants.RAW_RES, "");
         if (token.equals("") ||
-            raw.equals("")){
+                raw.equals("")) {
             return null;
         }
 
@@ -280,23 +288,24 @@ public class OAuthHelper {
 
     /**
      * Tells if the token for the given service is already stored or if the service must be authenticated
+     *
      * @param serviceName
      * @param c
      * @return
      */
-    public boolean isAlreadyAuthenticated(String serviceName, Context c){
+    public boolean isAlreadyAuthenticated(String serviceName, Context c) {
         OAuthServiceInfo s = mServices.get(serviceName);
-        if(s != null && s.getAccessToken() != null){
+        if (s != null && s.getAccessToken() != null) {
             return true;
         }
         return (getAuthTokenForService(serviceName, c) != null);
     }
 
 
-
     /**
      * To be used to invalidate the authentication token of the given service.
      * Subsequent registration will start authorization process again
+     *
      * @param serviceName
      */
     public void invalidateAuthentication(String serviceName, Context c) throws OAuthServiceException {
@@ -311,7 +320,7 @@ public class OAuthHelper {
         s.setAccessToken(null);
     }
 
-    public static void dropSingleton(){
+    public static void dropSingleton() {
         mInstance = null;
     }
 }
