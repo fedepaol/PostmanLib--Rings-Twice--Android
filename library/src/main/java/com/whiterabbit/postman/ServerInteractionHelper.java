@@ -22,16 +22,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServerInteractionHelper {
-	BroadcastReceiver mReceiver;
-	private static ServerInteractionHelper mInstance;
+    BroadcastReceiver mReceiver;
+    private static ServerInteractionHelper mInstance;
     private WeakReference<ServerInteractionResponseInterface> mListener;
-    private IntentFilter                  		mFilter;
-    private Map<String, Boolean>	mPendingRequests;   // TODO Sparse array. Change request id to long
-    private boolean         mCachingEnabled;
+    private IntentFilter mFilter;
+    private Map<String, Boolean> mPendingRequests;   // TODO Sparse array. Change request id to long
+    private boolean mCachingEnabled;
     private int mServiceCounter;
     private int mNumOfServices;
     private ArrayList<Class<? extends InteractionService>> mServices;
-
 
     private enum ServiceChoiceType {
         ROUND_ROBIN_SERVICE,
@@ -39,30 +38,26 @@ public class ServerInteractionHelper {
         WAKEFUL_SERVICE
     }
 
-	
-
-	private ServerInteractionHelper(Context c){
-		mReceiver = new ServiceResultReceiver();
-		mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
-		mFilter = new IntentFilter();
+    private ServerInteractionHelper(Context c) {
+        mReceiver = new ServiceResultReceiver();
+        mPendingRequests = Collections.synchronizedMap(new HashMap<String, Boolean>());
+        mFilter = new IntentFilter();
         mFilter.addAction(Constants.SERVER_RESULT);
-		mFilter.addAction(Constants.SERVER_ERROR);
+        mFilter.addAction(Constants.SERVER_ERROR);
         mCachingEnabled = false;
         mServices = new ArrayList<Class<? extends InteractionService>>(4);
-
-
         LocalBroadcastManager.getInstance(c.getApplicationContext()).registerReceiver(mReceiver, mFilter);
-
-	}
+    }
 
     /**
      * From http://android-developers.blogspot.it/2011/09/androids-http-clients.html
      * enabling the http cache results in better performance and low latency.
      * It's automatically called in RestServerCommands.execute
+     *
      * @param c
      */
     public void enableHttpResponseCache(Context c) {
-        if(mCachingEnabled){
+        if (mCachingEnabled) {
             return;
         }
         try {
@@ -75,7 +70,7 @@ public class ServerInteractionHelper {
         }
     }
 
-	/**
+    /**
      * Singleton factory method
      *
      * @return
@@ -88,19 +83,17 @@ public class ServerInteractionHelper {
             return mInstance;
         }
     }
-    
-    
+
     /**
      * Broadcastreceiver that handles the broadcasts sent by the service once the message was processed
-     * @author fede
      *
+     * @author fede
      */
     private class ServiceResultReceiver extends BroadcastReceiver {
-
         @Override
         public void onReceive(Context c, Intent intent) {
             ServerInteractionResponseInterface listener = null;
-            if(mListener != null){
+            if (mListener != null) {
                 listener = mListener.get();
             }
 
@@ -114,7 +107,7 @@ public class ServerInteractionHelper {
                 if (listener != null) {
                     listener.onServerResult(message, requestId);
                 }
-                if(!ignorePending){
+                if (!ignorePending) {
                     requestDone(requestId);
                 }
             }
@@ -127,13 +120,12 @@ public class ServerInteractionHelper {
                 if (listener != null) {
                     listener.onServerError(message, requestId);
                 }
-                if(!ignorePending){
+                if (!ignorePending) {
                     requestDone(requestId);
                 }
             }
         }
     }
-
 
     /**
      * Registers the given listener as to be
@@ -162,12 +154,12 @@ public class ServerInteractionHelper {
      * @return
      */
     public boolean isRequestAlreadyPending(String requestId) {
-    	Boolean pending = mPendingRequests.get(requestId);
-    	if(pending == null){
-    		return false;
-    	}else{
-    		return pending;
-    	}
+        Boolean pending = mPendingRequests.get(requestId);
+        if (pending == null) {
+            return false;
+        } else {
+            return pending;
+        }
     }
 
     /**
@@ -176,7 +168,7 @@ public class ServerInteractionHelper {
      * @param requestId
      */
     private void setRequestPending(String requestId) {
-    	mPendingRequests.put(requestId, true);
+        mPendingRequests.put(requestId, true);
     }
 
     /**
@@ -185,48 +177,45 @@ public class ServerInteractionHelper {
      * @param requestId
      */
     private void requestDone(String requestId) {
-    	mPendingRequests.remove(requestId);
+        mPendingRequests.remove(requestId);
     }
 
-
-    private boolean isServiceEnabled(Context c, Class<? extends InteractionService> service){
-        if(c.getPackageManager().getComponentEnabledSetting(new ComponentName(c, service)) == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT){
+    private boolean isServiceEnabled(Context c, Class<? extends InteractionService> service) {
+        if (c.getPackageManager().getComponentEnabledSetting(new ComponentName(c, service)) == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    private void initEnabledServices(Context c){
-        if(mNumOfServices > 0)
+    private void initEnabledServices(Context c) {
+        if (mNumOfServices > 0)
             return;
 
-        if(isServiceEnabled(c, InteractionService.class)){
+        if (isServiceEnabled(c, InteractionService.class)) {
             mServices.add(InteractionService.class);
             mNumOfServices++;
         }
-        if(isServiceEnabled(c, InteractionService1.class)){
+        if (isServiceEnabled(c, InteractionService1.class)) {
             mServices.add(InteractionService1.class);
             mNumOfServices++;
         }
-        if(isServiceEnabled(c, InteractionService2.class)){
+        if (isServiceEnabled(c, InteractionService2.class)) {
             mServices.add(InteractionService2.class);
             mNumOfServices++;
         }
-        if(isServiceEnabled(c, InteractionService3.class)){
+        if (isServiceEnabled(c, InteractionService3.class)) {
             mServices.add(InteractionService3.class);
             mNumOfServices++;
         }
 
-        if(mNumOfServices == 0){
+        if (mNumOfServices == 0) {
             Log.d(Constants.LOG_TAG, "No service available. Did you remember to add at least one interaction service to your manifest?");
             throw new OAuthServiceException("No services available");
         }
-
     }
 
-
-    private Class<? extends InteractionService> getTargetService(Context c){
+    private Class<? extends InteractionService> getTargetService(Context c) {
         initEnabledServices(c);
         mServiceCounter = (mServiceCounter + 1) % mNumOfServices;
         return mServices.get(mServiceCounter);
@@ -235,51 +224,48 @@ public class ServerInteractionHelper {
     /**
      * Returns the first available service. This is useful because I must be sure that I always have
      * the same service in order to be able to retrieve the same pending intent for cancel it
+     *
      * @param c
      * @return
      */
-    private Class<? extends InteractionService> getServiceToSchedule(Context c){
+    private Class<? extends InteractionService> getServiceToSchedule(Context c) {
         initEnabledServices(c);
         return mServices.get(0);    // hopefully at least one service will be available
     }
 
-
-    private Intent getIntentFromCommand(Context c, ServerCommand msg, String requestId, ServiceChoiceType type){
+    private Intent getIntentFromCommand(Context c, ServerCommand msg, String requestId, ServiceChoiceType type) {
         msg.setRequestId(requestId);
         Intent i;
-        switch(type){
+        switch (type) {
             case FIRST_SERVICE:
                 i = new Intent(c, getServiceToSchedule(c));
-            break;
+                break;
             case WAKEFUL_SERVICE:
                 i = new Intent(c, WakefulInteractionService.class);
-            break;
+                break;
             case ROUND_ROBIN_SERVICE:
             default:
                 i = new Intent(c, getTargetService(c));
-            break;
+                break;
         }
         msg.fillIntent(i);
         return i;
     }
 
-
     /**
      * Sends the given command to the server
      *
      * @param c
-     * @param msg
-     *            message to send
-     * @param requestId
-     *            an id associated to the request. Will be returned along with
-     *            the result
+     * @param msg       message to send
+     * @param requestId an id associated to the request. Will be returned along with
+     *                  the result
      */
     public void sendCommand(Context c, ServerCommand msg, String requestId)
             throws SendingCommandException {
 
         if (!isRequestAlreadyPending(requestId) || msg.getIgnorePending()) {
 
-            if(!msg.getIgnorePending()){
+            if (!msg.getIgnorePending()) {
                 setRequestPending(requestId);
             }
 
@@ -290,23 +276,15 @@ public class ServerInteractionHelper {
         }
     }
 
-
-
-
-
     /**
      * Helper method to send rest commands. Can send one or more resttrategies to be executed
      * In case of bulk strategies, a failure will be notified whenever the first execution fails (even if the previous
      * one where successful)
      *
-     * @param c
-     *         the context of the caller
-     * @param requestId
-     *         a loopback param with the request id that will be returned with the result
-     * @param s
-     *         a mandatory strategy
-     * @param moreRequests
-     *        optional other strategies to be executed together
+     * @param c            the context of the caller
+     * @param requestId    a loopback param with the request id that will be returned with the result
+     * @param s            a mandatory strategy
+     * @param moreRequests optional other strategies to be executed together
      * @throws SendingCommandException
      */
     public void sendRestAction(Context c, String requestId, RestServerRequest s, RestServerRequest... moreRequests) throws SendingCommandException {
@@ -315,22 +293,18 @@ public class ServerInteractionHelper {
 
     }
 
-
     /**
      * In some cases the asynchronous requests must be schedule. The library only provides a shortcut to get a pending intent
      * which must be attached to an alarmmanager. This is done to provide the same amount of flexibility given by alarmmanager without wrapping them
      * inside the library
-     * @param c
-     *         the context of the caller
-     * @param requestId
-     *         a unique identifier of this request, to be linked with the results
-     * @param r
-     *         a mandatory request to be scheduled
-     * @param moreRequests
-     *         optional other requests to be scheduled in the same pending intent
+     *
+     * @param c            the context of the caller
+     * @param requestId    a unique identifier of this request, to be linked with the results
+     * @param r            a mandatory request to be scheduled
+     * @param moreRequests optional other requests to be scheduled in the same pending intent
      * @return
      */
-    public PendingIntent getActionToSchedule(Context c, String requestId, RestServerRequest r, RestServerRequest... moreRequests){
+    public PendingIntent getActionToSchedule(Context c, String requestId, RestServerRequest r, RestServerRequest... moreRequests) {
         RestServerCommand command = new RestServerCommand(r, moreRequests);
         command.setIgnorePending(true);
         Intent toSchedule = getIntentFromCommand(c, command, requestId, ServiceChoiceType.FIRST_SERVICE);
@@ -339,41 +313,29 @@ public class ServerInteractionHelper {
         return res;
     }
 
-
-     /**
+    /**
      * Sends the given command to a com.whiterabbit.postman.wakeful intent service.
      * This relies on commonsware WakefulIntentService implementation. The aim of this structure is to have a working
      * com.whiterabbit.postman.wakeful alarm manager. In order to achieve that, a com.whiterabbit.postman.wakeful alarm must trigger a broadcast receiver which in turn
      * needs to make the sendWakefulRequest call
      *
      * @param c
-     *
-     * @param requestId
-     *            an id associated to the request. Will be returned along with
-     *            the result
-     * @param r
-     *         a mandatory request to be sent to the com.whiterabbit.postman.wakeful intent serive
-     * @param moreRequests
-     *         optional other requests to be scheduled in the same pending intent
-     *
+     * @param requestId    an id associated to the request. Will be returned along with
+     *                     the result
+     * @param r            a mandatory request to be sent to the com.whiterabbit.postman.wakeful intent serive
+     * @param moreRequests optional other requests to be scheduled in the same pending intent
      */
     public void sendWakefulRequest(Context c, String requestId, RestServerRequest r, RestServerRequest... moreRequests) {
-            RestServerCommand command = new RestServerCommand(r, moreRequests);
-            command.setIgnorePending(true);
-            Intent i = getIntentFromCommand(c, command, requestId, ServiceChoiceType.WAKEFUL_SERVICE);
-            WakefulInteractionService.sendWakefulWork(c, i);
+        RestServerCommand command = new RestServerCommand(r, moreRequests);
+        command.setIgnorePending(true);
+        Intent i = getIntentFromCommand(c, command, requestId, ServiceChoiceType.WAKEFUL_SERVICE);
+        WakefulInteractionService.sendWakefulWork(c, i);
     }
-
 
     /**
      * Resets instance for unit tests
      */
-    static void resetInstance(){
+    static void resetInstance() {
         mInstance = null;
     }
-
-
-
-
-
 }
