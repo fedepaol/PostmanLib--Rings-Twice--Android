@@ -65,7 +65,6 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
         }
     };
 
-
     /**
      * Utility method to be used for mocking up request objects
      * inside unit tests
@@ -117,7 +116,6 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
 
     }
 
-
     @Override
     public void executeRequest(RestServerRequest s, Context c) throws PostmanException {
         try {
@@ -145,7 +143,6 @@ public class RestServerCommand extends ServerCommand implements RequestExecutor 
             throw e;
         }
     }
-
 
     private void handleResponse(RestServerRequest strategy, int statusCode, Response response, Context c) throws PostmanException {
 

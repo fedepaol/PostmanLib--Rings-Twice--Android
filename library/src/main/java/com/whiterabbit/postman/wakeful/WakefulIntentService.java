@@ -29,19 +29,15 @@ import android.os.PowerManager;
 abstract public class WakefulIntentService extends IntentService {
     abstract protected void doWakefulWork(Intent intent);
 
-    static final String NAME =
-            "com.whiterabbit.postman.wakeful.WakefulIntentService";
+    static final String NAME = "com.whiterabbit.postman.wakeful.WakefulIntentService";
     private static volatile PowerManager.WakeLock lockStatic = null;
 
     synchronized private static PowerManager.WakeLock getLock(Context context) {
         if (lockStatic == null) {
-            PowerManager mgr =
-                    (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-
+            PowerManager mgr = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             lockStatic = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, NAME);
             lockStatic.setReferenceCounted(true);
         }
-
         return (lockStatic);
     }
 

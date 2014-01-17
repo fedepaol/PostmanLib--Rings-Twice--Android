@@ -28,10 +28,8 @@ import com.whiterabbit.postman.utils.Constants;
  * the oauth authentication
  */
 class OAuthFragment extends DialogFragment {
-
     private WebView webViewOauth;
     private ProgressBar progressBar;
-
     String mUrl;
     String mRedirectParam;
     OAuthReceivedInterface mReceivedInterface;
@@ -45,7 +43,6 @@ class OAuthFragment extends DialogFragment {
         args.putString("URL", url);
         args.putString("PARAM", redirectParam);
         f.setArguments(args);
-
         return f;
     }
 
@@ -74,7 +71,6 @@ class OAuthFragment extends DialogFragment {
             notifyAuthenticationFailed();
         }
     }
-
 
     public void setReceivedInterface(OAuthReceivedInterface receivedInterface) {
         mReceivedInterface = receivedInterface;
@@ -138,7 +134,6 @@ class OAuthFragment extends DialogFragment {
             mReceivedInterface.onAuthFailed("Could not verify the auth token, wrong callback url");
         }
     }
-
 
     @Override
     public void onViewCreated(View arg0, Bundle arg1) {

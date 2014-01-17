@@ -46,11 +46,9 @@ public class StorableServiceBuilder {
         return mServiceName;
     }
 
-
     public String getRedirectParameter() {
         return mAuthRedirectParameter;
     }
-
 
     public StorableServiceBuilder provider(Class<? extends Api> apiClass) {
         this.api = apiClass;
@@ -64,7 +62,6 @@ public class StorableServiceBuilder {
         mServiceBuilder.callback(callback);
         return this;
     }
-
 
     public StorableServiceBuilder apiKey(String apiKey) {
         this.apiKey = apiKey;
@@ -95,7 +92,6 @@ public class StorableServiceBuilder {
         return mServiceBuilder.build();
     }
 
-
     void storeToPreferences(String serviceName, Context c) {
         SharedPreferences mySharedPreferences = c.getSharedPreferences(serviceName, Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = mySharedPreferences.edit();
@@ -108,12 +104,10 @@ public class StorableServiceBuilder {
         editor.putString(API, api.getName());
         editor.commit();
 
-
         SharedPreferences listPreferences = c.getSharedPreferences(Constants.ALL_SERVICES, Activity.MODE_PRIVATE);
 
         StringBuilder builder = new StringBuilder(listPreferences.getString(SERVICES, ""));
         builder.append(serviceName).append(";");
-
         SharedPreferences.Editor listEditor = mySharedPreferences.edit();
         listEditor.putString(SERVICES, builder.toString());
         listEditor.apply();
@@ -159,6 +153,4 @@ public class StorableServiceBuilder {
             mServiceBuilder.scope(scope);
         }
     }
-
-
 }

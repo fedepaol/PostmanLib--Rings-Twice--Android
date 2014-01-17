@@ -40,7 +40,6 @@ public abstract class ServerCommand implements Parcelable {
         i.putExtra(Constants.PAYLOAD, this);
     }
 
-
     public void fillFromIntent(Intent i) {
         String reqID = i.getExtras().getString(Constants.REQUEST_ID);
         mIgnorePending = i.getExtras().getBoolean(Constants.IGNORE_PENDING_ID);

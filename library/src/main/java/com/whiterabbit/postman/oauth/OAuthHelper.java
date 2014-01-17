@@ -30,11 +30,9 @@ public class OAuthHelper {
     private Map<String, OAuthServiceInfo> mServices;
     private static OAuthHelper mInstance;
 
-
     private OAuthHelper() {
         mServices = new HashMap<String, OAuthServiceInfo>();
     }
-
 
     /**
      * Singleton factory method
@@ -50,7 +48,6 @@ public class OAuthHelper {
         }
     }
 
-
     /**
      * Register a listener to be used to get feedbacks for the autehntication process
      *
@@ -59,7 +56,6 @@ public class OAuthHelper {
     public void registerListener(OAuthResponseInterface listener) {
         mListener = listener;
     }
-
 
     /**
      * Unregisters the listener
@@ -103,7 +99,6 @@ public class OAuthHelper {
             return null;
         }
 
-
         @Override
         protected void onPostExecute(List<Object> res) {
             if (mThrownException != null) {
@@ -142,9 +137,6 @@ public class OAuthHelper {
             newFragment.show(ft, "dialog");
         }
     }
-
-    ;
-
 
     /**
      * Used to retrieve the authorization token
@@ -204,8 +196,6 @@ public class OAuthHelper {
                 return;
             }
         }
-
-
     }
 
     /**
@@ -223,7 +213,6 @@ public class OAuthHelper {
         mServices.put(name, new OAuthServiceInfo(service, name, builder.getRedirectParameter(), t));
     }
 
-
     /**
      * Starts the authentication ballet using scribe library
      * An activity is needed because the library will open a dialog fragment to get the user's authorization from
@@ -236,11 +225,9 @@ public class OAuthHelper {
         if (s == null) {
             throw new OAuthServiceException(String.format("Service %s not found", serviceName));
         }
-
         RequestTask r = new RequestTask(a, s);
         r.execute(s);
     }
-
 
     /**
      * Returns a registered service to be used to authenticate a request.
@@ -264,7 +251,6 @@ public class OAuthHelper {
 
         return res;
     }
-
 
     /**
      * Returns a stored oauth token for the given service
@@ -301,7 +287,6 @@ public class OAuthHelper {
         return (getAuthTokenForService(serviceName, c) != null);
     }
 
-
     /**
      * To be used to invalidate the authentication token of the given service.
      * Subsequent registration will start authorization process again
@@ -315,7 +300,6 @@ public class OAuthHelper {
         editor.putString(Constants.SECRET, "");
         editor.putString(Constants.RAW_RES, "");
         editor.commit();
-
         OAuthServiceInfo s = getRegisteredService(serviceName, c);
         s.setAccessToken(null);
     }
