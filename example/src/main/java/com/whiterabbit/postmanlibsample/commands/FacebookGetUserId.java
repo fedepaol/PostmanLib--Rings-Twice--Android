@@ -27,7 +27,7 @@ public class FacebookGetUserId implements RestServerRequest {
     private static final String url = "https://graph.facebook.com/search";
     private final String mName;
 
-    public FacebookGetUserId(String name){
+    public FacebookGetUserId(String name) {
         mName = name;
     }
 
@@ -51,13 +51,11 @@ public class FacebookGetUserId implements RestServerRequest {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(result.getBody());
-
             ArrayNode data = (ArrayNode) root.path("data");
-            for (JsonNode n : data){
-                String name= n.path("name").getTextValue();
+            for (JsonNode n : data) {
+                String name = n.path("name").getTextValue();
                 String id = n.path("id").getTextValue();
                 FacebookGetUserInfo getUserInfo = new FacebookGetUserInfo(id);
-
                 try {
                     executor.executeRequest(getUserInfo, context);
                 } catch (PostmanException e) {
@@ -65,11 +63,9 @@ public class FacebookGetUserId implements RestServerRequest {
                 }
                 return; // This is a sample. Not interested in other nodes.
             }
-
         } catch (IOException e) {
             throw new ResultParseException("Failed to parse response");
         }
-
     }
 
     @Override
@@ -98,7 +94,6 @@ public class FacebookGetUserId implements RestServerRequest {
         parcel.writeString(mName);
     }
 
-
     public static final Creator<FacebookGetUserId> CREATOR
             = new Creator<FacebookGetUserId>() {
         public FacebookGetUserId createFromParcel(Parcel in) {
@@ -110,9 +105,7 @@ public class FacebookGetUserId implements RestServerRequest {
         }
     };
 
-
-    public FacebookGetUserId(Parcel in){
+    public FacebookGetUserId(Parcel in) {
         mName = in.readString();
     }
-
 }

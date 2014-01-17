@@ -27,7 +27,7 @@ public class NoAuthRequest implements RestServerRequest {
     private final String mUrl;
     private final String mName;
 
-    public NoAuthRequest(String url, String name){
+    public NoAuthRequest(String url, String name) {
         mUrl = url;
         mName = name;
     }
@@ -90,7 +90,6 @@ public class NoAuthRequest implements RestServerRequest {
         parcel.writeString(mName);
     }
 
-
     public static final Creator<NoAuthRequest> CREATOR
             = new Creator<NoAuthRequest>() {
         public NoAuthRequest createFromParcel(Parcel in) {
@@ -102,8 +101,7 @@ public class NoAuthRequest implements RestServerRequest {
         }
     };
 
-
-    public NoAuthRequest(Parcel in){
+    public NoAuthRequest(Parcel in) {
         mUrl = in.readString();
         mName = in.readString();
     }

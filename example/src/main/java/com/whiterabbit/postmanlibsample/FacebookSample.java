@@ -17,40 +17,34 @@ import com.whiterabbit.postmanlibsample.commands.FacebookGetUserId;
 import org.scribe.builder.api.FacebookApi;
 
 public class FacebookSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
-	static final String GET_INFOS = "FbGetInfos";
+    static final String GET_INFOS = "FbGetInfos";
     private final static String mApiKey = "256728337717987";
     private final static String mApiSecret = "76e0eeef1db52fae6c20a8c16324e8cb";
-
     private TextView mAuthStatus;
     private TextView mFbName;
     private TextView mFbLink;
-	private Button mGetInfosButton;
+    private Button mGetInfosButton;
     ServerInteractionHelper mServerHelper;
 
-	
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.fb);
-
         mServerHelper = ServerInteractionHelper.getInstance(this);
-
         setupViews();
 
-
-        if(mApiKey.equals("APIKEY")){
+        if (mApiKey.equals("APIKEY")) {
             Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
             toast.show();
         }
-
         registerToFb();
-
     }
 
-
-    private void setupViews(){
+    private void setupViews() {
         mAuthStatus = (TextView) findViewById(R.id.FbAuthStatus);
         mFbName = (TextView) findViewById(R.id.FbName);
         mFbLink = (TextView) findViewById(R.id.FbLink);
@@ -58,8 +52,8 @@ public class FacebookSample extends SherlockFragmentActivity implements ServerIn
     }
 
     // Performs the registration
-    private void registerToFb(){
-       StorableServiceBuilder builder = new StorableServiceBuilder("Facebook")
+    private void registerToFb() {
+        StorableServiceBuilder builder = new StorableServiceBuilder("Facebook")
                 .provider(FacebookApi.class)
                 .apiKey(mApiKey)
                 .apiSecret(mApiSecret)
@@ -67,57 +61,51 @@ public class FacebookSample extends SherlockFragmentActivity implements ServerIn
 
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
-
-        if(!o.isAlreadyAuthenticated("Facebook", this)){
+        if (!o.isAlreadyAuthenticated("Facebook", this)) {
             mAuthStatus.setText("Authenticating..");
             o.authenticate(this, "Facebook");
-        }else{
+        } else {
             mAuthStatus.setText("Authenticated");
             enableButtons();
         }
     }
 
-    private void enableButtons(){
+    private void enableButtons() {
         mGetInfosButton.setOnClickListener(this);
-
     }
 
-
-	@Override
-	protected void onPause() {
-		mServerHelper.unregisterEventListener(this, this);
+    @Override
+    protected void onPause() {
+        mServerHelper.unregisterEventListener(this, this);
         OAuthHelper.getInstance().unregisterListener();
-		super.onPause();
-	}
+        super.onPause();
+    }
 
-	@Override
-	protected void onResume() {
+    @Override
+    protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
         setSupportProgressBarIndeterminateVisibility(false);
-		
-		mServerHelper.registerEventListener(this, this);
-		if(mServerHelper.isRequestAlreadyPending(GET_INFOS)){
+
+        mServerHelper.registerEventListener(this, this);
+        if (mServerHelper.isRequestAlreadyPending(GET_INFOS)) {
             setUpdating();
-		}
-		super.onResume();
-	}
+        }
+        super.onResume();
+    }
 
-
-
-	@Override
-	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(GET_INFOS)){
+    @Override
+    public void onServerResult(String result, String requestId) {
+        if (requestId.equals(GET_INFOS)) {
             mFbLink.setText(StoreUtils.getFbGender(this));
             mFbName.setText(StoreUtils.getFBName(this));
             updateDone();
         }
-	}
+    }
 
-	@Override
-	public void onServerError(String result, String requestId) {
+    @Override
+    public void onServerError(String result, String requestId) {
         updateDone();
-	}
-
+    }
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
@@ -136,7 +124,7 @@ public class FacebookSample extends SherlockFragmentActivity implements ServerIn
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.FbGetInfosButton:
                 FacebookGetUserId updateStrategy = new FacebookGetUserId("Federico Paolinelli");    // yes, that's me
                 try {
@@ -145,16 +133,16 @@ public class FacebookSample extends SherlockFragmentActivity implements ServerIn
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
-            break;
+                break;
         }
     }
 
-    private void setUpdating(){
+    private void setUpdating() {
         setSupportProgressBarIndeterminateVisibility(true);
         invalidateOptionsMenu();
     }
 
-    private void updateDone(){
+    private void updateDone() {
         setSupportProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
     }

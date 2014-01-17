@@ -9,7 +9,7 @@ import android.os.Parcelable;
  * Date: 12/16/12
  * Time: 5:11 PM
  */
-public class User implements Parcelable{
+public class User implements Parcelable {
     private String mName;
 
     @Override

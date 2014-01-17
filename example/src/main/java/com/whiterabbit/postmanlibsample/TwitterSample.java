@@ -19,32 +19,31 @@ import com.whiterabbit.postmanlibsample.commands.TwitterUpdateStatusRequest;
 import org.scribe.builder.api.TwitterApi;
 
 public class TwitterSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
-	static final String UPDATE_STATUS = "StatusUpdate";
+    static final String UPDATE_STATUS = "StatusUpdate";
     static final String REQUEST_LATEST_TWEET = "LatestTweet";
     private final static String mApiKey = "COPaViCT6nLRcGROTVZdA"; // <- must be set from the real one got from www.twitter.com
     private final static String mApiSecret = "OseRpVLfo19GP9OAPj9FYwCDV1nyjlWygHyuLixzNPk"; // <- must be set from the real one got from www.twitter.com
 
     private TextView mAuthenticationStatus;
-	private EditText mStatusToSend;
+    private EditText mStatusToSend;
     private TextView mLatestTweet;
-	private Button mUpdateStatusButton;
+    private Button mUpdateStatusButton;
     private Button mGetLatestTweetButton;
     ServerInteractionHelper mServerHelper;
 
-	
-    /** Called when the activity is first created. */
+
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
         setContentView(R.layout.twitter);
         mServerHelper = ServerInteractionHelper.getInstance(this);
-
         setupViews();
 
-
-        if(mApiKey.equals("APIKEY")){
+        if (mApiKey.equals("APIKEY")) {
             Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
             toast.show();
         }
@@ -53,7 +52,7 @@ public class TwitterSample extends SherlockFragmentActivity implements ServerInt
 
     }
 
-    private void setupViews(){
+    private void setupViews() {
         mAuthenticationStatus = (TextView) findViewById(R.id.TwitterAuthStatus);
         mUpdateStatusButton = (Button) findViewById(R.id.TwitterUpdateStatusButton);
 
@@ -64,8 +63,8 @@ public class TwitterSample extends SherlockFragmentActivity implements ServerInt
         mLatestTweet.setText(StoreUtils.getLatestTweet(this));
     }
 
-    private void registerToTwitter(){
-       StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
+    private void registerToTwitter() {
+        StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
                 .apiKey(mApiKey)
                 .apiSecret(mApiSecret)
@@ -74,58 +73,53 @@ public class TwitterSample extends SherlockFragmentActivity implements ServerInt
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
 
-        if(!o.isAlreadyAuthenticated("Twitter", this)){
+        if (!o.isAlreadyAuthenticated("Twitter", this)) {
             mAuthenticationStatus.setText("Authenticating..");
             o.authenticate(this, "Twitter");
-        }else{
+        } else {
             mAuthenticationStatus.setText("Authenticated");
             enableButtons();
         }
     }
 
-    private void enableButtons(){
+    private void enableButtons() {
         mUpdateStatusButton.setOnClickListener(this);
         mGetLatestTweetButton.setOnClickListener(this);
     }
 
-
-
-
-
-	@Override
-	protected void onPause() {
-		mServerHelper.unregisterEventListener(this, this);
+    @Override
+    protected void onPause() {
+        mServerHelper.unregisterEventListener(this, this);
         OAuthHelper.getInstance().unregisterListener();
-		super.onPause();
-	}
+        super.onPause();
+    }
 
-	@Override
-	protected void onResume() {
+    @Override
+    protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
-		
-		mServerHelper.registerEventListener(this, this);
-		if(mServerHelper.isRequestAlreadyPending(UPDATE_STATUS)){
-			mAuthenticationStatus.setText("Authenticated");
-		}
-		super.onResume();
-	}
 
-	@Override
-	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(REQUEST_LATEST_TWEET)){
+        mServerHelper.registerEventListener(this, this);
+        if (mServerHelper.isRequestAlreadyPending(UPDATE_STATUS)) {
+            mAuthenticationStatus.setText("Authenticated");
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onServerResult(String result, String requestId) {
+        if (requestId.equals(REQUEST_LATEST_TWEET)) {
             mLatestTweet.setText(StoreUtils.getLatestTweet(this));
             updateDone();
         }
-        if(requestId.equals(UPDATE_STATUS)){
+        if (requestId.equals(UPDATE_STATUS)) {
             updateDone();
         }
-	}
+    }
 
-	@Override
-	public void onServerError(String result, String requestId) {
+    @Override
+    public void onServerError(String result, String requestId) {
         updateDone();
-	}
-
+    }
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
@@ -143,7 +137,7 @@ public class TwitterSample extends SherlockFragmentActivity implements ServerInt
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.TwitterUpdateStatusButton:
                 TwitterUpdateStatusRequest statusStrategy = new TwitterUpdateStatusRequest(mStatusToSend.getText().toString());
                 try {
@@ -152,7 +146,7 @@ public class TwitterSample extends SherlockFragmentActivity implements ServerInt
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
-            break;
+                break;
 
             case R.id.TwitterGetLatestTweetButton:
                 TwitterGetLatestTweetRequest c = new TwitterGetLatestTweetRequest();
@@ -166,13 +160,12 @@ public class TwitterSample extends SherlockFragmentActivity implements ServerInt
         }
     }
 
-
-    private void setUpdating(){
+    private void setUpdating() {
         setSupportProgressBarIndeterminateVisibility(true);
         invalidateOptionsMenu();
     }
 
-    private void updateDone(){
+    private void updateDone() {
         setSupportProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
     }

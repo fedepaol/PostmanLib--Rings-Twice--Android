@@ -12,7 +12,7 @@ import com.whiterabbit.postman.commands.ServerCommand;
  * Date: 12/16/12
  * Time: 5:11 PM
  */
-public class SampleCommand extends ServerCommand{
+public class SampleCommand extends ServerCommand {
     String mName;
 
     @Override
@@ -31,16 +31,14 @@ public class SampleCommand extends ServerCommand{
         parcel.writeString(mName);
     }
 
-
-    public SampleCommand(String name){
+    public SampleCommand(String name) {
         mName = name;
     }
 
-    private SampleCommand(Parcel in){
+    private SampleCommand(Parcel in) {
         mName = in.readString();
 
     }
-
 
     public static final Parcelable.Creator<SampleCommand> CREATOR
             = new Parcelable.Creator<SampleCommand>() {

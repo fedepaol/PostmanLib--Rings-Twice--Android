@@ -25,7 +25,7 @@ import java.io.IOException;
 public class TwitterGetLatestTweetRequest implements RestServerRequest {
     private static final String url = "https://api.twitter.com/1.1/statuses/home_timeline.json";
 
-    public TwitterGetLatestTweetRequest(){
+    public TwitterGetLatestTweetRequest() {
 
     }
 
@@ -46,21 +46,19 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
 
     @Override
     public void onHttpResult(Response result, int statusCode, RequestExecutor executor, Context context) throws ResultParseException {
-        if(statusCode == 200){
+        if (statusCode == 200) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 JsonNode root = mapper.readTree(result.getBody());
-                for (JsonNode tweet : root){
+                for (JsonNode tweet : root) {
                     String text = tweet.path("text").toString();
                     String user = tweet.path("user").path("name").toString();
-
                     StoreUtils.setLatestTweet(String.format("%s -> %s", user, text), context);
                 }
             } catch (IOException e) {
                 throw new ResultParseException("Failed to parse response");
             }
         }
-
     }
 
     @Override
@@ -87,7 +85,6 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
     public void writeToParcel(Parcel parcel, int i) {
     }
 
-
     public static final Creator<TwitterGetLatestTweetRequest> CREATOR
             = new Creator<TwitterGetLatestTweetRequest>() {
         public TwitterGetLatestTweetRequest createFromParcel(Parcel in) {
@@ -100,7 +97,7 @@ public class TwitterGetLatestTweetRequest implements RestServerRequest {
     };
 
 
-    public TwitterGetLatestTweetRequest(Parcel in){
+    public TwitterGetLatestTweetRequest(Parcel in) {
     }
 
 }

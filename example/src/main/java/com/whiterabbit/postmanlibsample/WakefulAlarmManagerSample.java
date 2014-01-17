@@ -26,40 +26,36 @@ public class WakefulAlarmManagerSample extends FragmentActivity implements Serve
 
     private TextView mTwitScheduledStatus;
     private TextView mLatestTweet;
-	private Button mToggleAutoUpdate;
+    private Button mToggleAutoUpdate;
     ServerInteractionHelper mServerHelper;
-    private static final int PERIOD=5000;
+    private static final int PERIOD = 5000;
 
-	
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.twitter_scheduled);
         mServerHelper = ServerInteractionHelper.getInstance(this);
-
         setupViews();
 
-
-        if(mApiKey.equals("APIKEY")){
+        if (mApiKey.equals("APIKEY")) {
             Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
             toast.show();
         }
-
         registerToTwitter();
-
     }
 
-    private void setupViews(){
+    private void setupViews() {
         mTwitScheduledStatus = (TextView) findViewById(R.id.TwitScheduledStatus);
         mToggleAutoUpdate = (Button) findViewById(R.id.TwitScheduledEnable);
         mLatestTweet = (TextView) findViewById(R.id.TwitScheduledLatestTweet);
         mLatestTweet.setText(StoreUtils.getLatestTweet(this));
-
     }
 
-    private void registerToTwitter(){
-       StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
+    private void registerToTwitter() {
+        StorableServiceBuilder builder = new StorableServiceBuilder("Twitter")
                 .provider(TwitterApi.class)
                 .apiKey(mApiKey)
                 .apiSecret(mApiSecret)
@@ -68,58 +64,53 @@ public class WakefulAlarmManagerSample extends FragmentActivity implements Serve
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
 
-        if(!o.isAlreadyAuthenticated("Twitter", this)){
+        if (!o.isAlreadyAuthenticated("Twitter", this)) {
             o.authenticate(this, "Twitter");
-        }else{
+        } else {
             enableButtons();
         }
     }
 
-    private void enableButtons(){
+    private void enableButtons() {
         mToggleAutoUpdate.setOnClickListener(this);
     }
 
-
-
-
-
-	@Override
-	protected void onPause() {
-		mServerHelper.unregisterEventListener(this, this);
+    @Override
+    protected void onPause() {
+        mServerHelper.unregisterEventListener(this, this);
         OAuthHelper.getInstance().unregisterListener();
-		super.onPause();
-	}
+        super.onPause();
+    }
 
-	@Override
-	protected void onResume() {
+    @Override
+    protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
-		
-		mServerHelper.registerEventListener(this, this);
+
+        mServerHelper.registerEventListener(this, this);
         setStatusString(StoreUtils.getTwitScheduleStatus(this));
-		super.onResume();
-	}
+        super.onResume();
+    }
 
     private void setStatusString(boolean enabled) {
-        if(enabled){
+        if (enabled) {
             mTwitScheduledStatus.setText("Polling enabled");
-        }else{
+        } else {
             mTwitScheduledStatus.setText("Polling disabled");
         }
     }
 
-	@Override
-	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(WAKEFUL_SCHEDULED_LATEST_TWEET)){
+    @Override
+    public void onServerResult(String result, String requestId) {
+        if (requestId.equals(WAKEFUL_SCHEDULED_LATEST_TWEET)) {
             mLatestTweet.setText(StoreUtils.getLatestTweet(this));
         }
-	}
+    }
 
-	@Override
-	public void onServerError(String result, String requestId) {
+    @Override
+    public void onServerError(String result, String requestId) {
         Toast t = Toast.makeText(this, "Server error", Toast.LENGTH_SHORT);
         t.show();
-	}
-
+    }
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
@@ -134,11 +125,10 @@ public class WakefulAlarmManagerSample extends FragmentActivity implements Serve
         toast.show();
     }
 
-
     /**
      * Sample code that shows how to toggle a repeating wakeful alarm that will interact with sendWakefulRequest method
      */
-    private void toggleWakeful(){
+    private void toggleWakeful() {
         boolean enabled = StoreUtils.getWakefulTwitScheduleStatus(this);
 
         AlarmManager mgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -146,9 +136,9 @@ public class WakefulAlarmManagerSample extends FragmentActivity implements Serve
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
 
 
-        if(enabled){
+        if (enabled) {
             mgr.cancel(pi);
-        }else{
+        } else {
             mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() + 60000,
                     PERIOD,
@@ -162,10 +152,10 @@ public class WakefulAlarmManagerSample extends FragmentActivity implements Serve
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.TwitScheduledEnable:
                 toggleWakeful();
-            break;
+                break;
         }
     }
 }

@@ -23,13 +23,12 @@ import java.io.InputStream;
  * Sample class to show the download of multiple images with one call
  */
 public class NoAuthSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, View.OnClickListener {
-	static final String DOWNLOAD_IMAGE = "DownloadImage";
+    static final String DOWNLOAD_IMAGE = "DownloadImage";
     ImageView mImage;
     ImageView mImage1;
     Button mDownloadButton;
     ServerInteractionHelper mServerHelper;
 
-	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,10 +36,8 @@ public class NoAuthSample extends SherlockFragmentActivity implements ServerInte
         setupViews();
     }
 
-
-    private void setupViews(){
+    private void setupViews() {
         setContentView(R.layout.no_auth);
-
         mImage = (ImageView) findViewById(R.id.noauth_downloaded_image);
         mImage1 = (ImageView) findViewById(R.id.noauth_downloaded_image1);
         mDownloadButton = (Button) findViewById(R.id.no_auth_download_button);
@@ -48,24 +45,24 @@ public class NoAuthSample extends SherlockFragmentActivity implements ServerInte
         mServerHelper = ServerInteractionHelper.getInstance(this);
     }
 
-	@Override
-	protected void onPause() {
-		ServerInteractionHelper.getInstance(this).unregisterEventListener(this, this);
-		super.onPause();
-	}
+    @Override
+    protected void onPause() {
+        ServerInteractionHelper.getInstance(this).unregisterEventListener(this, this);
+        super.onPause();
+    }
 
-	@Override
-	protected void onResume() {
-		mServerHelper.registerEventListener(this, this);
-		if(mServerHelper.isRequestAlreadyPending(DOWNLOAD_IMAGE)){
+    @Override
+    protected void onResume() {
+        mServerHelper.registerEventListener(this, this);
+        if (mServerHelper.isRequestAlreadyPending(DOWNLOAD_IMAGE)) {
             setUpdating();
-		}
-		super.onResume();
-	}
+        }
+        super.onResume();
+    }
 
-	@Override
-	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(DOWNLOAD_IMAGE)){
+    @Override
+    public void onServerResult(String result, String requestId) {
+        if (requestId.equals(DOWNLOAD_IMAGE)) {
             AsyncTask<Void, Void, Bitmap[]> loadImage = new AsyncTask<Void, Void, Bitmap[]>() {
                 @Override
                 protected Bitmap[] doInBackground(Void... voids) {
@@ -90,7 +87,7 @@ public class NoAuthSample extends SherlockFragmentActivity implements ServerInte
 
                 @Override
                 protected void onPostExecute(Bitmap[] bitmap) {
-                    if(bitmap == null){
+                    if (bitmap == null) {
                         return;
                     }
                     mImage.setImageBitmap(bitmap[0]);
@@ -101,18 +98,16 @@ public class NoAuthSample extends SherlockFragmentActivity implements ServerInte
             updateDone();
 
         }
-	}
+    }
 
-	@Override
-	public void onServerError(String result, String requestId) {
+    @Override
+    public void onServerError(String result, String requestId) {
         updateDone();
-	}
-
-
+    }
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.no_auth_download_button:
                 NoAuthRequest polle = new NoAuthRequest("http://www.cimonesci.it/cams/polle.jpg", "polle.png");
                 NoAuthRequest abetone = new NoAuthRequest("http://www.aptabetone.it/abetone/pics/lat001.jpg", "abetone.png");
@@ -126,12 +121,12 @@ public class NoAuthSample extends SherlockFragmentActivity implements ServerInte
         }
     }
 
-    private void setUpdating(){
+    private void setUpdating() {
         setSupportProgressBarIndeterminateVisibility(true);
         invalidateOptionsMenu();
     }
 
-    private void updateDone(){
+    private void updateDone() {
         setSupportProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
     }

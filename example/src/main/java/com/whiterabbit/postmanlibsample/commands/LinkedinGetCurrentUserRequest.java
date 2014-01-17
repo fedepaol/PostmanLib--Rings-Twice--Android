@@ -26,7 +26,7 @@ import java.io.IOException;
 public class LinkedinGetCurrentUserRequest implements RestServerRequest {
     private static final String url = "http://api.linkedin.com/v1/people/~";
 
-    public LinkedinGetCurrentUserRequest(){
+    public LinkedinGetCurrentUserRequest() {
 
     }
 
@@ -58,9 +58,9 @@ public class LinkedinGetCurrentUserRequest implements RestServerRequest {
             int eventType = xpp.getEventType();
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                if(eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.START_TAG) {
                     String tagName = xpp.getName();
-                    if(tagName.equals("headline")){
+                    if (tagName.equals("headline")) {
                         StoreUtils.setLinkedinUserDetails(xpp.nextText(), context);
                         return;
                     }
@@ -72,8 +72,6 @@ public class LinkedinGetCurrentUserRequest implements RestServerRequest {
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-
-
     }
 
     @Override
@@ -99,7 +97,6 @@ public class LinkedinGetCurrentUserRequest implements RestServerRequest {
     public void writeToParcel(Parcel parcel, int i) {
     }
 
-
     public static final Creator<LinkedinGetCurrentUserRequest> CREATOR
             = new Creator<LinkedinGetCurrentUserRequest>() {
         public LinkedinGetCurrentUserRequest createFromParcel(Parcel in) {
@@ -111,8 +108,7 @@ public class LinkedinGetCurrentUserRequest implements RestServerRequest {
         }
     };
 
-
-    public LinkedinGetCurrentUserRequest(Parcel in){
+    public LinkedinGetCurrentUserRequest(Parcel in) {
     }
 
 }

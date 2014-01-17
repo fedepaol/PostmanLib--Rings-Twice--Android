@@ -22,17 +22,16 @@ import org.scribe.builder.api.LinkedInApi;
  */
 public class LinkedinSample extends SherlockFragmentActivity implements ServerInteractionResponseInterface, OAuthResponseInterface, View.OnClickListener {
     static final String REQUEST_CURRENT_USER_DETAILS = "LinkedinUser";
-
     TextView mAuthStatus;
-	Button mGetHeadlineButtn;
+    Button mGetHeadlineButtn;
     TextView mLinkedinHeadLine;
     ServerInteractionHelper mServer;
-
     private final static String mApiKey = "APIKEY";// <- must be set from the real one got from www.linkedin.com
     private final static String mApiSecret = "APISECRET";// <- must be set from the real one got from www.linkedin.com
 
-	
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,27 +40,23 @@ public class LinkedinSample extends SherlockFragmentActivity implements ServerIn
 
         mServer = ServerInteractionHelper.getInstance(this);
 
-        if(mApiKey.equals("APIKEY")){
+        if (mApiKey.equals("APIKEY")) {
             Toast toast = Toast.makeText(this, "A real apikey must be provided", Toast.LENGTH_SHORT);
             toast.show();
         }
 
         registerToLinkedin();
-
     }
 
-    private void setupViews(){
+    private void setupViews() {
         setContentView(R.layout.linkedin);
         mAuthStatus = (TextView) findViewById(R.id.LinkedinAuthStatus);
         mLinkedinHeadLine = (TextView) findViewById(R.id.LinkedinHeadline);
         mGetHeadlineButtn = (Button) findViewById(R.id.LinkedinUpdateHeadlineButton);
     }
 
-
-
-
-    private void registerToLinkedin(){
-       final StorableServiceBuilder builder = new StorableServiceBuilder("Linkedin")
+    private void registerToLinkedin() {
+        final StorableServiceBuilder builder = new StorableServiceBuilder("Linkedin")
                 .provider(LinkedInApi.class)
                 .apiKey(mApiKey)
                 .apiSecret(mApiSecret)
@@ -70,51 +65,49 @@ public class LinkedinSample extends SherlockFragmentActivity implements ServerIn
         OAuthHelper o = OAuthHelper.getInstance();
         o.registerOAuthService(builder, this);
 
-        if(!o.isAlreadyAuthenticated("Linkedin", this)){
+        if (!o.isAlreadyAuthenticated("Linkedin", this)) {
             mAuthStatus.setText("Authenticating..");
             o.authenticate(this, "Linkedin");
-        }else{
+        } else {
             mAuthStatus.setText("Authenticated");
             enableButtons();
         }
     }
 
-    private void enableButtons(){
+    private void enableButtons() {
         mGetHeadlineButtn.setOnClickListener(this);
     }
 
-
-	@Override
-	protected void onPause() {
-		mServer.unregisterEventListener(this, this);
+    @Override
+    protected void onPause() {
+        mServer.unregisterEventListener(this, this);
         OAuthHelper.getInstance().unregisterListener();
-		super.onPause();
-	}
+        super.onPause();
+    }
 
-	@Override
-	protected void onResume() {
+    @Override
+    protected void onResume() {
         OAuthHelper.getInstance().registerListener(this);
-		
-		mServer.registerEventListener(this, this);
-		if(mServer.isRequestAlreadyPending(REQUEST_CURRENT_USER_DETAILS)){
-            setUpdating();
-		}
-		super.onResume();
-	}
 
-	@Override
-	public void onServerResult(String result, String requestId) {
-        if(requestId.equals(REQUEST_CURRENT_USER_DETAILS)){
+        mServer.registerEventListener(this, this);
+        if (mServer.isRequestAlreadyPending(REQUEST_CURRENT_USER_DETAILS)) {
+            setUpdating();
+        }
+        super.onResume();
+    }
+
+    @Override
+    public void onServerResult(String result, String requestId) {
+        if (requestId.equals(REQUEST_CURRENT_USER_DETAILS)) {
             mLinkedinHeadLine.setText(StoreUtils.getLinkedinUserDetails(this));
             updateDone();
         }
-	}
+    }
 
-	@Override
-	public void onServerError(String result, String requestId) {
+    @Override
+    public void onServerError(String result, String requestId) {
         updateDone();
-	}
-
+    }
 
     @Override
     public void onServiceAuthenticated(String serviceName) {
@@ -133,7 +126,7 @@ public class LinkedinSample extends SherlockFragmentActivity implements ServerIn
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
+        switch (view.getId()) {
             case R.id.LinkedinUpdateHeadlineButton:
                 LinkedinGetCurrentUserRequest statusStrategy = new LinkedinGetCurrentUserRequest();
                 try {
@@ -142,16 +135,16 @@ public class LinkedinSample extends SherlockFragmentActivity implements ServerIn
                 } catch (SendingCommandException e) {
                     e.printStackTrace();
                 }
-            break;
+                break;
         }
     }
 
-    private void setUpdating(){
+    private void setUpdating() {
         setSupportProgressBarIndeterminateVisibility(true);
         invalidateOptionsMenu();
     }
 
-    private void updateDone(){
+    private void updateDone() {
         setSupportProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
     }

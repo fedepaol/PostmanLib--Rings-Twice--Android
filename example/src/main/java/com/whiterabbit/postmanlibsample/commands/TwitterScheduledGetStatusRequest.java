@@ -26,7 +26,7 @@ import java.io.IOException;
 public class TwitterScheduledGetStatusRequest implements RestServerRequest {
     private static final String url = "https://api.twitter.com/1.1/statuses/home_timeline.json";
 
-    public TwitterScheduledGetStatusRequest(){
+    public TwitterScheduledGetStatusRequest() {
 
     }
 
@@ -47,11 +47,11 @@ public class TwitterScheduledGetStatusRequest implements RestServerRequest {
 
     @Override
     public void onHttpResult(Response result, int statusCode, RequestExecutor executor, Context context) throws ResultParseException {
-        if(statusCode == 200){
+        if (statusCode == 200) {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 JsonNode root = mapper.readTree(result.getBody());
-                for (JsonNode tweet : root){
+                for (JsonNode tweet : root) {
                     String text = tweet.path("text").toString();
                     String user = tweet.path("user").path("name").toString();
                     StoreUtils.setLatestTweet(String.format("%s -> %s", user, text), context);
@@ -89,7 +89,6 @@ public class TwitterScheduledGetStatusRequest implements RestServerRequest {
     public void writeToParcel(Parcel parcel, int i) {
     }
 
-
     public static final Creator<TwitterScheduledGetStatusRequest> CREATOR
             = new Creator<TwitterScheduledGetStatusRequest>() {
         public TwitterScheduledGetStatusRequest createFromParcel(Parcel in) {
@@ -101,8 +100,6 @@ public class TwitterScheduledGetStatusRequest implements RestServerRequest {
         }
     };
 
-
-    public TwitterScheduledGetStatusRequest(Parcel in){
+    public TwitterScheduledGetStatusRequest(Parcel in) {
     }
-
 }

@@ -25,7 +25,7 @@ import java.io.IOException;
 public class FacebookGetUserInfo implements RestServerRequest {
     private final String mId;
 
-    public FacebookGetUserInfo(String id){
+    public FacebookGetUserInfo(String id) {
         mId = id;
     }
 
@@ -49,7 +49,7 @@ public class FacebookGetUserInfo implements RestServerRequest {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode root = mapper.readTree(result.getBody());
-            String name= root.path("first_name").getTextValue();
+            String name = root.path("first_name").getTextValue();
             String gender = root.path("gender").getTextValue();
             StoreUtils.setFbProperties(name, gender, context);
 
@@ -84,7 +84,6 @@ public class FacebookGetUserInfo implements RestServerRequest {
         parcel.writeString(mId);
     }
 
-
     public static final Creator<FacebookGetUserInfo> CREATOR
             = new Creator<FacebookGetUserInfo>() {
         public FacebookGetUserInfo createFromParcel(Parcel in) {
@@ -96,8 +95,7 @@ public class FacebookGetUserInfo implements RestServerRequest {
         }
     };
 
-
-    public FacebookGetUserInfo(Parcel in){
+    public FacebookGetUserInfo(Parcel in) {
         mId = in.readString();
     }
 
