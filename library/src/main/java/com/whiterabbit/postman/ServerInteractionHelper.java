@@ -181,11 +181,17 @@ public class ServerInteractionHelper {
     }
 
     private boolean isServiceEnabled(Context c, Class<? extends InteractionService> service) {
-        if (c.getPackageManager().getComponentEnabledSetting(new ComponentName(c, service)) == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
-            return true;
-        } else {
-            return false;
+        
+        if (c.getPackageManager().queryIntentServices(new Intent(c, service), PackageManager.MATCH_DEFAULT_ONLY).size() > 0) {
+         return true;
         }
+       return false;
+        
+        // if (c.getPackageManager().getComponentEnabledSetting(new ComponentName(c, service)) == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
     }
 
     private void initEnabledServices(Context c) {
