@@ -1,4 +1,4 @@
-##_DISCLAIMER_
+## _DISCLAIMER_
 #### This library is still under construction. Beta testers are more than welcome. 
 
 
@@ -13,7 +13,7 @@ LibPostman (Rings Twice) for Android is a library intended to make the asynchron
 It uses [scribe java library][scribe] under the hood for basic http calls and for oauth 1.0 and 2.0 authentication. The `minSdkVersion` declared in the lib's manifest is 8 since scribe itself uses `HttpUrlConnection` which received a significant amount of bugfixes in ApiLevel 8, 
 
 
-###QUESTIONS? Did you check the [faqs][faqurl]?
+### QUESTIONS? Did you check the [faqs][faqurl]?
 
 Architecture
 -------
@@ -26,13 +26,13 @@ After having it _in progress_ for more than a year I now decided (XMas 2012) to 
 
 ---
 
-###Setup
+### Setup
 PostmanLib must be added as a library project.
 Since it uses fragment dialog to open a webview, it depends on compatibility-v4 library in order to support pre HC devices.
 It uses also [Java Scribe library][scribe].
 
 
-####Maven
+#### Maven
 PostManLib is available from MavenCentral.
 Just add
 
@@ -70,10 +70,10 @@ which means that some other dependency already includes a compatibiltiy library.
 ```
 
 
-####Eclipse / IntelliJ
+#### Eclipse / IntelliJ
 If you are using Eclipse or intelliJ, just create a library project using the library folder as source. You will also need to add scribe jar and support library.
 
-####Changes in your app's manifest
+#### Changes in your app's manifest
 The services used by the library must be declared into the application's manifest:
 
 ```xml
@@ -110,20 +110,20 @@ as well.
 
 
 
-##ServerInteractionHelper
+## ServerInteractionHelper
 It's a singleton class to be used to send asynchronous commands. Allows also to register listener to be notified of execution results / failures.
 Any sent command is associated to a requestid which can be used to check if the given request is still pending and is passed back in result notifications.
 
-###ServerCommand
+### ServerCommand
 A server command is an implementation of the command pattern. The execute() method will be
 executed asynchronously and it is guaranteed to be executed in a background thread.
 
-###RestServerCommand
+### RestServerCommand
 RestServerCommand is a specialization of ServerCommand. It's intended to be used to perform rest operations against a given url.
 It uses [Java Scribe library][scribe] under the hood, and it can be associated to an authenticated OAuthService to perform oauth authorized requests.
 To perform its actions must be initialized with one or more RestStrategy objects that represent the actions to be performed in background
 
-####Executing a RestServerRequest
+#### Executing a RestServerRequest
 To make a request you need to implement a RestServerRequestObject.
 The most obvious method to implement are _getUrl_ and _getVerb_ .
 
@@ -142,14 +142,14 @@ request.addQuerystringParameter("status", "this is sparta!");
 
 in case of a query string parameter.
 
-####Sending a server command:
+#### Sending a server command:
 A RestServerRequest might be used to initialize a RestServerCommand to be sent. There is also an helper method to make the things easier:
 
 ```java
 ServerInteractionHelper.getInstance().sendRestAction(this,"MyRequestId", request1, request2);
 ```
 
-####Handling a response
+#### Handling a response
 The
 
 ```java
@@ -175,12 +175,12 @@ result.getStream()
 
 Other callbacks are available to get notified of errors.
 
-####Chained requests
+#### Chained requests
 In many cases (such as facebook graph api), the rest api may require to use a request's result as a parameter of a newer request. This might be tricky using the callbacks given by the ServerInteractionHelper. To handlethese special cases, the executor parameter of the _onHttpResult_ call. Its _executeRequest_ method allows to execute new requests in the same thread (or service) that is handling the current request.
 
 Check FacebookExample for more details.
 
-####Scheduled requests
+#### Scheduled requests
 Despite PostmanLib does not natively provide a way to schedule requests, it provides a facility to retrieve a PendingIntent that will execute the given request once triggered.
 Calling
 
@@ -192,7 +192,7 @@ will result in a pending intent that can be passed to any alarmmanager.
 This provides a higher flexibility because the whole scheduling management is left to the user of the library.
 For a simple example check AlarmManagerSample class.
 
-####Wakeful scheduled requests
+#### Wakeful scheduled requests
 Wakeful requests need to be performed while keeping the wakelock for the length of the operation. This can be achieved using a wakeful alarm manager that triggers a broadcast receiver.
 In the broadcast receiver postmanlib can be used to execute wakeful requests.
 In short, bind an alarm receiver to a wakeful alarm and perform:
@@ -204,7 +204,7 @@ helper.sendWakefulRequest(context, "RequestID", request);
 Wakeful requests rely on Commonsware WakefulIntentService pattern (more details [here][wakeful])
 Check the WakefulAlarmManagerExample class from samples for more details.
 
-##OAuth Authentication
+## OAuth Authentication
 
 Another feature provided by ServerInteractionHelper is to asynchronously authorize a [Scribe][scribe] OAuth service, displaying a webview to the user for authorization. Once the OAuthService is registered, it can be used to sign RestServer commands.
 
